@@ -6,8 +6,12 @@ import * as colors from 'colors';
 
 
 async function bootstrap() {
+  const PORT = process.env.PORT ?? 4500
+  const ENV = process.env.NODE_ENV || 'unset'
+
   const app = await NestFactory.create(AppModule);
 
+  //global validation pipe
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,
@@ -15,12 +19,17 @@ async function bootstrap() {
   }))
 
   //swagger configuration
-  const config = new DocumentBuilder().setVersion('1.0').build();
-  const document = SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup('api', app, document)
+  if (ENV === 'development') {
+    const config = new DocumentBuilder()
+      .setTitle('Online Shop NestJs')
+      .setLicense('MIT', 'https://github.com/git/git-scm.com/blob/main/MIT-LICENCE.txt')
+      .addServer('http://localhost:' + PORT)
+      .setVersion('1.0')
+      .build();
+    const document = SwaggerModule.createDocument(app, config)
+    SwaggerModule.setup('api', app, document)
+  }
 
-  const PORT = process.env.PORT ?? 4500
-  const ENV = process.env.NODE_ENV || 'unset'
   await app.listen(PORT);
 
   const messages = [
