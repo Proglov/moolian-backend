@@ -2,7 +2,6 @@ import { Controller, Post, Body, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { SignupUserDto } from './dto/signup-user.dto';
-import { User } from 'src/users/user.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -14,7 +13,7 @@ export class AuthController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   async signup(
     @Body() signupUserDto: SignupUserDto
-  ): Promise<User> {
+  ): Promise<string> {
     return this.authService.userSignup(signupUserDto);
   }
 
