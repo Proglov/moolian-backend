@@ -37,6 +37,7 @@ async function bootstrap() {
     colors.green.bgWhite.bold(ENV.toUpperCase()),
     colors.black.bgWhite.bold(' environment on port '.toUpperCase()),
     colors.green.bgWhite.bold(PORT.toString().toUpperCase()),
+    ''
   ]
 
   console.log(...messages);
