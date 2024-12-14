@@ -23,7 +23,14 @@ async function bootstrap() {
   const ENV = process.env.NODE_ENV || 'unset'
   await app.listen(PORT);
 
-  console.log(colors.cyan.bold(`App Running in ${ENV} environment on port ${PORT}`.toUpperCase()));
+  const messages = [
+    colors.black.bgWhite.bold('App Running in '.toUpperCase()),
+    colors.green.bgWhite.bold(ENV.toUpperCase()),
+    colors.black.bgWhite.bold(' environment on port '.toUpperCase()),
+    colors.green.bgWhite.bold(PORT.toString().toUpperCase()),
+  ]
+
+  console.log(...messages);
 }
 
 bootstrap();
