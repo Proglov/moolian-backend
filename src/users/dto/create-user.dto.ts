@@ -5,27 +5,32 @@ import messages from 'src/common/dto.messages';
 const usernameDoc = {
     description: 'Username of the user, should be a non-empty string',
     type: String,
+    example: 'username123'
 }
 
 const passwordDoc = {
-    description: 'Password of the user, should be a non-empty string',
+    description: 'Password of the user, should be a non-empty string between 8 and 15 characters',
     type: String,
+    example: 'ab12345678'
 }
 
 const emailDoc = {
     description: 'Email of the user, must be a valid email format and non-empty',
     type: String,
+    example: 'email@em.ail'
 }
 
 const nameDoc = {
     description: 'Name of the user, must be a non-empty string',
-    type: String
+    type: String,
+    example: 'name am'
 }
 
 const addressDoc = {
     description: 'Address of the user, must be a non-empty array of strings',
     type: String,
-    isArray: true
+    isArray: true,
+    example: ['تهران']
 }
 
 const phoneDoc = {
