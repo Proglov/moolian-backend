@@ -1,5 +1,5 @@
 import { IsArray, IsEmail, IsNotEmpty, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import messages from 'src/common/dto.messages';
 
 const usernameDoc = {
@@ -19,14 +19,12 @@ const emailDoc = {
 
 const nameDoc = {
     description: 'Name of the user, must be a non-empty string',
-    type: String,
-    required: false
+    type: String
 }
 
 const addressDoc = {
     description: 'Address of the user, must be a non-empty array of strings',
     type: String,
-    required: false,
     isArray: true
 }
 
@@ -56,22 +54,21 @@ export class CreateUserDto {
     password: string;
 
 
-    @ApiProperty(nameDoc)
-    @IsString(messages.isString('نام کاربر'))
-    @IsOptional()
-    name?: string;
-
-
-    @ApiProperty(addressDoc)
-    @IsArray(messages.isString('آدرس'))
-    @IsString({ each: true, ...messages.isString('آدرس') })
-    @IsOptional()
-    address?: string[];
-
-
     @ApiProperty(phoneDoc)
     @IsString(messages.isString('شماره همراه'))
     @IsNotEmpty(messages.notEmpty('شماره همراه'))
     @Matches(...messages.phone())
     phone: string;
+
+    @ApiPropertyOptional(nameDoc)
+    @IsString(messages.isString('نام کاربر'))
+    @IsOptional()
+    name?: string;
+
+
+    @ApiPropertyOptional(addressDoc)
+    @IsArray(messages.isString('آدرس'))
+    @IsString({ each: true, ...messages.isString('آدرس') })
+    @IsOptional()
+    address?: string[];
 }
