@@ -1,7 +1,6 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiResponse } from '@nestjs/swagger';
-import { HttpStatusCode } from 'axios';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { SignupUserDto } from './dto/signup-user.dto';
 import { User } from 'src/users/user.schema';
 
@@ -10,8 +9,9 @@ export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
   @Post('user')
-  @ApiResponse({ status: HttpStatusCode.Created, description: 'User created' })
-  @ApiResponse({ status: HttpStatusCode.BadRequest, description: 'Bad Request' })
+  @ApiOperation({ summary: 'user signs in and gets the jwt' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'User created' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   async signup(
     @Body() signupUserDto: SignupUserDto
   ): Promise<User> {
