@@ -1,0 +1,27 @@
+GET http://localhost:4500
+Content-Type:application/json
+
+GET http://localhost:3000/users/12?h=2&x=22
+Content-Type:application/json
+{
+    "h":"x"
+}
+
+POST http://localhost:3000/users
+Content-Type:application/json
+{
+    "n":"x"
+}
+
+POST http://localhost:3000/posts
+Content-Type:application/json
+{
+    "user":"2",
+    "body":"hhh"
+}
+
+PATCH http://localhost:3000/posts
+Content-Type:application/json
+{
+    "user":"2"
+}
