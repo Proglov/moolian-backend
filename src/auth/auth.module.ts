@@ -16,6 +16,6 @@ import { JWTProvider } from './providers/jwt.provider';
   ],
   controllers: [AuthController],
   providers: [AuthService, PasswordProvider, JWTProvider],
-  exports: [PasswordProvider]
+  exports: [PasswordProvider, JWTProvider]
 })
 export class AuthModule { }

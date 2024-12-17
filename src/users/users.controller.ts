@@ -10,7 +10,7 @@ import { AccessTokenGuard } from 'src/auth/guards/access-token/access-token.guar
 export class UsersController {
     constructor(private readonly userService: UsersService) { }
 
-    // @UseGuards(AccessTokenGuard)
+    @UseGuards(AccessTokenGuard)
     @Get(':id')
     @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'User found' })
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'User Not found' })

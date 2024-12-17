@@ -1,20 +1,43 @@
 import { Controller, Post, Body, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { SignupUserDto } from './dto/signup-user.dto';
+import { UserSignupDto } from './dto/user-signup.dto';
+import { UserSignInWithPhoneDto, UserSignInWithUsernameOrEmailDto } from './dto/user-signIn.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
-  @Post('user')
-  @ApiOperation({ summary: 'user signs in and gets the jwt' })
+  @Post('user/sign-up')
+  @ApiOperation({ summary: 'user signs up and gets the jwt' })
   @ApiResponse({ status: HttpStatus.CREATED, description: 'User created' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   async signup(
-    @Body() signupUserDto: SignupUserDto
+    @Body() userSignupDto: UserSignupDto
   ): Promise<string> {
-    return this.authService.userSignup(signupUserDto);
+    return this.authService.userSignup(userSignupDto);
+  }
+
+  @Post('user/sign-in/phone')
+  @ApiOperation({ summary: 'user signs in with phone and password and gets the jwt' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'User created' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid Credentials' })
+  async signinWithPhone(
+    @Body() userSignInWithPhoneDto: UserSignInWithPhoneDto
+  ): Promise<string> {
+    return this.authService.userSigninWithPhone(userSignInWithPhoneDto);
+  }
+
+  @Post('user/sign-in/email-username')
+  @ApiOperation({ summary: 'user signs in with Email-Username and password and gets the jwt' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'User created' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid Credentials' })
+  async signinWithEmailOrUsername(
+    @Body() userSignInWithUsernameOrEmailDto: UserSignInWithUsernameOrEmailDto
+  ): Promise<string> {
+    return this.authService.userSigninWithEmailOrUsername(userSignInWithUsernameOrEmailDto);
   }
 
 }
