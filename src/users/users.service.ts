@@ -11,11 +11,8 @@ export class UsersService {
         private readonly userModel: Model<User>
     ) { }
 
-    async findAll(): Promise<User[]> {
-        return await this.userModel.find().exec();
-    }
 
-    async findOne(FindOneUserParamDto: FindOneUserParamDto): Promise<User> {
-        return await this.userModel.findById(FindOneUserParamDto.id).exec();
+    async findOne(FindOneUserParamDto: FindOneUserParamDto): Promise<Omit<User, 'password'>> {
+        return await this.userModel.findById(FindOneUserParamDto.id).select('-password').exec();
     }
 }
