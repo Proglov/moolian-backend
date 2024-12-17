@@ -1,5 +1,6 @@
-import { Injectable, RequestTimeoutException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { requestTimeoutException } from 'src/common/errors';
 
 @Injectable()
 export class JWTProvider {
@@ -12,7 +13,7 @@ export class JWTProvider {
         try {
             return await this.jwtService.signAsync({ userId })
         } catch (error) {
-            throw new RequestTimeoutException(['مشکلی در ایجاد توکن رخ داده است'])
+            throw requestTimeoutException('مشکلی در ایجاد توکن رخ داده است')
         }
     }
 

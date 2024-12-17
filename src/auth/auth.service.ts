@@ -1,9 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserSignupDto } from 'src/auth/dto/user-signup.dto';
 import { UsersProvider } from 'src/users/users.provider';
 import { JWTProvider } from './providers/jwt.provider';
 import { UserSignInWithPhoneDto, UserSignInWithUsernameOrEmailDto } from './dto/user-signIn.dto';
 import { PasswordProvider } from './providers/password.provider';
+import { unauthorizedException } from 'src/common/errors';
 
 @Injectable()
 export class AuthService {
@@ -25,11 +26,11 @@ export class AuthService {
 
     user = await this.usersProvider.findOneByIdentifier({ phone: userSignInWithPhoneDto.phone });
 
-    if (!user) throw new UnauthorizedException([message])
+    if (!user) throw unauthorizedException(message)
 
     const isPasswordTrue = await this.passwordProvider.comparePassword(userSignInWithPhoneDto.password, user.password)
 
-    if (!isPasswordTrue) throw new UnauthorizedException([message])
+    if (!isPasswordTrue) throw unauthorizedException(message)
 
     return await this.jwtProvider.generateJwtToken(user._id)
   }
@@ -45,12 +46,12 @@ export class AuthService {
     //find the user by username
     if (!user) {
       await this.usersProvider.findOneByIdentifier({ username: userSignInWithUsernameOrEmailDto.emailOrUsername });
-      if (!user) throw new UnauthorizedException([message])
+      if (!user) throw unauthorizedException(message)
     }
 
     const isPasswordTrue = await this.passwordProvider.comparePassword(userSignInWithUsernameOrEmailDto.password, user.password)
 
-    if (!isPasswordTrue) throw new UnauthorizedException([message])
+    if (!isPasswordTrue) throw unauthorizedException(message)
 
     return await this.jwtProvider.generateJwtToken(user._id)
   }

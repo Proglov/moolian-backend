@@ -1,10 +1,11 @@
-import { BadRequestException, forwardRef, Inject, Injectable, RequestTimeoutException, } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PasswordProvider } from 'src/auth/providers/password.provider';
 import { TCreateUser, TFindUserByIdentifier } from './dto/types';
+import { badRequestException, requestTimeoutException } from 'src/common/errors';
 
 
 
@@ -34,14 +35,14 @@ export class UsersProvider {
                 const DB_Error = Object.keys(error?.keyPattern)[0]
                 switch (DB_Error) {
                     case 'email':
-                        throw new BadRequestException(['این ایمیل قبلا ثبت نام شده است'])
+                        throw badRequestException('این ایمیل قبلا ثبت نام شده است')
                     case 'phone':
-                        throw new BadRequestException(['این شماره قبلا ثبت نام شده است'])
+                        throw badRequestException('این شماره قبلا ثبت نام شده است')
                     case 'username':
-                        throw new BadRequestException(['این نام کاربری قبلا ثبت نام شده است'])
+                        throw badRequestException('این نام کاربری قبلا ثبت نام شده است')
                 }
             }
-            throw new BadRequestException(['مشکلی در ثبت کاربر رخ داده است'])
+            throw badRequestException('مشکلی در ثبت کاربر رخ داده است')
         }
     }
 
@@ -50,7 +51,7 @@ export class UsersProvider {
             const existingUser = await this.userModel.findOne(input).select('-password');
             return existingUser;
         } catch (error) {
-            throw new RequestTimeoutException(['مشکلی در پیدا کردن کاربر رخ داده است'])
+            throw requestTimeoutException('مشکلی در پیدا کردن کاربر رخ داده است')
         }
     }
 
@@ -59,7 +60,7 @@ export class UsersProvider {
             const existingUser = await this.userModel.findById(id).select('-password');
             return existingUser;
         } catch (error) {
-            throw new RequestTimeoutException(['مشکلی در پیدا کردن کاربر رخ داده است'])
+            throw requestTimeoutException('مشکلی در پیدا کردن کاربر رخ داده است')
         }
     }
 
