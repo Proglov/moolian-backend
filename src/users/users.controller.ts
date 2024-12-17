@@ -4,13 +4,14 @@ import { User } from './user.schema';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { FindOneUserParamDto } from './dto/findOneUser.dto';
 import { AccessTokenGuard } from 'src/auth/guards/access-token/access-token.guard';
+import { AdminGuard } from 'src/admin/admin.guard';
 
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
     constructor(private readonly userService: UsersService) { }
 
-    @UseGuards(AccessTokenGuard)
+    @UseGuards(AccessTokenGuard, AdminGuard)
     @Get(':id')
     @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'User found' })
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'User Not found' })
