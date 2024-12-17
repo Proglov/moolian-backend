@@ -4,8 +4,9 @@ import { Model } from 'mongoose';
 import { User } from './user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PasswordProvider } from 'src/auth/providers/password.provider';
+import { TCreateUser, TFindUserByIdentifier } from './dto/types';
 
-type TFindUserByIdentifier = Pick<CreateUserDto, 'phone'> | Pick<CreateUserDto, 'username'> | Pick<CreateUserDto, 'email'>
+
 
 @Injectable()
 export class UsersProvider {
@@ -17,14 +18,16 @@ export class UsersProvider {
         private readonly passwordProvider: PasswordProvider
     ) { }
 
-    async create(createUserDto: CreateUserDto): Promise<User> {
+    async create(createUserDto: CreateUserDto): Promise<TCreateUser> {
         try {
             const hashedPassword = await this.passwordProvider.hashPassword(createUserDto.password)
             const createdUser = new this.userModel({ ...createUserDto, password: hashedPassword });
 
             // you should check the existingSellerByPhone and username. email is fine i guess
 
-            return await createdUser.save();
+            const newUser = (await createdUser.save()).toObject();
+            delete newUser.password
+            return newUser
         } catch (error) {
             // mongoose duplication error
             if (error?.code === 11000) {
@@ -44,7 +47,7 @@ export class UsersProvider {
 
     async findOneByIdentifier(input: TFindUserByIdentifier): Promise<User> {
         try {
-            const existingUser = await this.userModel.findOne(input);
+            const existingUser = await this.userModel.findOne(input).select('-password');
             return existingUser;
         } catch (error) {
             throw new RequestTimeoutException(['مشکلی در پیدا کردن کاربر رخ داده است'])
@@ -53,7 +56,7 @@ export class UsersProvider {
 
     async findOneByID(id: string): Promise<User> {
         try {
-            const existingUser = await this.userModel.findById(id);
+            const existingUser = await this.userModel.findById(id).select('-password');
             return existingUser;
         } catch (error) {
             throw new RequestTimeoutException(['مشکلی در پیدا کردن کاربر رخ داده است'])
