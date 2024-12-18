@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { AdminProvider } from './admin.provider';
 import { Request } from 'express';
 import { unauthorizedException } from 'src/common/errors';
+import { REQUEST_USER_INFO_KEY } from 'src/common/constants';
 
 @Injectable()
 export class AdminGuard implements CanActivate {
@@ -32,6 +33,6 @@ export class AdminGuard implements CanActivate {
   }
 
   private extractUserInfoFromTheRequest(request: Request): { userId: string } | undefined {
-    return request['userInfo']
+    return request[REQUEST_USER_INFO_KEY]
   }
 }

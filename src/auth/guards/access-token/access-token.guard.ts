@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { JWTProvider } from 'src/auth/providers/jwt.provider';
+import { REQUEST_USER_INFO_KEY } from 'src/common/constants';
 import { unauthorizedException } from 'src/common/errors';
 
 @Injectable()
@@ -28,7 +29,7 @@ export class AccessTokenGuard implements CanActivate {
 
     if (jwtPayload === null) throw unauthorizedException(unauthorizedMessage)
 
-    request['userInfo'] = jwtPayload
+    request[REQUEST_USER_INFO_KEY] = jwtPayload
 
     return true;
   }
