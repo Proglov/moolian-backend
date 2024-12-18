@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Param } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user.schema';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
@@ -13,8 +13,10 @@ export class UsersController {
 
     @Auth(AuthType.Admin)
     @Get(':id')
+    @HttpCode(HttpStatus.ACCEPTED)
     @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'User found' })
-    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'User Not found' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User Not found' })
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'User Id is not correct' })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
     async findOne(
         @Param() findOneUserParamDto: FindOneUserParamDto

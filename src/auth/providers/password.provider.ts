@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { compare, hash } from 'bcryptjs';
-import { requestTimeoutException } from 'src/common/errors';
+import { requestTimeoutException, unauthorizedException } from 'src/common/errors';
 
 @Injectable()
 export class PasswordProvider {
@@ -9,7 +9,7 @@ export class PasswordProvider {
         try {
             return await compare(password, hashedPassword)
         } catch (error) {
-            throw requestTimeoutException('عملیات تطبیق رمز عبور ناموفق بود')
+            throw unauthorizedException('عملیات تطبیق رمز عبور ناموفق بود')
         }
     }
 

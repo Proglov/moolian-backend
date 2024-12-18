@@ -2,6 +2,7 @@ import { Injectable, } from '@nestjs/common';
 import { User } from './user.schema';
 import { FindOneUserParamDto } from './dto/findOneUser.dto';
 import { UsersProvider } from './users.provider';
+import { notFoundException } from 'src/common/errors';
 
 @Injectable()
 export class UsersService {
@@ -11,6 +12,8 @@ export class UsersService {
 
 
     async findOne(FindOneUserParamDto: FindOneUserParamDto): Promise<Omit<User, 'password'>> {
-        return await this.usersProvider.findOneByID(FindOneUserParamDto.id)
+        const user = await this.usersProvider.findOneByID(FindOneUserParamDto.id)
+        if (!user) throw notFoundException('کاربر پیدا نشد')
+        return user
     }
 }

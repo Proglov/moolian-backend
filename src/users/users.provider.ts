@@ -42,7 +42,7 @@ export class UsersProvider {
                         throw badRequestException('این نام کاربری قبلا ثبت نام شده است')
                 }
             }
-            throw badRequestException('مشکلی در ثبت کاربر رخ داده است')
+            throw requestTimeoutException('مشکلی در ثبت کاربر رخ داده است')
         }
     }
 
@@ -51,6 +51,8 @@ export class UsersProvider {
             const existingUser = await this.userModel.findOne(input).select('-password');
             return existingUser;
         } catch (error) {
+            if (error.name == 'CastError')
+                throw badRequestException('آیدی کاربر صحیح نمیباشد')
             throw requestTimeoutException('مشکلی در پیدا کردن کاربر رخ داده است')
         }
     }
@@ -60,6 +62,8 @@ export class UsersProvider {
             const existingUser = await this.userModel.findOne(input).select('password');
             return existingUser;
         } catch (error) {
+            if (error.name == 'CastError')
+                throw badRequestException('آیدی کاربر صحیح نمیباشد')
             throw requestTimeoutException('مشکلی در پیدا کردن کاربر رخ داده است')
         }
     }
@@ -69,6 +73,8 @@ export class UsersProvider {
             const existingUser = await this.userModel.findById(id).select('-password');
             return existingUser;
         } catch (error) {
+            if (error.name == 'CastError')
+                throw badRequestException('آیدی کاربر صحیح نمیباشد')
             throw requestTimeoutException('مشکلی در پیدا کردن کاربر رخ داده است')
         }
     }
