@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { requestTimeoutException } from 'src/common/errors';
-import { ActiveUserData } from '../interfaces/active-user-data.interface';
+import { ActiveUserData } from '../interfacesAndType/active-user-data.interface';
 
 @Injectable()
 export class JWTProvider {

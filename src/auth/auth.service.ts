@@ -5,6 +5,7 @@ import { JWTProvider } from './providers/jwt.provider';
 import { UserSignInWithPhoneDto, UserSignInWithUsernameOrEmailDto } from './dto/user-signIn.dto';
 import { PasswordProvider } from './providers/password.provider';
 import { unauthorizedException } from 'src/common/errors';
+import { TAuthResponse } from './interfacesAndType/auth.response-type';
 
 @Injectable()
 export class AuthService {
@@ -15,12 +16,15 @@ export class AuthService {
     private readonly passwordProvider: PasswordProvider
   ) { }
 
-  async userSignup(userSignupDto: UserSignupDto): Promise<string> {
+  async userSignup(userSignupDto: UserSignupDto): Promise<TAuthResponse> {
     const createdUser = await this.usersProvider.create(userSignupDto);
-    return await this.jwtProvider.generateJwtToken(createdUser._id as string)
+    const token = await this.jwtProvider.generateJwtToken(createdUser._id as string)
+    return {
+      accessToken: token
+    }
   }
 
-  async userSigninWithPhone(userSignInWithPhoneDto: UserSignInWithPhoneDto): Promise<string> {
+  async userSigninWithPhone(userSignInWithPhoneDto: UserSignInWithPhoneDto): Promise<TAuthResponse> {
     let user = undefined
     const message = 'رمز عبور یا شماره همراه نادرست است'
 
@@ -32,10 +36,13 @@ export class AuthService {
 
     if (!isPasswordTrue) throw unauthorizedException(message)
 
-    return await this.jwtProvider.generateJwtToken(user._id)
+    const token = await this.jwtProvider.generateJwtToken(user._id)
+    return {
+      accessToken: token
+    }
   }
 
-  async userSigninWithEmailOrUsername(userSignInWithUsernameOrEmailDto: UserSignInWithUsernameOrEmailDto): Promise<string> {
+  async userSigninWithEmailOrUsername(userSignInWithUsernameOrEmailDto: UserSignInWithUsernameOrEmailDto): Promise<TAuthResponse> {
     let user = undefined
     const message = 'رمز عبور یا ایمیل یا نام کاربری نادرست است'
 
@@ -53,7 +60,10 @@ export class AuthService {
 
     if (!isPasswordTrue) throw unauthorizedException(message)
 
-    return await this.jwtProvider.generateJwtToken(user._id)
+    const token = await this.jwtProvider.generateJwtToken(user._id)
+    return {
+      accessToken: token
+    }
   }
 
 }
