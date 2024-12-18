@@ -24,6 +24,7 @@ async function bootstrap() {
       .setTitle('Online Shop NestJs')
       .setLicense('MIT', 'https://github.com/git/git-scm.com/blob/main/MIT-LICENCE.txt')
       .addServer('http://localhost:' + PORT)
+      .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT', in: 'header' })
       .setVersion('1.0')
       .build();
     const document = SwaggerModule.createDocument(app, config)
