@@ -6,12 +6,11 @@ import { FindOneUserParamDto } from './dto/findOneUser.dto';
 import { Auth } from 'src/auth/guards/auth.decorator';
 import { AuthType } from 'src/auth/enums/auth-types';
 
-@ApiTags('users')
+@ApiTags('Users')
 @Controller('users')
 export class UsersController {
     constructor(private readonly userService: UsersService) { }
 
-    // @UseGuards(AccessTokenGuard, AdminGuard)
     @Auth(AuthType.Admin)
     @Get(':id')
     @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'User found' })
