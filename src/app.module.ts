@@ -9,6 +9,10 @@ import { AdminModule } from './admin/admin.module';
 import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
 import environmentValidation from './config/environment.validation';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthenticationGuard } from './auth/guards/authentication.guard';
+import { AccessTokenGuard } from './auth/guards/access-token.guard';
+import { AdminGuard } from './admin/admin.guard';
 
 
 const ENV = process.env.NODE_ENV;
@@ -33,6 +37,14 @@ const ENV = process.env.NODE_ENV;
     AdminModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthenticationGuard
+    },
+    AccessTokenGuard,
+    AdminGuard
+  ],
 })
 export class AppModule { }
