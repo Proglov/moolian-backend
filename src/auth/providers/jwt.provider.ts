@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { requestTimeoutException } from 'src/common/errors';
+import { ActiveUserData } from '../interfaces/active-user-data.interface';
 
 @Injectable()
 export class JWTProvider {
@@ -11,13 +12,13 @@ export class JWTProvider {
 
     async generateJwtToken(userId: string): Promise<string> {
         try {
-            return await this.jwtService.signAsync({ userId })
+            return await this.jwtService.signAsync({ userId } as ActiveUserData)
         } catch (error) {
             throw requestTimeoutException('مشکلی در ایجاد توکن رخ داده است')
         }
     }
 
-    async extractPayloadAndVerifyToken(token: string): Promise<Object | null> {
+    async extractPayloadAndVerifyToken(token: string): Promise<ActiveUserData | null> {
         try {
             return await this.jwtService.verifyAsync(token)
         } catch (error) {

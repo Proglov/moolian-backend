@@ -3,7 +3,7 @@ import { UsersService } from './users.service';
 import { User } from './user.schema';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { FindOneUserParamDto } from './dto/findOneUser.dto';
-import { Auth } from 'src/auth/guards/auth.decorator';
+import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AuthType } from 'src/auth/enums/auth-types';
 
 @ApiTags('Users')
