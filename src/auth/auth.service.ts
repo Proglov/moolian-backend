@@ -24,7 +24,7 @@ export class AuthService {
     let user = undefined
     const message = 'رمز عبور یا شماره همراه نادرست است'
 
-    user = await this.usersProvider.findOneByIdentifier({ phone: userSignInWithPhoneDto.phone });
+    user = await this.usersProvider.findOneByIdentifierAndGetPassword({ phone: userSignInWithPhoneDto.phone });
 
     if (!user) throw unauthorizedException(message)
 
@@ -41,11 +41,11 @@ export class AuthService {
 
 
     //find the user by email
-    user = await this.usersProvider.findOneByIdentifier({ email: userSignInWithUsernameOrEmailDto.emailOrUsername });
+    user = await this.usersProvider.findOneByIdentifierAndGetPassword({ email: userSignInWithUsernameOrEmailDto.emailOrUsername });
 
     //find the user by username
     if (!user) {
-      await this.usersProvider.findOneByIdentifier({ username: userSignInWithUsernameOrEmailDto.emailOrUsername });
+      await this.usersProvider.findOneByIdentifierAndGetPassword({ username: userSignInWithUsernameOrEmailDto.emailOrUsername });
       if (!user) throw unauthorizedException(message)
     }
 

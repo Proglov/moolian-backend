@@ -55,6 +55,15 @@ export class UsersProvider {
         }
     }
 
+    async findOneByIdentifierAndGetPassword(input: TFindUserByIdentifier): Promise<Pick<User, 'password'>> {
+        try {
+            const existingUser = await this.userModel.findOne(input).select('password');
+            return existingUser;
+        } catch (error) {
+            throw requestTimeoutException('مشکلی در پیدا کردن کاربر رخ داده است')
+        }
+    }
+
     async findOneByID(id: string): Promise<User> {
         try {
             const existingUser = await this.userModel.findById(id).select('-password');
