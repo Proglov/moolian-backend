@@ -12,8 +12,15 @@ export class AdminProvider {
 
   async isAdmin(id: string): Promise<boolean> {
     try {
-      const existingAdmin = await this.adminModel.findById(id)
-      return !!existingAdmin;
+      const allAdmins = await this.adminModel.find()
+      let result = false
+      for (const admin of allAdmins) {
+        if (admin.userId == id) {
+          result = true;
+          break
+        }
+      }
+      return result;
     } catch (error) {
       return false
     }
