@@ -10,17 +10,11 @@ export class AdminProvider {
     private readonly adminModel: Model<Admin>,
   ) { }
 
-  async isAdmin(id: string): Promise<boolean> {
+  async isAdmin(userId: string): Promise<boolean> {
     try {
-      const allAdmins = await this.adminModel.find()
-      let result = false
-      for (const admin of allAdmins) {
-        if (admin.userId == id) {
-          result = true;
-          break
-        }
-      }
-      return result;
+      const existingAdmin = await this.adminModel.findOne({ userId })
+      if (!existingAdmin) throw new Error()
+      return true
     } catch (error) {
       return false
     }
