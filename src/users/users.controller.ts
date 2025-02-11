@@ -25,4 +25,17 @@ export class UsersController {
     ): Promise<Omit<User, 'password'>> {
         return this.userService.findOne(findOneUserParamDto);
     }
+
+    @Auth(AuthType.Bearer)
+    @Get('get-me')
+    @HttpCode(HttpStatus.ACCEPTED)
+    @ApiCreatedResponse({ type: OmitType(CreateUserDto, ['password']) })
+    @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'User found' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User Not found' })
+    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
+    async getMe(
+        @Param() findOneUserParamDto: FindOneUserParamDto
+    ): Promise<Omit<User, 'password'>> {
+        return this.userService.findOne(findOneUserParamDto);
+    }
 }
