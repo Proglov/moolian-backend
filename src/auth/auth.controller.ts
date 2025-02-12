@@ -1,6 +1,6 @@
 import { Controller, Post, Body, HttpStatus, HttpCode } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiCreatedResponse, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserSignupDto } from './dto/user-signup.dto';
 import { UserSignInWithPhoneDto, UserSignInWithUsernameOrEmailDto } from './dto/user-signIn.dto';
 import { AuthResponse, TAuthResponse } from './interfacesAndType/auth.response-type';
@@ -11,9 +11,8 @@ export class AuthController {
 
   @Post('user/sign-up')
   @HttpCode(HttpStatus.CREATED)
-  @ApiCreatedResponse({ type: AuthResponse })
   @ApiOperation({ summary: 'user signs up and gets the jwt' })
-  @ApiResponse({ status: HttpStatus.CREATED, description: 'User created' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'User created', type: AuthResponse })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Request time out for hashing the password or generating the jwt' })
   async signup(
@@ -24,9 +23,8 @@ export class AuthController {
 
   @Post('user/sign-in/phone')
   @HttpCode(HttpStatus.ACCEPTED)
-  @ApiCreatedResponse({ type: AuthResponse })
   @ApiOperation({ summary: 'user signs in with phone and password and gets the jwt' })
-  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'User Signed In' })
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'User Signed In', type: AuthResponse })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid Credentials' })
   async signinWithPhone(
@@ -37,9 +35,8 @@ export class AuthController {
 
   @Post('user/sign-in/email-username')
   @HttpCode(HttpStatus.ACCEPTED)
-  @ApiCreatedResponse({ type: AuthResponse })
   @ApiOperation({ summary: 'user signs in with Email-Username and password and gets the jwt' })
-  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'User Signed In' })
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'User Signed In', type: AuthResponse })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid Credentials' })
   async signinWithEmailOrUsername(
