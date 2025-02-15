@@ -22,7 +22,7 @@ export class JWTProvider {
         try {
             return await this.jwtService.verifyAsync(token)
         } catch (error) {
-            null
+            return null
         }
     }
 
