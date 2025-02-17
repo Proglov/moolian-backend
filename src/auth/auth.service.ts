@@ -30,9 +30,9 @@ export class AuthService {
    */
   async userSignup(userSignupDto: UserSignupDto): Promise<TAuthResponse> {
     const createdUser = await this.usersProvider.create(userSignupDto);
-    const token = await this.jwtProvider.generateJwtToken(createdUser._id as string)
+    const tokens = await this.jwtProvider.generateJwtTokens(createdUser._id as string)
     return {
-      accessToken: token
+      ...tokens
     }
   }
 
@@ -52,9 +52,9 @@ export class AuthService {
 
     if (!isPasswordTrue) throw unauthorizedException(message)
 
-    const token = await this.jwtProvider.generateJwtToken(user._id)
+    const tokens = await this.jwtProvider.generateJwtTokens(user._id)
     return {
-      accessToken: token
+      ...tokens
     }
   }
 
@@ -80,10 +80,14 @@ export class AuthService {
 
     if (!isPasswordTrue) throw unauthorizedException(message)
 
-    const token = await this.jwtProvider.generateJwtToken(user._id)
+    const tokens = await this.jwtProvider.generateJwtTokens(user._id)
     return {
-      accessToken: token
+      ...tokens
     }
   }
+
+
+  // TODO add renew the access token
+  // TODO use cookie to store the refresh token
 
 }

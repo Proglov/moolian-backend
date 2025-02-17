@@ -5,5 +5,6 @@ export default Joi.object({
     PORT: Joi.number().port().default(4500),
     MONGO_URI: Joi.string().required(),
     JWT_SIGNATURE: Joi.string().required(),
-    JWT_ACCESS_TOKEN_TTL: Joi.number().default(86400),
+    JWT_ACCESS_TOKEN_TTL: Joi.number().default(3600),
+    JWT_REFRESH_TOKEN_TTL: Joi.number().default(86400),
 })
