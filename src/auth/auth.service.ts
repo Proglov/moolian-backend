@@ -7,15 +7,27 @@ import { PasswordProvider } from './providers/password.provider';
 import { unauthorizedException } from 'src/common/errors';
 import { TAuthResponse } from './interfacesAndType/auth.response-type';
 
+
+/** Class to preform business operations related to the authentication */
 @Injectable()
 export class AuthService {
 
+  /** Inject the dependencies */
   constructor(
+    /** Inject the UsersProvider from Users Module for creating and finding the user  */
     private readonly usersProvider: UsersProvider,
+
+    /** Inject the JWTProvider to return the Token  */
     private readonly jwtProvider: JWTProvider,
+
+    /** Inject the PasswordProvider to compare password */
     private readonly passwordProvider: PasswordProvider
   ) { }
 
+  /**
+   * Users register
+   * @returns JWTToken
+   */
   async userSignup(userSignupDto: UserSignupDto): Promise<TAuthResponse> {
     const createdUser = await this.usersProvider.create(userSignupDto);
     const token = await this.jwtProvider.generateJwtToken(createdUser._id as string)
@@ -24,6 +36,10 @@ export class AuthService {
     }
   }
 
+  /**
+   * Users sign in with phone number
+   * @returns JWTToken
+   */
   async userSigninWithPhone(userSignInWithPhoneDto: UserSignInWithPhoneDto): Promise<TAuthResponse> {
     let user = undefined
     const message = 'رمز عبور یا شماره همراه نادرست است'
@@ -42,6 +58,10 @@ export class AuthService {
     }
   }
 
+  /**
+   * Users sign in with email or username
+   * @returns JWTToken
+   */
   async userSigninWithEmailOrUsername(userSignInWithUsernameOrEmailDto: UserSignInWithUsernameOrEmailDto): Promise<TAuthResponse> {
     let user = undefined
     const message = 'رمز عبور یا ایمیل یا نام کاربری نادرست است'

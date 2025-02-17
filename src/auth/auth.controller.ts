@@ -5,10 +5,23 @@ import { UserSignupDto } from './dto/user-signup.dto';
 import { UserSignInWithPhoneDto, UserSignInWithUsernameOrEmailDto } from './dto/user-signIn.dto';
 import { AuthResponse, TAuthResponse } from './interfacesAndType/auth.response-type';
 
+
+/**
+ * End points related to the Authentication
+ */
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
 
+  /** Inject the dependencies */
+  constructor(
+    /** Inject the Auth Service */
+    private readonly authService: AuthService
+  ) { }
+
+
+  /**
+   * User Registration
+   */
   @Post('user/sign-up')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'user signs up and gets the jwt' })
@@ -21,6 +34,8 @@ export class AuthController {
     return this.authService.userSignup(userSignupDto);
   }
 
+
+  /** User Sign in with phone */
   @Post('user/sign-in/phone')
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({ summary: 'user signs in with phone and password and gets the jwt' })
@@ -33,6 +48,10 @@ export class AuthController {
     return this.authService.userSigninWithPhone(userSignInWithPhoneDto);
   }
 
+
+  /**
+   * User Sign In with Email or Username
+   */
   @Post('user/sign-in/email-username')
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({ summary: 'user signs in with Email-Username and password and gets the jwt' })

@@ -4,13 +4,22 @@ import { JWTProvider } from 'src/auth/providers/jwt.provider';
 import { REQUEST_USER_INFO_KEY } from 'src/common/constants';
 import { unauthorizedException } from 'src/common/errors';
 
+
+/** Class to Authorize Users */
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
 
+  /** Inject the dependencies */
   constructor(
+    /** Inject the JWTProvider to return the Token  */
     private readonly jWTProvider: JWTProvider
   ) { }
 
+
+  /** 
+   * Async Function that is needed to authorize the user, It Adds REQUEST_USER_INFO_KEY to the Request
+   * @returns Boolean
+   */
   async canActivate(
     context: ExecutionContext,
   ): Promise<boolean> {
@@ -35,6 +44,7 @@ export class AccessTokenGuard implements CanActivate {
   }
 
 
+  /** function to extract the JWT Token from the request */
   private extractTokenFromTheRequest(request: Request): string | undefined {
     const [_, token] = request.headers.authorization?.split(' ') ?? []
     return token

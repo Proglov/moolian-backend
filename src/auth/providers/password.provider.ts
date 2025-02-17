@@ -2,9 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { compare, hash } from 'bcryptjs';
 import { requestTimeoutException, unauthorizedException } from 'src/common/errors';
 
+
+/** Class to preform operations related to password hashing */
 @Injectable()
 export class PasswordProvider {
 
+    /**
+     * compare Password and the hashed password
+     */
     async comparePassword(password: string, hashedPassword: string): Promise<boolean> {
         try {
             return await compare(password, hashedPassword)
@@ -13,6 +18,9 @@ export class PasswordProvider {
         }
     }
 
+    /**
+     * Hash the password
+     */
     async hashPassword(password: string): Promise<string> {
         try {
             return await hash(password, 10);
