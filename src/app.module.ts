@@ -29,7 +29,7 @@ const ENV = process.env.NODE_ENV;
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        uri: configService.get('database.URI')
+        uri: configService.getOrThrow('database.URI')
       })
     }),
     UsersModule,
