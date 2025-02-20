@@ -3,6 +3,9 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as colors from 'colors';
+import * as cookieParser from 'cookie-parser';
+import { JWT_Cookie_Name } from './common/constants';
+
 
 
 async function bootstrap() {
@@ -18,14 +21,18 @@ async function bootstrap() {
     transform: true,
   }))
 
+  //cookie parser
+  app.use(cookieParser());
+
   //swagger configuration
   if (ENV === 'development') {
     const config = new DocumentBuilder()
       .setTitle('Online Shop NestJs')
       .setLicense('MIT', 'https://github.com/git/git-scm.com/blob/main/MIT-LICENCE.txt')
       .addServer('http://localhost:' + PORT)
-      .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT', in: 'header' })
+      .addCookieAuth(JWT_Cookie_Name)
       .setVersion('1.0')
+      .setExternalDoc('Postman Collection', '/api-json')
       .build();
     const document = SwaggerModule.createDocument(app, config)
     SwaggerModule.setup('api', app, document)
