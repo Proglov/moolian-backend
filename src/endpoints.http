@@ -1,3 +1,14 @@
-GET http://localhost:4500/users/675ddf6247783d7b274257a0
+// sign in with phone and password
+POST http://localhost:4500/auth/user/sign-in/phone2
 Content-Type:application/json
-Authorization : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzYyODhlNDY4ZWM1YmJjNDNkODc2ZjkiLCJpYXQiOjE3MzQ1MTA4MjB9.uXRwYLjjpcCD6v9ZUF5arId3UTA-S9hdCM7yQxqWQgI
+{
+  "password": "ab12345678",
+  "phone": "09123456789"
+}
+
+//refresh token
+POST http://localhost:4500/auth/user/refresh
+Content-Type:application/json
+
+GET http://localhost:4500/users/676293d54f5c4704c82c0733
+Content-Type:application/json
