@@ -53,20 +53,6 @@ export class UsersProvider {
     }
 
     /**
-     * find a single User by Identifiers, doesn't return the password
-     */
-    async findOneByIdentifier(input: TFindUserByIdentifier): Promise<User> {
-        try {
-            const existingUser = await this.userModel.findOne(input).select('-password');
-            return existingUser;
-        } catch (error) {
-            if (error.name == 'CastError')
-                throw badRequestException('آیدی کاربر صحیح نمیباشد')
-            throw requestTimeoutException('مشکلی در پیدا کردن کاربر رخ داده است')
-        }
-    }
-
-    /**
      * find a single User by Identifiers, returns only the password
      */
     async findOneByIdentifierAndGetPassword(input: TFindUserByIdentifier): Promise<Pick<User, 'password' | "_id">> {
@@ -94,6 +80,9 @@ export class UsersProvider {
         }
     }
 
+    /**
+     * Updates a single user
+     */
     async updateUser(query: FilterQuery<User>, data: UpdateQuery<User>) {
         try {
             return await this.userModel.findOneAndUpdate(query, data)
