@@ -1,9 +1,9 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { AccessTokenGuard } from './access-token.guard';
 import { AuthType } from '../enums/auth-types';
 import { AUTH_TYPE_KEY } from 'src/common/constants';
 import { AdminGuard } from 'src/admin/admin.guard';
+import { JWTAuthGuard } from './jwt-auth.guard';
 
 
 /** Class to Authorize Users */
@@ -14,7 +14,7 @@ export class AuthenticationGuard implements CanActivate {
   //? authTypes and their corresponding guards
   private readonly authTypeGuardMap: Record<AuthType, CanActivate | CanActivate[]> = {
     [AuthType.None]: { canActivate: () => true },
-    [AuthType.Bearer]: this.accessTokenGuard,
+    [AuthType.Bearer]: this.jWTAuthGuard,
     [AuthType.Admin]: this.adminGuard
   }
 
@@ -23,8 +23,8 @@ export class AuthenticationGuard implements CanActivate {
     /** Inject the reflector to get the AuthType MetaData (like admin or none) */
     private readonly reflector: Reflector,
 
-    /**Inject the AccessTokenGuard to Execute if needed */
-    private readonly accessTokenGuard: AccessTokenGuard,
+    /**Inject the JWTAuthGuard to Execute if needed */
+    private readonly jWTAuthGuard: JWTAuthGuard,
 
     /**Inject the AdminGuard to Execute if needed */
     private readonly adminGuard: AdminGuard,

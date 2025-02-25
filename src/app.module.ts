@@ -11,8 +11,8 @@ import databaseConfig from './config/database.config';
 import environmentValidation from './config/environment.validation';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthenticationGuard } from './auth/guards/authentication.guard';
-import { AccessTokenGuard } from './auth/guards/access-token.guard';
 import { AdminGuard } from './admin/admin.guard';
+import { JWTAuthGuard } from './auth/guards/jwt-auth.guard';
 
 
 const ENV = process.env.NODE_ENV;
@@ -43,8 +43,8 @@ const ENV = process.env.NODE_ENV;
       provide: APP_GUARD,
       useClass: AuthenticationGuard
     },
-    AccessTokenGuard,
-    AdminGuard
+    AdminGuard,
+    JWTAuthGuard
   ],
 })
 export class AppModule { }

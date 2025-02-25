@@ -3,29 +3,29 @@ import { compare, hash } from 'bcryptjs';
 import { requestTimeoutException, unauthorizedException } from 'src/common/errors';
 
 
-/** Class to preform operations related to password hashing */
+/** Class to preform operations related to hashing */
 @Injectable()
-export class PasswordProvider {
+export class HashProvider {
 
     /**
-     * compare Password and the hashed password
+     * compare normal string and the hashed string
      */
-    async comparePassword(password: string, hashedPassword: string): Promise<boolean> {
+    async compareHashed(str: string, hashedStr: string): Promise<boolean> {
         try {
-            return await compare(password, hashedPassword)
+            return await compare(str, hashedStr)
         } catch (error) {
-            throw unauthorizedException('عملیات تطبیق رمز عبور ناموفق بود')
+            throw unauthorizedException('عملیات تطبیق رمز ناموفق بود')
         }
     }
 
     /**
-     * Hash the password
+     * Hash the string
      */
-    async hashPassword(password: string): Promise<string> {
+    async hashString(str: string): Promise<string> {
         try {
-            return await hash(password, 10);
+            return await hash(str, 10);
         } catch (error) {
-            throw requestTimeoutException('مشکلی در رمزنگاری رمزعبور رخ داد')
+            throw requestTimeoutException('مشکلی در رمزنگاری رخ داده است')
         }
     }
 

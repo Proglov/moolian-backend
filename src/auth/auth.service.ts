@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { UserSignupDto } from 'src/auth/dto/user-signup.dto';
 import { UsersProvider } from 'src/users/users.provider';
 import { JWTProvider } from './providers/jwt.provider';
-import { UserSignInWithPhoneDto, UserSignInWithUsernameOrEmailDto } from './dto/user-signIn.dto';
-import { PasswordProvider } from './providers/password.provider';
-import { unauthorizedException } from 'src/common/errors';
-import { TAuthResponse } from './interfacesAndType/auth.response-type';
+import { HashProvider } from './providers/password.provider';
+import { CookieProvider } from './providers/cookie.provider';
+import jwtConfig from './config/jwt.config';
+import { ConfigType } from '@nestjs/config';
+import { Response } from 'express';
+import { JWT_Cookie_Name, REFRESH_Cookie_Name } from 'src/common/constants';
 
 
 /** Class to preform business operations related to the authentication */
@@ -20,74 +22,66 @@ export class AuthService {
     /** Inject the JWTProvider to return the Token  */
     private readonly jwtProvider: JWTProvider,
 
-    /** Inject the PasswordProvider to compare password */
-    private readonly passwordProvider: PasswordProvider
+    /** Inject jwtConfiguration to access TTLs */
+    @Inject(jwtConfig.KEY)
+    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+
+    /** Inject the HashProvider to compare password */
+    private readonly hashProvider: HashProvider,
+
+    /** Inject the CookieProvider to add cookie */
+    private readonly cookieProvider: CookieProvider
   ) { }
+
+
+  /**
+   * Users sign in with phone number and password and gets the cookies
+   */
+  async login(response: Response, userId: string): Promise<void> {
+
+    //*get access token and refresh token
+    const tokens = await this.jwtProvider.generateJwtTokens(userId);
+
+    //*add the access token to the cookie
+    this.cookieProvider.addCookie(response, JWT_Cookie_Name, tokens.accessToken, this.jwtConfiguration.accessTokenTtl)
+
+    //*add the refresh token to the cookie
+    this.cookieProvider.addCookie(response, REFRESH_Cookie_Name, tokens.refreshToken, this.jwtConfiguration.refreshTokenTtl)
+
+    const hashedToken = await this.hashProvider.hashString(tokens.refreshToken)
+
+    //*add the refresh token to the DB
+    await this.usersProvider.updateUser(
+      { _id: userId },
+      { $set: { refreshToken: hashedToken } }
+    )
+  }
+
+
+  /**
+   * Users log out and loose the cookie
+   */
+  async logout(response: Response, userId: string): Promise<void> {
+
+    //*remove the access token to the cookie
+    this.cookieProvider.removeCookie(response, JWT_Cookie_Name)
+
+    //*remove the refresh token to the cookie
+    this.cookieProvider.removeCookie(response, REFRESH_Cookie_Name)
+
+    //*delete the refresh token from the DB
+    await this.usersProvider.updateUser(
+      { _id: userId },
+      { $set: { refreshToken: '' } }
+    )
+  }
 
   /**
    * Users register
-   * @returns JWTToken
    */
-  async userSignup(userSignupDto: UserSignupDto): Promise<TAuthResponse> {
+  async userSignup(response: Response, userSignupDto: UserSignupDto): Promise<void> {
     const createdUser = await this.usersProvider.create(userSignupDto);
-    const tokens = await this.jwtProvider.generateJwtTokens(createdUser._id as string)
-    return {
-      ...tokens
-    }
+    await this.login(response, createdUser._id as string)
   }
-
-  /**
-   * Users sign in with phone number
-   * @returns JWTToken
-   */
-  async userSigninWithPhone(userSignInWithPhoneDto: UserSignInWithPhoneDto): Promise<TAuthResponse> {
-    let user = undefined
-    const message = 'رمز عبور یا شماره همراه نادرست است'
-
-    user = await this.usersProvider.findOneByIdentifierAndGetPassword({ phone: userSignInWithPhoneDto.phone });
-
-    if (!user) throw unauthorizedException(message)
-
-    const isPasswordTrue = await this.passwordProvider.comparePassword(userSignInWithPhoneDto.password, user.password)
-
-    if (!isPasswordTrue) throw unauthorizedException(message)
-
-    const tokens = await this.jwtProvider.generateJwtTokens(user._id)
-    return {
-      ...tokens
-    }
-  }
-
-  /**
-   * Users sign in with email or username
-   * @returns JWTToken
-   */
-  async userSigninWithEmailOrUsername(userSignInWithUsernameOrEmailDto: UserSignInWithUsernameOrEmailDto): Promise<TAuthResponse> {
-    let user = undefined
-    const message = 'رمز عبور یا ایمیل یا نام کاربری نادرست است'
-
-
-    //find the user by email
-    user = await this.usersProvider.findOneByIdentifierAndGetPassword({ email: userSignInWithUsernameOrEmailDto.emailOrUsername });
-
-    //find the user by username
-    if (!user) {
-      await this.usersProvider.findOneByIdentifierAndGetPassword({ username: userSignInWithUsernameOrEmailDto.emailOrUsername });
-      if (!user) throw unauthorizedException(message)
-    }
-
-    const isPasswordTrue = await this.passwordProvider.comparePassword(userSignInWithUsernameOrEmailDto.password, user.password)
-
-    if (!isPasswordTrue) throw unauthorizedException(message)
-
-    const tokens = await this.jwtProvider.generateJwtTokens(user._id)
-    return {
-      ...tokens
-    }
-  }
-
-
-  // TODO add renew the access token
-  // TODO use cookie to store the refresh token
 
 }

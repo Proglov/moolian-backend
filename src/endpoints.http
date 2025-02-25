@@ -1,14 +1,37 @@
 // sign in with phone and password
-POST http://localhost:4500/auth/user/sign-in/phone2
+POST http://localhost:4500/auth/user/sign-in/phone
 Content-Type:application/json
 {
   "password": "ab12345678",
   "phone": "09123456789"
 }
 
+// sign in with emailOrUsername and password
+POST http://localhost:4500/auth/user/sign-in/email-username
+Content-Type:application/json
+{
+  "password": "ab12345678",
+  "emailOrUsername": "AdminAdmin123"
+}
+
 //refresh token
 POST http://localhost:4500/auth/user/refresh
 Content-Type:application/json
 
+//log out
+GET http://localhost:4500/auth/user/logout
+Content-Type:application/json
+
+// user sign up
+POST http://localhost:4500/auth/user/sign-up
+Content-Type:application/json
+{
+  "username": "username1233",
+  "email": "emaiA2l@em.ail",
+  "password": "ab123456783",
+  "phone": "09123456784"
+}
+
+//protected route
 GET http://localhost:4500/users/676293d54f5c4704c82c0733
 Content-Type:application/json

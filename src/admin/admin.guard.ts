@@ -1,9 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { AdminProvider } from './admin.provider';
-import { Request } from 'express';
 import { unauthorizedException } from 'src/common/errors';
-import { REQUEST_USER_INFO_KEY } from 'src/common/constants';
-import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
+import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { CurrentUserData } from 'src/auth/interfacesAndType/current-user-data.interface';
 
 
 /** Class to Guard Admin Routes */
@@ -17,7 +16,7 @@ export class AdminGuard implements CanActivate {
     private readonly adminProvider: AdminProvider,
 
     /** Inject AccessTokenGuard */
-    private readonly accessTokenGuard: AccessTokenGuard,
+    private readonly jWTAuthGuard: JWTAuthGuard
   ) { }
 
 
@@ -31,14 +30,14 @@ export class AdminGuard implements CanActivate {
 
     //extract the userInfo, throw error if no valid JWT Token
     await Promise
-      .resolve(this.accessTokenGuard.canActivate(context))
+      .resolve(this.jWTAuthGuard.canActivate(context))
       .catch(err => { throw err })
 
     //extract request from the execution context
     const request = context.switchToHttp().getRequest();
 
-    //extract the userInfo from the request
-    const userInfo = this.extractUserInfoFromTheRequest(request);
+    //extract the user from the request
+    const userInfo: CurrentUserData | null = request?.user
 
     const unauthorizedMessage = 'شما احراز هویت نشده اید'
 
@@ -51,8 +50,4 @@ export class AdminGuard implements CanActivate {
     return true;
   }
 
-  /** function to extract the REQUEST_USER_INFO_KEY from the request */
-  private extractUserInfoFromTheRequest(request: Request): { userId: string } | undefined {
-    return request[REQUEST_USER_INFO_KEY]
-  }
 }

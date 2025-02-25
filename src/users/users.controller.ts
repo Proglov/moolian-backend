@@ -6,7 +6,8 @@ import { FindOneUserParamDto } from './dto/findOneUser.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AuthType } from 'src/auth/enums/auth-types';
 import { CreateUserDto } from './dto/create-user.dto';
-import { ActiveUser } from 'src/auth/decorators/active-user.decorator';
+import { CurrentUserData } from 'src/auth/interfacesAndType/current-user-data.interface';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 
 
 /** End points related to the users */
@@ -32,9 +33,9 @@ export class UsersController {
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User Not found' })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
     async getMe(
-        @ActiveUser('userId') userId: string
+        @CurrentUser() userInfo: CurrentUserData
     ): Promise<Omit<User, 'password'>> {
-        return this.userService.findOne({ id: userId });
+        return this.userService.findOne({ id: userInfo.userId });
     }
 
     /**

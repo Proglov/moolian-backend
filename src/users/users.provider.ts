@@ -1,9 +1,9 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model, UpdateQuery } from 'mongoose';
 import { User } from './user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
-import { PasswordProvider } from 'src/auth/providers/password.provider';
+import { HashProvider } from 'src/auth/providers/password.provider';
 import { TCreateUser, TFindUserByIdentifier } from './dto/types';
 import { badRequestException, requestTimeoutException } from 'src/common/errors';
 
@@ -18,9 +18,9 @@ export class UsersProvider {
         @InjectModel(User.name)
         private readonly userModel: Model<User>,
 
-        /** Inject the PasswordProvider from auth module */
-        @Inject(forwardRef(() => PasswordProvider))
-        private readonly passwordProvider: PasswordProvider
+        /** Inject the HashProvider from auth module */
+        @Inject(forwardRef(() => HashProvider))
+        private readonly hashProvider: HashProvider
     ) { }
 
     /**
@@ -28,10 +28,9 @@ export class UsersProvider {
      */
     async create(createUserDto: CreateUserDto): Promise<TCreateUser> {
         try {
-            const hashedPassword = await this.passwordProvider.hashPassword(createUserDto.password)
+            const hashedPassword = await this.hashProvider.hashString(createUserDto.password)
             const createdUser = new this.userModel({ ...createUserDto, password: hashedPassword });
 
-            //TODO you should check the existingSellerByPhone and username. email is fine i guess
 
             const newUser = (await createdUser.save()).toObject();
             delete newUser.password
@@ -70,7 +69,7 @@ export class UsersProvider {
     /**
      * find a single User by Identifiers, returns only the password
      */
-    async findOneByIdentifierAndGetPassword(input: TFindUserByIdentifier): Promise<Pick<User, 'password'>> {
+    async findOneByIdentifierAndGetPassword(input: TFindUserByIdentifier): Promise<Pick<User, 'password' | "_id">> {
         try {
             const existingUser = await this.userModel.findOne(input).select('password');
             return existingUser;
@@ -92,6 +91,14 @@ export class UsersProvider {
             if (error.name == 'CastError')
                 throw badRequestException('آیدی کاربر صحیح نمیباشد')
             throw requestTimeoutException('مشکلی در پیدا کردن کاربر رخ داده است')
+        }
+    }
+
+    async updateUser(query: FilterQuery<User>, data: UpdateQuery<User>) {
+        try {
+            return await this.userModel.findOneAndUpdate(query, data)
+        } catch (error) {
+            throw requestTimeoutException('مشکلی در آپدیت کردن کاربر رخ داده است')
         }
     }
 

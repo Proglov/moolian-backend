@@ -1,5 +1,4 @@
 
-
-export const REQUEST_USER_INFO_KEY = 'userInfo';
-
 export const AUTH_TYPE_KEY = 'authType';
+export const JWT_Cookie_Name = 'Authentication'
+export const REFRESH_Cookie_Name = 'refresh'

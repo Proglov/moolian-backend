@@ -1,6 +1,8 @@
-import { IsArray, IsEmail, IsNotEmpty, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { IsArray, IsEmail, IsNotEmpty, IsOptional, IsString, Matches, MaxLength, MinLength, Validate } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import messages from 'src/common/dto.messages';
+import { IsNotEmail } from 'src/auth/decorators/IsNotEmail.decorator';
+import { Transform } from 'class-transformer';
 
 const usernameDoc = {
     description: 'Username of the user, should be a non-empty string',
@@ -46,11 +48,13 @@ export class CreateUserDto {
     @IsNotEmpty(messages.notEmpty('نام کاربری'))
     @MaxLength(...messages.max('نام کاربری', 15))
     @MinLength(...messages.min('نام کاربری', 8))
+    @Validate(IsNotEmail, [{ message: 'نام کاربری نمی‌تواند ایمیل باشد!' }])
     username: string;
 
     @ApiProperty(emailDoc)
     @IsEmail(...messages.email())
     @IsNotEmpty(messages.notEmpty('ایمیل'))
+    @Transform(({ value }) => (typeof value === 'string' ? value.toLowerCase() : value))
     email: string;
 
     @ApiProperty(passwordDoc)
