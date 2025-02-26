@@ -1,10 +1,10 @@
-import { Controller, Post, Body, HttpStatus, HttpCode, UseGuards, Res, Get } from '@nestjs/common';
+import { Controller, Post, Body, HttpStatus, HttpCode, UseGuards, Res, Get, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserSignupDto } from './dto/user-signup.dto';
 import { UserSignInWithPhoneDto } from './dto/user-signIn.dto';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { CurrentUserData } from './interfacesAndType/current-user-data.interface';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { LocalPhoneAuthGuard } from './guards/local-phone-auth.guard';
@@ -109,5 +109,12 @@ export class AuthController {
   ): Promise<void> {
     return await this.authService.logout(response, userInfo.userId)
   }
+
+  // @Get('user/get-my-cookies')
+  // getMyCookies(
+  //   @Req() req: Request
+  // ) {
+  //   return req.cookies
+  // }
 
 }

@@ -32,6 +32,9 @@ Content-Type:application/json
   "phone": "09123456784"
 }
 
+// user get cookies
+GET http://localhost:4500/auth/user/get-my-cookies
+
 //protected route
 GET http://localhost:4500/users/676293d54f5c4704c82c0733
 Content-Type:application/json
