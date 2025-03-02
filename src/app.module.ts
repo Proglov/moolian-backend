@@ -8,11 +8,13 @@ import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
 import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
+import emailConfig from './config/email.config';
 import environmentValidation from './config/environment.validation';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthenticationGuard } from './auth/guards/authentication.guard';
 import { AdminGuard } from './admin/admin.guard';
 import { JWTAuthGuard } from './auth/guards/jwt-auth.guard';
+import { EmailModule } from './email/email.module';
 
 
 const ENV = process.env.NODE_ENV;
@@ -22,7 +24,7 @@ const ENV = process.env.NODE_ENV;
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ENV === 'development' ? '.env.development' : ENV === 'test' ? '.env.test' : '.env',
-      load: [appConfig, databaseConfig],
+      load: [appConfig, databaseConfig, emailConfig],
       validationSchema: environmentValidation
     }),
     MongooseModule.forRootAsync({
@@ -34,7 +36,8 @@ const ENV = process.env.NODE_ENV;
     }),
     UsersModule,
     AuthModule,
-    AdminModule
+    AdminModule,
+    EmailModule
   ],
   controllers: [AppController],
   providers: [
