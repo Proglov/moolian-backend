@@ -4,7 +4,7 @@ import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserSignupDto } from './dto/user-signup.dto';
 import { UserSignInWithPhoneDto } from './dto/user-signIn.dto';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { Response, Request } from 'express';
+import { Response } from 'express';
 import { CurrentUserData } from './interfacesAndType/current-user-data.interface';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { LocalPhoneAuthGuard } from './guards/local-phone-auth.guard';
