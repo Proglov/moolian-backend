@@ -4,7 +4,7 @@ import { UsersProvider } from 'src/users/users.provider';
 import { JWTProvider } from './providers/jwt.provider';
 import { HashProvider } from './providers/password.provider';
 import { CookieProvider } from './providers/cookie.provider';
-import jwtConfig from './config/jwt.config';
+import jwtConfig from '../configs/jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { Response } from 'express';
 import { JWT_Cookie_Name, REFRESH_Cookie_Name } from 'src/common/constants';

@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { requestTimeoutException } from 'src/common/errors';
 import { CurrentUserData } from '../interfacesAndType/current-user-data.interface';
-import jwtConfig from '../config/jwt.config';
+import jwtConfig from '../../configs/jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { Tokens } from '../interfacesAndType/Tokens.interface';
 

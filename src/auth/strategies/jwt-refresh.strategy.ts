@@ -2,7 +2,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Inject, Injectable } from '@nestjs/common';
 import { Request } from 'express';
-import jwtConfig from '../config/jwt.config';
+import jwtConfig from '../../configs/jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { CurrentUserData } from '../interfacesAndType/current-user-data.interface';
 import { REFRESH_Cookie_Name } from 'src/common/constants';

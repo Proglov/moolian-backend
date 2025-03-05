@@ -6,15 +6,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
-import appConfig from './config/app.config';
-import databaseConfig from './config/database.config';
-import emailConfig from './config/email.config';
-import environmentValidation from './config/environment.validation';
+import appConfig from './configs/app.config';
+import databaseConfig from './configs/database.config';
+import emailConfig from './configs/email.config';
+import environmentValidation from './configs/environment.validation';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthenticationGuard } from './auth/guards/authentication.guard';
 import { AdminGuard } from './admin/admin.guard';
 import { JWTAuthGuard } from './auth/guards/jwt-auth.guard';
 import { EmailModule } from './email/email.module';
+import { ImageModule } from './image/image.module';
 
 
 const ENV = process.env.NODE_ENV;
@@ -37,7 +38,8 @@ const ENV = process.env.NODE_ENV;
     UsersModule,
     AuthModule,
     AdminModule,
-    EmailModule
+    // EmailModule,
+    ImageModule
   ],
   controllers: [AppController],
   providers: [
