@@ -4,6 +4,7 @@ import { AuthType } from '../enums/auth-types';
 import { AUTH_TYPE_KEY } from 'src/common/constants';
 import { AdminGuard } from 'src/admin/admin.guard';
 import { JWTAuthGuard } from './jwt-auth.guard';
+import { unauthorizedException } from 'src/common/errors';
 
 
 /** Class to Authorize Users */
@@ -52,7 +53,7 @@ export class AuthenticationGuard implements CanActivate {
     for (const guard of guards) {
       await Promise
         .resolve(guard.canActivate(context))
-        .catch(err => { throw err })
+        .catch(_err => { throw unauthorizedException('شما احراز هویت نشده اید') })
     }
 
     return true;
