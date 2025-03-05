@@ -49,6 +49,7 @@ async function bootstrap() {
   ]
 
   console.log(...messages);
+  ENV === 'development' && console.log('http://localhost:' + PORT + '/api/');
 }
 
 bootstrap();
