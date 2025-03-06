@@ -4,13 +4,15 @@ import { FilterQuery, Model, UpdateQuery } from 'mongoose';
 import { User } from './user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { HashProvider } from 'src/auth/providers/password.provider';
-import { TCreateUser, TFindUserByIdentifier } from './dto/types';
+import { RestrictedUser, TCreateUser, TFindUserByIdentifier } from './dto/types';
 import { badRequestException, requestTimeoutException } from 'src/common/errors';
 
 
 /** Class to preform business operations related to the users, used by other modules mostly */
 @Injectable()
 export class UsersProvider {
+
+    readonly selectOptions = '-password'
 
     /** Inject the dependencies */
     constructor(
@@ -69,9 +71,9 @@ export class UsersProvider {
     /**
      * find a single User by Id, doesn't return the password
      */
-    async findOneByID(id: string): Promise<User> {
+    async findOneByID(id: string): Promise<RestrictedUser> {
         try {
-            const existingUser = await this.userModel.findById(id).select('-password');
+            const existingUser = await this.userModel.findById(id).select(this.selectOptions);
             return existingUser;
         } catch (error) {
             if (error.name == 'CastError')
@@ -85,7 +87,7 @@ export class UsersProvider {
      */
     async updateUser(query: FilterQuery<User>, data: UpdateQuery<User>) {
         try {
-            return await this.userModel.findOneAndUpdate(query, data)
+            return await this.userModel.findOneAndUpdate(query, data).select(this.selectOptions)
         } catch (error) {
             throw requestTimeoutException('مشکلی در آپدیت کردن کاربر رخ داده است')
         }
