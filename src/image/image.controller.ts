@@ -11,6 +11,7 @@ import { FileExtender } from './interceptors/fileExtender.interceptor';
 /**
  * End points related to the Image operations
  */
+@Auth(AuthType.Admin)
 @Controller('image')
 export class ImageController {
 
@@ -23,7 +24,6 @@ export class ImageController {
 
   /** Upload an image */
   @Post()
-  // @Auth(AuthType.Admin)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'uploads an image' })
   @ApiResponse({ status: HttpStatus.CREATED, description: 'successfully added the image' })
@@ -52,7 +52,6 @@ export class ImageController {
 
   /** Upload an image */
   @Patch()
-  // @Auth(AuthType.Admin)
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({ summary: 'updates an existing image' })
   @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'successfully added the image' })
