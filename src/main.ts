@@ -27,7 +27,7 @@ async function bootstrap() {
   //swagger configuration
   if (ENV === 'development') {
     const config = new DocumentBuilder()
-      .setTitle('Online Shop NestJs')
+      .setTitle('Moolian')
       .setLicense('MIT', 'https://github.com/git/git-scm.com/blob/main/MIT-LICENCE.txt')
       .addServer('http://localhost:' + PORT)
       .addCookieAuth(JWT_Cookie_Name)
