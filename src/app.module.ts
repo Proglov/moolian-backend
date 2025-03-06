@@ -14,8 +14,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthenticationGuard } from './auth/guards/authentication.guard';
 import { AdminGuard } from './admin/admin.guard';
 import { JWTAuthGuard } from './auth/guards/jwt-auth.guard';
-import { EmailModule } from './email/email.module';
 import { ImageModule } from './image/image.module';
+import { TemporaryImagesModule } from './temporary-images/temporary-images.module';
 
 
 const ENV = process.env.NODE_ENV;
@@ -39,7 +39,8 @@ const ENV = process.env.NODE_ENV;
     AuthModule,
     AdminModule,
     // EmailModule,
-    ImageModule
+    ImageModule,
+    TemporaryImagesModule
   ],
   controllers: [AppController],
   providers: [

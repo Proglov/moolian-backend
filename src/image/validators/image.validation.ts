@@ -13,6 +13,8 @@ export class ParseFilePipeDocument implements PipeTransform {
     private readonly acceptedSizeInFarsi = '4 مگابایت';
 
     transform(value: Express.Multer.File): Express.Multer.File {
+        if (!value)
+            throw badRequestException(`عکس الزامی میباشد`)
         if (value.size > this.acceptedSize)
             throw badRequestException(`سایز فایل ارسالی نباید بیش از ${this.acceptedSizeInFarsi} باشد`)
 
