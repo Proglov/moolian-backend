@@ -6,6 +6,7 @@ import * as sharp from 'sharp';
 import { requestTimeoutException } from 'src/common/errors';
 import s3StorageConfig from 'src/configs/s3Storage.config';
 import { TemporaryImagesService } from 'src/temporary-images/temporary-images.service';
+import { IGetImageResponse } from './dto/getImage.types';
 
 
 /** Class to preform operations related to uploading images */
@@ -60,7 +61,7 @@ export class ImageService {
         }
     }
 
-    async getImage(filename: string): Promise<string> {
+    async getImage(filename: string): Promise<IGetImageResponse> {
         try {
             const params = {
                 Bucket: this.bucketName,
@@ -69,17 +70,17 @@ export class ImageService {
 
             const command = new GetObjectCommand(params);
             const url = await getSignedUrl(this.s3, command);
-            return url
+            return { url, filename }
         } catch (error) {
             throw requestTimeoutException('مشکلی در دریافت عکس رخ داد')
         }
     }
 
-    async getImages(filenames: string[]): Promise<string[]> {
+    async getImages(filenames: string[]): Promise<IGetImageResponse[]> {
         try {
             // Wait for all promises to resolve
-            const urls = await Promise.all(filenames.map(filename => this.getImage(filename)));
-            return urls;
+            const urlObjects = await Promise.all(filenames.map(filename => this.getImage(filename)));
+            return urlObjects;
         } catch (error) {
             throw requestTimeoutException('مشکلی در دریافت عکس ها رخ داد')
         }

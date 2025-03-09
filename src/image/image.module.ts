@@ -12,6 +12,6 @@ import { TemporaryImagesModule } from 'src/temporary-images/temporary-images.mod
   ],
   controllers: [ImageController],
   providers: [ImageService],
-  exports: []
+  exports: [ImageService]
 })
 export class ImageModule { }

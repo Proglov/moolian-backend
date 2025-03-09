@@ -1,13 +1,12 @@
 import { Controller, Get, HttpCode, HttpStatus, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from './user.schema';
-import { ApiTags, ApiResponse, OmitType } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
 import { FindOneUserParamDto } from './dto/findOneUser.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AuthType } from 'src/auth/enums/auth-types';
-import { CreateUserDto } from './dto/create-user.dto';
 import { CurrentUserData } from 'src/auth/interfacesAndType/current-user-data.interface';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { RestrictedUser } from './dto/types';
 
 
 /** End points related to the users */
@@ -28,13 +27,14 @@ export class UsersController {
      */
     @Auth(AuthType.Bearer)
     @Get('get-me')
+    @ApiOperation({ summary: 'user gets its own data' })
     @HttpCode(HttpStatus.ACCEPTED)
-    @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'User found', type: OmitType(CreateUserDto, ['password']) })
+    @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'User found', type: RestrictedUser })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User Not found' })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
     async getMe(
         @CurrentUser() userInfo: CurrentUserData
-    ): Promise<Omit<User, 'password'>> {
+    ): Promise<RestrictedUser> {
         return this.userService.findOne({ id: userInfo.userId });
     }
 
@@ -44,14 +44,15 @@ export class UsersController {
      */
     @Auth(AuthType.Admin)
     @Get(':id')
+    @ApiOperation({ summary: 'returns a specific user based on its id' })
     @HttpCode(HttpStatus.ACCEPTED)
-    @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'User found', type: OmitType(CreateUserDto, ['password']) })
+    @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'User found', type: RestrictedUser })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User Not found' })
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'User Id is not correct' })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
     async findOne(
         @Param() findOneUserParamDto: FindOneUserParamDto
-    ): Promise<Omit<User, 'password'>> {
+    ): Promise<RestrictedUser> {
         return this.userService.findOne(findOneUserParamDto);
     }
 }
