@@ -17,6 +17,7 @@ import { JWTAuthGuard } from './auth/guards/jwt-auth.guard';
 import { ImageModule } from './image/image.module';
 import { TemporaryImagesModule } from './temporary-images/temporary-images.module';
 import { CategoryModule } from './category/category.module';
+import { SubcategoryModule } from './subcategory/subcategory.module';
 
 
 const ENV = process.env.NODE_ENV;
@@ -42,7 +43,8 @@ const ENV = process.env.NODE_ENV;
     // EmailModule,
     ImageModule,
     TemporaryImagesModule,
-    CategoryModule
+    CategoryModule,
+    SubcategoryModule
   ],
   controllers: [AppController],
   providers: [

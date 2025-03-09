@@ -5,8 +5,8 @@ import { Category } from './category.schema';
 import { Model } from 'mongoose';
 import { badRequestException, requestTimeoutException } from 'src/common/errors';
 import { ImageService } from 'src/image/image.service';
-import { FindOneCategoryParamDto } from './dto/findOneCategory.dto';
 import { FindAllDto } from 'src/common/findAll.dto';
+import { FindOneDto } from 'src/common/findOne.dto';
 
 @Injectable()
 export class CategoryService {
@@ -72,9 +72,9 @@ export class CategoryService {
     }
   }
 
-  async findOne(findOneCategoryParamDto: FindOneCategoryParamDto): Promise<Category> {
+  async findOne(findOneDto: FindOneDto): Promise<Category> {
     try {
-      const category = await this.categoryModel.findById(findOneCategoryParamDto.id).lean().exec();
+      const category = await this.categoryModel.findById(findOneDto.id).lean().exec();
       return (await this.replaceTheImageKey([category]))[0]
     } catch (error) {
       if (error?.name == 'TypeError' || error?.name == 'CastError')

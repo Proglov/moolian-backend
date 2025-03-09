@@ -5,9 +5,9 @@ import { AuthType } from 'src/auth/enums/auth-types';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/pagination.dto';
-import { FindOneCategoryParamDto } from './dto/findOneCategory.dto';
 import { FindAllDto } from 'src/common/findAll.dto';
 import { Category } from './category.schema';
+import { FindOneDto } from 'src/common/findOne.dto';
 
 @Controller('category')
 export class CategoryController {
@@ -45,9 +45,9 @@ export class CategoryController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Category Id is not correct' })
   @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Category is not found' })
   async findOne(
-    @Param() findOneCategoryParamDto: FindOneCategoryParamDto
+    @Param() findOneDto: FindOneDto
   ) {
-    return await this.categoryService.findOne(findOneCategoryParamDto);
+    return await this.categoryService.findOne(findOneDto);
   }
 
 }

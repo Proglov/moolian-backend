@@ -12,5 +12,6 @@ import { ImageModule } from 'src/image/image.module';
   ],
   controllers: [CategoryController],
   providers: [CategoryService],
+  exports: [CategoryService],
 })
 export class CategoryModule { }

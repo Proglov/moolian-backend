@@ -1,12 +1,12 @@
 import { Controller, Get, HttpCode, HttpStatus, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
-import { FindOneUserParamDto } from './dto/findOneUser.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AuthType } from 'src/auth/enums/auth-types';
 import { CurrentUserData } from 'src/auth/interfacesAndType/current-user-data.interface';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { RestrictedUser } from './dto/types';
+import { FindOneDto } from 'src/common/findOne.dto';
 
 
 /** End points related to the users */
@@ -51,8 +51,8 @@ export class UsersController {
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'User Id is not correct' })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
     async findOne(
-        @Param() findOneUserParamDto: FindOneUserParamDto
+        @Param() findOneDtoFindOneDto: FindOneDto
     ): Promise<RestrictedUser> {
-        return this.userService.findOne(findOneUserParamDto);
+        return this.userService.findOne(findOneDtoFindOneDto);
     }
 }

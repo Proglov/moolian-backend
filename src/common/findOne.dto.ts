@@ -2,13 +2,13 @@ import { IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 const idDoc = {
-    description: 'ID of the user, should be a non-empty ObjectId',
+    description: 'ID of the item, should be a non-empty ObjectId',
     type: String,
-    example: '676293d54f5c4704c82c0733'
+    example: '67cd7baedb92fc567e9df356'
 }
 
 
-export class FindOneUserParamDto {
+export class FindOneDto {
     @ApiProperty(idDoc)
     @IsString()
     @IsNotEmpty()
