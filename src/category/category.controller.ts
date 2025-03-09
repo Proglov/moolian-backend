@@ -15,7 +15,7 @@ export class CategoryController {
 
   @Auth(AuthType.Admin)
   @Post()
-  @ApiOperation({ summary: 'caretes a category' })
+  @ApiOperation({ summary: 'creates a category' })
   @HttpCode(HttpStatus.CREATED)
   @ApiResponse({ status: HttpStatus.CREATED, description: 'Category created' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Category name has conflict' })
