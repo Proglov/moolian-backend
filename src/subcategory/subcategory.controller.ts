@@ -30,10 +30,10 @@ export class SubcategoryController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'returns all categories based on the pagination' })
+  @ApiOperation({ summary: 'returns all subcategories based on the pagination' })
   @HttpCode(HttpStatus.ACCEPTED)
-  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Categories found', type: FindAllDto<Subcategory> })
-  @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Categories are not found' })
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Subcategories found', type: FindAllDto<Subcategory> })
+  @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Subcategories are not found' })
   async findAll(
     @Query() query: PaginationDto
   ) {
