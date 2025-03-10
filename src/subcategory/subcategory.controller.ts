@@ -16,7 +16,7 @@ export class SubcategoryController {
 
   @Auth(AuthType.Admin)
   @Post()
-  @ApiOperation({ summary: 'creates a category' })
+  @ApiOperation({ summary: 'creates a subcategory' })
   @HttpCode(HttpStatus.CREATED)
   @ApiResponse({ status: HttpStatus.CREATED, description: 'Subcategory created' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Subcategory name has conflict' })
