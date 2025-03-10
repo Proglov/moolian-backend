@@ -110,11 +110,4 @@ export class AuthController {
     return await this.authService.logout(response, userInfo.userId)
   }
 
-  // @Get('user/get-my-cookies')
-  // getMyCookies(
-  //   @Req() req: Request
-  // ) {
-  //   return req.cookies
-  // }
-
 }
