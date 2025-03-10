@@ -42,7 +42,7 @@ export class SubcategoryService {
       if (error?.code === 11000 && Object.keys(error?.keyPattern)[0] === 'name')
         throw badRequestException('زیر دسته بندی ای با همین نام موجود است')
 
-      throw requestTimeoutException('مشکلی در ایجاد زیر دسته بتدی رخ داده است')
+      throw requestTimeoutException('مشکلی در ایجاد زیر دسته بندی رخ داده است')
     }
   }
 
@@ -61,7 +61,7 @@ export class SubcategoryService {
       }
 
     } catch (error) {
-      throw requestTimeoutException('مشکلی در گرفتن دسته بتدی ها رخ داده است')
+      throw requestTimeoutException('مشکلی در گرفتن دسته بندی ها رخ داده است')
     }
   }
 
@@ -72,7 +72,7 @@ export class SubcategoryService {
     } catch (error) {
       if (error?.name == 'TypeError' || error?.name == 'CastError')
         throw badRequestException('آیدی دسته بندی مورد نظر صحیح نمیباشد')
-      throw requestTimeoutException('مشکلی در گرفتن دسته بتدی رخ داده است')
+      throw requestTimeoutException('مشکلی در گرفتن دسته بندی رخ داده است')
     }
   }
 }
