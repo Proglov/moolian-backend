@@ -19,6 +19,7 @@ import { TemporaryImagesModule } from './temporary-images/temporary-images.modul
 import { CategoryModule } from './category/category.module';
 import { SubcategoryModule } from './subcategory/subcategory.module';
 import { ProvinceModule } from './province/province.module';
+import { CityModule } from './city/city.module';
 
 
 const ENV = process.env.NODE_ENV;
@@ -46,7 +47,8 @@ const ENV = process.env.NODE_ENV;
     TemporaryImagesModule,
     CategoryModule,
     SubcategoryModule,
-    ProvinceModule
+    ProvinceModule,
+    CityModule
   ],
   controllers: [AppController],
   providers: [

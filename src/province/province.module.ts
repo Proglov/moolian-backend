@@ -10,5 +10,6 @@ import { Province, ProvinceSchema } from './province.schema';
   ],
   controllers: [ProvinceController],
   providers: [ProvinceService],
+  exports: [ProvinceService]
 })
 export class ProvinceModule { }

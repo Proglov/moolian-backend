@@ -33,12 +33,18 @@ Content-Type:application/json
 }
 
 // user get cookies
-GET http://localhost:4500/auth/user/get-my-cookies
+GET http://localhost:4500/cookie/get-my-cookies
 
 //protected route
 GET http://localhost:4500/users/676293d54f5c4704c82c0733
 Content-Type:application/json
 
-POST http://localhost:4500/image
-Content-Type:multipart/form-data
-< ./x2z0hjxp.bmp
+POST http://localhost:4500/city/home-page
+Content-Type:application/json
+[
+  "67ced24769646a04530638b3",
+  "67ced23d69646a04530638b0",
+  "67ceb7aa7d31842c96694e58"
+]
+
+GET http://localhost:4500/city/home-page
