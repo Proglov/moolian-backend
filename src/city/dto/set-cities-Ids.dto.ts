@@ -1,6 +1,7 @@
-import { IsString } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
+import messages from 'src/common/dto.messages';
 
 const idsDoc = {
     description: 'IDs of the item, should be a non-empty ObjectId',
@@ -16,7 +17,9 @@ const idsDoc = {
 
 export class CitiesIdsDto {
     @ApiProperty(idsDoc)
-    @IsString()
+    @ArrayNotEmpty(messages.notEmpty('آیدی شهرها'))
+    @IsString({ message: messages.isString('آیدی شهرها').message, each: true })
+    @IsArray(messages.isArray('آیدی شهرها'))
     @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
     ids: string[];
 }

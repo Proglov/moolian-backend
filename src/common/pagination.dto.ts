@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsPositive } from "class-validator";
+import messages from "./dto.messages";
 
 
 const limitDoc = {
@@ -19,12 +20,12 @@ const pageDoc = {
 
 export class PaginationDto {
     @ApiPropertyOptional(limitDoc)
-    @IsPositive()
+    @IsPositive(messages.isPositive('لیمیت'))
     @Type(() => Number)
     limit: number = 10;
 
     @ApiPropertyOptional(pageDoc)
-    @IsPositive()
+    @IsPositive(messages.isPositive('صفحه'))
     @Type(() => Number)
     page: number = 1;
 

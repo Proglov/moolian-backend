@@ -6,6 +6,7 @@ type returnedObject = {
 const messages = {
     isString: (value: string): returnedObject => ({ message: value + ' باید رشته متنی باشد' }),
     isArray: (value: string): returnedObject => ({ message: value + ' باید آرایه باشد' }),
+    isPositive: (value: string): returnedObject => ({ message: value + ' باید عدد مثبت باشد' }),
     max: (value: string, maxLength: number): [number, returnedObject] => [maxLength, { message: value + ' نباید بیشتر از ' + maxLength + ' حرف باشد' }],
     min: (value: string, minLength: number): [number, returnedObject] => [minLength, { message: value + ' نباید کمتر از ' + minLength + ' حرف باشد' }],
     notEmpty: (value: string): returnedObject => ({ message: value + ' ضروریست' }),
