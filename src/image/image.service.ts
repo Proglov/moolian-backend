@@ -171,4 +171,20 @@ export class ImageService {
             throw requestTimeoutException('مشکلی در آپدیت عکس رخ داد')
         }
     }
+
+    async replaceTheImageKey<T extends { imageKey: string }>(items: T[]): Promise<T[]> {
+        const links = await this.getImages(items.map(item => item.imageKey));
+
+        // Create a map for fast access by filename
+        const linkMap = new Map(links.map(link => [link.filename, link.url]));
+
+        // Map the items and replace the imageKey where available
+        return items.map(currentItem => {
+            const imageKey = linkMap.get(currentItem.imageKey);
+            return {
+                ...currentItem,
+                imageKey: imageKey || currentItem.imageKey // Use original imageKey if not found
+            } as T;
+        });
+    }
 }

@@ -22,26 +22,13 @@ export class NoteService {
 
   ) { }
 
-  // this function get the links at first, and then connects to the  related note
-  async replaceTheImageKey(notes: Note[]): Promise<Note[]> {
-    const links = await this.imageService.getImages(notes.map(note => note.imageKey))
-    return notes.map(currentNote => {
-      for (let i = 0; i < links.length; i++) {
-        if (links[i].filename === currentNote.imageKey)
-          return {
-            ...currentNote,
-            imageKey: links[i].url
-          } as Note;
-      }
-      return currentNote;
-    })
-  }
-
-  async create(createNoteDto: CreateNoteDto): Promise<Note> {
+  async create(createNoteDto: CreateNoteDto, replaceTheImageKey?: boolean): Promise<Note> {
     try {
       const newNote = new this.noteModel(createNoteDto)
       const note = (await newNote.save()).toObject()
-      return (await this.replaceTheImageKey([note]))[0]
+      if (!replaceTheImageKey)
+        return note
+      return (await this.imageService.replaceTheImageKey([note]))[0]
     } catch (error) {
       //* mongoose duplication error
       if (error?.code === 11000 && Object.keys(error?.keyPattern)[0] === 'name')
@@ -51,7 +38,7 @@ export class NoteService {
     }
   }
 
-  async findAll(limit: number, page: number): Promise<FindAllDto<Note>> {
+  async findAll(limit: number, page: number, replaceTheImageKey?: boolean): Promise<FindAllDto<Note>> {
     try {
       const skip = (page - 1) * limit;
 
@@ -60,7 +47,10 @@ export class NoteService {
       let notes: Note[] = await query.lean().exec();
       let count = notes.length;
 
-      notes = await this.replaceTheImageKey(notes)
+      if (!replaceTheImageKey)
+        return { items: notes, count }
+
+      notes = await this.imageService.replaceTheImageKey(notes)
 
       return {
         count,
@@ -72,10 +62,14 @@ export class NoteService {
     }
   }
 
-  async findOne(findOneDto: FindOneDto): Promise<Note> {
+  async findOne(findOneDto: FindOneDto, replaceTheImageKey?: boolean): Promise<Note> {
     try {
       const note = await this.noteModel.findById(findOneDto.id).lean().exec();
-      return (await this.replaceTheImageKey([note]))[0]
+
+      if (!replaceTheImageKey)
+        return note
+
+      return (await this.imageService.replaceTheImageKey([note]))[0]
     } catch (error) {
       if (error?.name == 'TypeError' || error?.name == 'CastError')
         throw badRequestException('آیدی نوت مورد نظر صحیح نمیباشد')

@@ -12,5 +12,6 @@ import { ImageModule } from 'src/image/image.module';
   ],
   controllers: [BrandController],
   providers: [BrandService],
+  exports: [BrandService]
 })
 export class BrandModule { }

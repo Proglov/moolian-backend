@@ -166,17 +166,17 @@ export class CreateProductDto {
     @IsString({ each: true, ...messages.isString('آیدی های نوت های اولیه محصول') })
     @IsArray(messages.isArray('آیدی های نوت های اولیه محصول'))
     @ArrayNotEmpty(messages.notEmpty('آیدی های نوت های اولیه محصول'))
-    initialNoteIds: string;
+    initialNoteIds: string[];
 
     @ApiProperty(midNoteIdsDoc)
     @IsString({ each: true, ...messages.isString('آیدی های نوت های میانی محصول') })
     @IsArray(messages.isArray('آیدی های نوت های میانی محصول'))
     @ArrayNotEmpty(messages.notEmpty('آیدی های نوت های میانی محصول'))
-    midNoteIds: string;
+    midNoteIds: string[];
 
     @ApiProperty(baseNoteIdsDoc)
     @IsString({ each: true, ...messages.isString('آیدی های نوت های پابه محصول') })
     @IsArray(messages.isArray('آیدی های نوت های پابه محصول'))
     @ArrayNotEmpty(messages.notEmpty('آیدی های نوت های پابه محصول'))
-    baseNoteIds: string;
+    baseNoteIds: string[];
 }

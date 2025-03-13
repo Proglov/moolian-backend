@@ -12,5 +12,6 @@ import { ImageModule } from 'src/image/image.module';
   ],
   controllers: [NoteController],
   providers: [NoteService],
+  exports: [NoteService],
 })
 export class NoteModule { }

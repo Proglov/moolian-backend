@@ -22,26 +22,13 @@ export class CategoryService {
 
   ) { }
 
-  // this function get the links at first, and then connects to the  related category
-  async replaceTheImageKey(categories: Category[]): Promise<Category[]> {
-    const links = await this.imageService.getImages(categories.map(category => category.imageKey))
-    return categories.map(currentCategory => {
-      for (let i = 0; i < links.length; i++) {
-        if (links[i].filename === currentCategory.imageKey)
-          return {
-            ...currentCategory,
-            imageKey: links[i].url
-          } as Category;
-      }
-      return currentCategory;
-    })
-  }
-
-  async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
+  async create(createCategoryDto: CreateCategoryDto, replaceTheImageKey?: boolean): Promise<Category> {
     try {
       const newCategory = new this.categoryModel(createCategoryDto)
       const category = (await newCategory.save()).toObject()
-      return (await this.replaceTheImageKey([category]))[0]
+      if (!replaceTheImageKey)
+        return category
+      return (await this.imageService.replaceTheImageKey([category]))[0]
     } catch (error) {
       //* mongoose duplication error
       if (error?.code === 11000 && Object.keys(error?.keyPattern)[0] === 'name')
@@ -51,7 +38,7 @@ export class CategoryService {
     }
   }
 
-  async findAll(limit: number, page: number): Promise<FindAllDto<Category>> {
+  async findAll(limit: number, page: number, replaceTheImageKey?: boolean): Promise<FindAllDto<Category>> {
     try {
       const skip = (page - 1) * limit;
 
@@ -60,7 +47,8 @@ export class CategoryService {
       let categories: Category[] = await query.lean().exec();
       let count = categories.length;
 
-      categories = await this.replaceTheImageKey(categories)
+      if (replaceTheImageKey)
+        categories = await this.imageService.replaceTheImageKey(categories)
 
       return {
         count,
@@ -72,10 +60,12 @@ export class CategoryService {
     }
   }
 
-  async findOne(findOneDto: FindOneDto): Promise<Category> {
+  async findOne(findOneDto: FindOneDto, replaceTheImageKey?: boolean): Promise<Category> {
     try {
       const category = await this.categoryModel.findById(findOneDto.id).lean().exec();
-      return (await this.replaceTheImageKey([category]))[0]
+      if (!replaceTheImageKey)
+        return category
+      return (await this.imageService.replaceTheImageKey([category]))[0]
     } catch (error) {
       if (error?.name == 'TypeError' || error?.name == 'CastError')
         throw badRequestException('آیدی دسته بندی مورد نظر صحیح نمیباشد')

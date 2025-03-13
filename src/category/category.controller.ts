@@ -24,7 +24,7 @@ export class CategoryController {
   async create(
     @Body() createCategoryDto: CreateCategoryDto
   ) {
-    return await this.categoryService.create(createCategoryDto);
+    return await this.categoryService.create(createCategoryDto, true);
   }
 
   @Get()
@@ -35,7 +35,7 @@ export class CategoryController {
   async findAll(
     @Query() query: PaginationDto
   ) {
-    return await this.categoryService.findAll(query.limit, query.page);
+    return await this.categoryService.findAll(query.limit, query.page, true);
   }
 
   @Get(':id')
@@ -47,7 +47,7 @@ export class CategoryController {
   async findOne(
     @Param() findOneDto: FindOneDto
   ) {
-    return await this.categoryService.findOne(findOneDto);
+    return await this.categoryService.findOne(findOneDto, true);
   }
 
 }

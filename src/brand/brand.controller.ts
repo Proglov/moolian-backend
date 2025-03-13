@@ -24,7 +24,7 @@ export class BrandController {
   async create(
     @Body() createBrandDto: CreateBrandDto
   ) {
-    return await this.brandService.create(createBrandDto);
+    return await this.brandService.create(createBrandDto, true);
   }
 
   @Get()
@@ -35,7 +35,7 @@ export class BrandController {
   async findAll(
     @Query() query: PaginationDto
   ) {
-    return await this.brandService.findAll(query.limit, query.page);
+    return await this.brandService.findAll(query.limit, query.page, true);
   }
 
   @Get(':id')
@@ -47,7 +47,7 @@ export class BrandController {
   async findOne(
     @Param() findOneDto: FindOneDto
   ) {
-    return await this.brandService.findOne(findOneDto);
+    return await this.brandService.findOne(findOneDto, true);
   }
 
 }

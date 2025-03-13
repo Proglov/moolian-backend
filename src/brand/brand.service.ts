@@ -22,26 +22,13 @@ export class BrandService {
 
   ) { }
 
-  // this function get the links at first, and then connects to the  related brand
-  async replaceTheImageKey(brands: Brand[]): Promise<Brand[]> {
-    const links = await this.imageService.getImages(brands.map(brand => brand.imageKey))
-    return brands.map(currentBrand => {
-      for (let i = 0; i < links.length; i++) {
-        if (links[i].filename === currentBrand.imageKey)
-          return {
-            ...currentBrand,
-            imageKey: links[i].url
-          } as Brand;
-      }
-      return currentBrand;
-    })
-  }
-
-  async create(createBrandDto: CreateBrandDto): Promise<Brand> {
+  async create(createBrandDto: CreateBrandDto, replaceTheImageKey?: boolean): Promise<Brand> {
     try {
       const newBrand = new this.brandModel(createBrandDto)
       const brand = (await newBrand.save()).toObject()
-      return (await this.replaceTheImageKey([brand]))[0]
+      if (!replaceTheImageKey)
+        return brand
+      return (await this.imageService.replaceTheImageKey([brand]))[0]
     } catch (error) {
       //* mongoose duplication error
       if (error?.code === 11000 && (Object.keys(error?.keyPattern)[0] === 'nameFA' || Object.keys(error?.keyPattern)[0] === 'nameEN'))
@@ -51,7 +38,7 @@ export class BrandService {
     }
   }
 
-  async findAll(limit: number, page: number): Promise<FindAllDto<Brand>> {
+  async findAll(limit: number, page: number, replaceTheImageKey?: boolean): Promise<FindAllDto<Brand>> {
     try {
       const skip = (page - 1) * limit;
 
@@ -60,7 +47,8 @@ export class BrandService {
       let brands: Brand[] = await query.lean().exec();
       let count = brands.length;
 
-      brands = await this.replaceTheImageKey(brands)
+      if (replaceTheImageKey)
+        brands = await this.imageService.replaceTheImageKey(brands)
 
       return {
         count,
@@ -72,10 +60,12 @@ export class BrandService {
     }
   }
 
-  async findOne(findOneDto: FindOneDto): Promise<Brand> {
+  async findOne(findOneDto: FindOneDto, replaceTheImageKey?: boolean): Promise<Brand> {
     try {
       const brand = await this.brandModel.findById(findOneDto.id).lean().exec();
-      return (await this.replaceTheImageKey([brand]))[0]
+      if (!replaceTheImageKey)
+        return brand
+      return (await this.imageService.replaceTheImageKey([brand]))[0]
     } catch (error) {
       if (error?.name == 'TypeError' || error?.name == 'CastError')
         throw badRequestException('آیدی برند مورد نظر صحیح نمیباشد')

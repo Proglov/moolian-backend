@@ -24,7 +24,7 @@ export class NoteController {
   async create(
     @Body() createNoteDto: CreateNoteDto
   ) {
-    return await this.noteService.create(createNoteDto);
+    return await this.noteService.create(createNoteDto, true);
   }
 
   @Get()
@@ -35,7 +35,7 @@ export class NoteController {
   async findAll(
     @Query() query: PaginationDto
   ) {
-    return await this.noteService.findAll(query.limit, query.page);
+    return await this.noteService.findAll(query.limit, query.page, true);
   }
 
   @Get(':id')
@@ -47,7 +47,7 @@ export class NoteController {
   async findOne(
     @Param() findOneDto: FindOneDto
   ) {
-    return await this.noteService.findOne(findOneDto);
+    return await this.noteService.findOne(findOneDto, true);
   }
 
 }
