@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsPositive } from "class-validator";
+import messages from "./dto.messages";
 
 
 const itemsDoc = {
@@ -21,7 +22,7 @@ export class FindAllDto<T> {
     items: T[];
 
     @ApiProperty(countDoc)
-    @IsPositive()
+    @IsPositive(messages.isPositive('تعداد'))
     count: number;
 
 }
