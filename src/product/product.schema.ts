@@ -49,13 +49,13 @@ export class Product extends Document {
     weight?: number;
 
     @Prop([{ type: Types.ObjectId, ref: 'Note', required: true }])
-    initialNotes: { type: Types.ObjectId; ref: 'Note' };
+    initialNoteIds: { type: Types.ObjectId; ref: 'Note' };
 
     @Prop([{ type: Types.ObjectId, ref: 'Note', required: true }])
-    midNotes: { type: Types.ObjectId; ref: 'Note' };
+    midNoteIds: { type: Types.ObjectId; ref: 'Note' };
 
     @Prop([{ type: Types.ObjectId, ref: 'Note', required: true }])
-    baseNotes: { type: Types.ObjectId; ref: 'Note' };
+    baseNoteIds: { type: Types.ObjectId; ref: 'Note' };
 
 }
 

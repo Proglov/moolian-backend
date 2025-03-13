@@ -1,6 +1,5 @@
 import { ArrayNotEmpty, IsArray, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
 import messages from 'src/common/dto.messages';
 
 const idsDoc = {
@@ -20,6 +19,5 @@ export class CitiesIdsDto {
     @ArrayNotEmpty(messages.notEmpty('آیدی شهرها'))
     @IsString({ message: messages.isString('آیدی شهرها').message, each: true })
     @IsArray(messages.isArray('آیدی شهرها'))
-    @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
     ids: string[];
 }

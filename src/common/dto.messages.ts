@@ -5,6 +5,10 @@ type returnedObject = {
 
 const messages = {
     isString: (value: string): returnedObject => ({ message: value + ' باید رشته متنی باشد' }),
+    isEnum: (value: string, theEnum: object): returnedObject => {
+        const acceptable = Object.values(theEnum).join(', ');
+        return { message: value + ' باید یکی از مقادیر [' + acceptable + '] باشد' };
+    },
     isArray: (value: string): returnedObject => ({ message: value + ' باید آرایه باشد' }),
     isPositive: (value: string): returnedObject => ({ message: value + ' باید عدد مثبت باشد' }),
     max: (value: string, maxLength: number): [number, returnedObject] => [maxLength, { message: value + ' نباید بیشتر از ' + maxLength + ' حرف باشد' }],
