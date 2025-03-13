@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import messages from './dto.messages';
 
 const idDoc = {
     description: 'ID of the item, should be a non-empty ObjectId',
@@ -10,7 +11,7 @@ const idDoc = {
 
 export class FindOneDto {
     @ApiProperty(idDoc)
-    @IsString()
-    @IsNotEmpty()
+    @IsString(messages.isString('آیدی'))
+    @IsNotEmpty(messages.notEmpty('آیدی'))
     id: string;
 }
