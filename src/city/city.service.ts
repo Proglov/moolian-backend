@@ -71,9 +71,10 @@ export class CityService {
     }
   }
 
-  async setCitiesIds(response: Response, ids: CitiesIdsDto[]): Promise<any> {
+  async setCitiesIds(response: Response, citiesIdsDto: CitiesIdsDto): Promise<any> {
     try {
-      this.cookieProvider.addCookie(response, citiesIds_Cookie_Name, JSON.stringify(ids), 86400)
+      console.log(citiesIdsDto.ids);
+      this.cookieProvider.addCookie(response, citiesIds_Cookie_Name, JSON.stringify(citiesIdsDto.ids), 86400)
     } catch (error) {
       throw requestTimeoutException('مشکلی در ست کردن کوکی شهرها رخ داده است')
     }

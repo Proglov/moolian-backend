@@ -46,10 +46,10 @@ export class CityController {
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'CitiesIds are set successfully' })
   async setCitiesCookies(
-    @Body() ids: CitiesIdsDto[],
+    @Body() citiesIdsDto: CitiesIdsDto,
     @Res({ passthrough: true }) response: Response
   ) {
-    return await this.cityService.setCitiesIds(response, ids);
+    return await this.cityService.setCitiesIds(response, citiesIdsDto);
   }
 
   @Get('home-page')
