@@ -8,6 +8,10 @@ import { Model } from 'mongoose';
 import { BrandService } from 'src/brand/brand.service';
 import { NoteService } from 'src/note/note.service';
 import { ImageService } from 'src/image/image.service';
+import { Notes } from './enums/product.enums';
+import { FindAllDto } from 'src/common/findAll.dto';
+import { PopulatedProduct } from './dto/populated-product.type';
+import { Note } from 'src/note/note.schema';
 
 @Injectable()
 export class ProductService {
@@ -29,12 +33,32 @@ export class ProductService {
 
   ) { }
 
+  private async replaceTheImageKeysOfProducts(products: PopulatedProduct[]): Promise<PopulatedProduct[]> {
+    const noteKeys: (keyof PopulatedProduct)[] = ['initialNoteIds', 'midNoteIds', 'baseNoteIds']
+
+    //get the links of notes imageKeys, brand imageKey, and the imageKeys
+    const links = await this.imageService.getImages(products.map(product => [...noteKeys.map(noteKey => product[noteKey].map((note: Note) => note.imageKey)), product.brandId.imageKey, product.imageKeys]).flat(2));
+
+    // Create a map for fast access by filename
+    const linkMap = new Map(links.map(link => [link.filename, link.url]));
+
+    // Map the products and replace the imageKey where available
+    return products.map(currentProduct => {
+      //deep clone
+      const newObj = JSON.parse(JSON.stringify(currentProduct))
+      //replace the brandId
+      newObj.brandId = { ...currentProduct.brandId, imageKey: linkMap.get(currentProduct.brandId.imageKey) }
+      //replace the imageKeys
+      newObj.imageKeys = currentProduct.imageKeys.map(imageKey => linkMap.get(imageKey));
+      //replace the notes
+      noteKeys.map(noteKey => {
+        newObj[noteKey] = currentProduct[noteKey].map((note: Note) => ({ ...note, imageKey: linkMap.get(note.imageKey) }))
+      })
+      return newObj as PopulatedProduct;
+    });
+  }
+
   async create(createProductDto: CreateProductDto, replaceTheImageKey?: boolean) {
-    enum Notes {
-      initialNote,
-      midNote,
-      baseNote
-    }
 
     const brand = await this.brandService.findOne({ id: createProductDto.brandId }, true);
     if (!brand) throw notFoundException('برند مورد نظر یافت نشد');
@@ -84,8 +108,31 @@ export class ProductService {
     }
   }
 
-  findAll() {
-    return `This action returns all product`;
+  async findAll(limit: number, page: number, replaceTheImageKey?: boolean): Promise<FindAllDto<PopulatedProduct>> {
+    try {
+      const skip = (page - 1) * limit;
+
+      const query = this.productModel.find()
+        .populate('brandId')
+        .populate('initialNoteIds')
+        .populate('midNoteIds')
+        .populate('baseNoteIds')
+        .skip(skip).limit(limit)
+
+      let products = await query.lean().exec() as unknown as PopulatedProduct[];
+      let count = products.length;
+
+      if (replaceTheImageKey)
+        products = await this.replaceTheImageKeysOfProducts(products)
+
+      return {
+        count,
+        items: products
+      }
+
+    } catch (error) {
+      throw requestTimeoutException('مشکلی در گرفتن محصولات ها رخ داده است')
+    }
   }
 
   findOne(id: number) {
