@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { badRequestException, notFoundException, requestTimeoutException } from 'src/common/errors';
@@ -10,11 +10,10 @@ import { NoteService } from 'src/note/note.service';
 import { ImageService } from 'src/image/image.service';
 import { Notes } from './enums/product.enums';
 import { FindAllDto } from 'src/common/findAll.dto';
-<<<<<<< HEAD
 import { PopulatedProduct } from './dto/populated-product.type';
 import { Note } from 'src/note/note.schema';
-=======
->>>>>>> 182af03af503ee12f2d85c06054eb39812d17f0d
+import { FindOneDto } from 'src/common/findOne.dto';
+import { Brand } from 'src/brand/brand.schema';
 
 @Injectable()
 export class ProductService {
@@ -36,23 +35,17 @@ export class ProductService {
 
   ) { }
 
-<<<<<<< HEAD
   private async replaceTheImageKeysOfProducts(products: PopulatedProduct[]): Promise<PopulatedProduct[]> {
     const noteKeys: (keyof PopulatedProduct)[] = ['initialNoteIds', 'midNoteIds', 'baseNoteIds']
 
     //get the links of notes imageKeys, brand imageKey, and the imageKeys
     const links = await this.imageService.getImages(products.map(product => [...noteKeys.map(noteKey => product[noteKey].map((note: Note) => note.imageKey)), product.brandId.imageKey, product.imageKeys]).flat(2));
-=======
-  private async replaceTheImageKeys(products: Product[]): Promise<Product[]> {
-    const links = await this.imageService.getImages(products.map(product => product.imageKeys).flat());
->>>>>>> 182af03af503ee12f2d85c06054eb39812d17f0d
 
     // Create a map for fast access by filename
     const linkMap = new Map(links.map(link => [link.filename, link.url]));
 
     // Map the products and replace the imageKey where available
     return products.map(currentProduct => {
-<<<<<<< HEAD
       //deep clone
       const newObj = JSON.parse(JSON.stringify(currentProduct))
       //replace the brandId
@@ -64,20 +57,44 @@ export class ProductService {
         newObj[noteKey] = currentProduct[noteKey].map((note: Note) => ({ ...note, imageKey: linkMap.get(note.imageKey) }))
       })
       return newObj as PopulatedProduct;
-=======
-      let imageKeys = currentProduct.imageKeys.map(imageKey => linkMap.get(imageKey));
-      return {
-        ...currentProduct,
-        imageKeys: imageKeys
-      } as Product;
->>>>>>> 182af03af503ee12f2d85c06054eb39812d17f0d
     });
+  }
+
+  async checkTheBrand(id: string): Promise<Brand> {
+    const brand = await this.brandService.findOne({ id }, true);
+    if (!brand) throw notFoundException('برند مورد نظر یافت نشد');
+    return brand
+  }
+
+  async checkTheNotes(baseNoteIds?: string[], midNoteIds?: string[], initialNoteIds?: string[]): Promise<Record<Notes, Note[]>> {
+    // Create an array of promises paired with their type of note id
+    const notePromises = [
+      ...baseNoteIds.map(baseNoteId =>
+        this.noteService.findOne({ id: baseNoteId }, true).then(note => ({ note, type: Notes.baseNote }))
+      ),
+      ...midNoteIds.map(midNoteId =>
+        this.noteService.findOne({ id: midNoteId }, true).then(note => ({ note, type: Notes.midNote }))
+      ),
+      ...initialNoteIds.map(initialNoteId =>
+        this.noteService.findOne({ id: initialNoteId }, true).then(note => ({ note, type: Notes.initialNote }))
+      )
+    ];
+    const notesWithTypes = await Promise.all(notePromises);
+    if ((baseNoteIds.length !== 0 || initialNoteIds.length !== 0 || midNoteIds.length !== 0) && notesWithTypes.every(item => !item.note))
+      throw notFoundException('نوت مورد نظر یافت نشد');
+
+    // organize the notes based on their types
+    const notes = notesWithTypes.reduce((acc, { note, type }) => {
+      acc[type] = [...(acc[type] || []), note];
+      return acc;
+    }, { [Notes.baseNote]: [], [Notes.initialNote]: [], [Notes.midNote]: [] });
+
+    return notes
   }
 
   async create(createProductDto: CreateProductDto, replaceTheImageKey?: boolean) {
 
-    const brand = await this.brandService.findOne({ id: createProductDto.brandId }, true);
-    if (!brand) throw notFoundException('برند مورد نظر یافت نشد');
+    const brand = await this.checkTheBrand(createProductDto.brandId);
 
     // Create an array of promises paired with their type of note id
     const notePromises = [
@@ -96,10 +113,7 @@ export class ProductService {
     if (notesWithTypes.some(item => !item.note)) throw notFoundException('نوت مورد نظر یافت نشد');
 
     // organize the notes based on their types
-    const notes = notesWithTypes.reduce((acc, { note, type }) => {
-      acc[type] = [...(acc[type] || []), note];
-      return acc;
-    }, { [Notes.baseNote]: [], [Notes.initialNote]: [], [Notes.midNote]: [] });
+    const notes = await this.checkTheNotes(createProductDto.baseNoteIds, createProductDto.midNoteIds, createProductDto.initialNoteIds)
 
     try {
       const newProduct = await new this.productModel(createProductDto).save();
@@ -117,18 +131,14 @@ export class ProductService {
       return { ...result, imageKeys: imageKeys.map(imageObj => imageObj.url) };
 
     } catch (error) {
-      if (error?.code === 11000 && ['nameFA', 'nameEN'].includes(Object.keys(error?.keyPattern)[0])) {
+      if (error?.code === 11000 && ['nameFA', 'nameEN'].includes(Object.keys(error?.keyPattern)[0]))
         throw badRequestException('محصولی با همین نام موجود است');
-      }
+
       throw requestTimeoutException('مشکلی در ایجاد محصول رخ داده است');
     }
   }
 
-<<<<<<< HEAD
   async findAll(limit: number, page: number, replaceTheImageKey?: boolean): Promise<FindAllDto<PopulatedProduct>> {
-=======
-  async findAll(limit: number, page: number, replaceTheImageKey?: boolean): Promise<FindAllDto<Product>> {
->>>>>>> 182af03af503ee12f2d85c06054eb39812d17f0d
     try {
       const skip = (page - 1) * limit;
 
@@ -139,19 +149,11 @@ export class ProductService {
         .populate('baseNoteIds')
         .skip(skip).limit(limit)
 
-<<<<<<< HEAD
       let products = await query.lean().exec() as unknown as PopulatedProduct[];
       let count = products.length;
 
       if (replaceTheImageKey)
         products = await this.replaceTheImageKeysOfProducts(products)
-=======
-      let products: Product[] = await query.lean().exec();
-      let count = products.length;
-
-      if (replaceTheImageKey)
-        products = await this.replaceTheImageKeys(products)
->>>>>>> 182af03af503ee12f2d85c06054eb39812d17f0d
 
       return {
         count,
@@ -163,11 +165,30 @@ export class ProductService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  //! THIS METHOD IS NOT COMPLETED YET. WE NEED TO ADD DISCOUNTS TO THE AGGREGATION
+  async findOne(findOneDto: FindOneDto, replaceTheImageKey?: boolean): Promise<Product> {
+    throw new ServiceUnavailableException('this method is not completed yet')
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: string, updateProductDto: UpdateProductDto) {
+    if (updateProductDto?.brandId)
+      await this.checkTheBrand(updateProductDto.brandId)
+
+    await this.checkTheNotes(updateProductDto.baseNoteIds, updateProductDto.midNoteIds, updateProductDto.initialNoteIds)
+
+    try {
+      const existingProduct = await this.productModel.findByIdAndUpdate(id, updateProductDto, { new: true })
+      if (!existingProduct)
+        throw notFoundException();
+      return existingProduct
+    } catch (error) {
+      if (error instanceof NotFoundException)
+        throw notFoundException('آیدی محصول یافت نشد');
+
+      if (error?.code === 11000 && ['nameFA', 'nameEN'].includes(Object.keys(error?.keyPattern)[0]))
+        throw badRequestException('محصولی با همین نام موجود است');
+
+      throw requestTimeoutException('مشکلی در آپدیت کردن محصول رخ داده است')
+    }
   }
 }

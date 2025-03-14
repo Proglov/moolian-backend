@@ -74,13 +74,13 @@ const genderDoc = {
 const flavorDoc = {
     description: 'the flavor of the product',
     type: Number,
-    example: Flavor.warm
+    example: [Flavor.warm]
 }
 
 const seasonDoc = {
     description: 'the season of the product',
     type: Number,
-    example: Season.warm
+    example: [Season.warm]
 }
 
 const initialNoteIdsDoc = {
@@ -155,12 +155,14 @@ export class CreateProductDto {
     gender: Gender;
 
     @ApiProperty(flavorDoc)
-    @IsEnum(Flavor, { message: messages.isEnum('طبع محصول', Flavor).message })
-    flavor: Flavor;
+    @IsArray(messages.isArray('طبع محصول'))
+    @IsEnum(Flavor, { each: true, message: messages.isEnum('طبع محصول', Flavor).message })
+    flavor: Flavor[];
 
     @ApiProperty(seasonDoc)
-    @IsEnum(Season, { message: messages.isEnum('فصل محصول', Season).message })
-    season: Season;
+    @IsArray(messages.isArray('فصل محصول'))
+    @IsEnum(Season, { each: true, message: messages.isEnum('فصل محصول', Season).message })
+    season: Season[];
 
     @ApiProperty(initialNoteIdsDoc)
     @IsString({ each: true, ...messages.isString('آیدی های نوت های اولیه محصول') })
