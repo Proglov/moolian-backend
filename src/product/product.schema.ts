@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, SchemaTypes, Types } from 'mongoose';
+import mongoose, { Document, SchemaTypes, Types } from 'mongoose';
 import { Flavor, Gender, Season } from './enums/product.enums';
 
 @Schema({ versionKey: false })
@@ -14,7 +14,7 @@ export class Product extends Document {
     nameEN: string;
 
     @Prop({ type: Types.ObjectId, ref: 'Brand', required: true })
-    brandId: { type: Types.ObjectId; ref: 'Brand' };
+    brandId: mongoose.Schema.Types.ObjectId;
 
     @Prop({ type: String, required: true })
     desc: string;
@@ -49,13 +49,13 @@ export class Product extends Document {
     weight?: number;
 
     @Prop([{ type: Types.ObjectId, ref: 'Note', required: true }])
-    initialNoteIds: { type: Types.ObjectId; ref: 'Note' };
+    initialNoteIds: mongoose.Schema.Types.ObjectId[];
 
     @Prop([{ type: Types.ObjectId, ref: 'Note', required: true }])
-    midNoteIds: { type: Types.ObjectId; ref: 'Note' };
+    midNoteIds: mongoose.Schema.Types.ObjectId[];
 
     @Prop([{ type: Types.ObjectId, ref: 'Note', required: true }])
-    baseNoteIds: { type: Types.ObjectId; ref: 'Note' };
+    baseNoteIds: mongoose.Schema.Types.ObjectId[];
 
 }
 
