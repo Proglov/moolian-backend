@@ -10,8 +10,11 @@ import { NoteService } from 'src/note/note.service';
 import { ImageService } from 'src/image/image.service';
 import { Notes } from './enums/product.enums';
 import { FindAllDto } from 'src/common/findAll.dto';
+<<<<<<< HEAD
 import { PopulatedProduct } from './dto/populated-product.type';
 import { Note } from 'src/note/note.schema';
+=======
+>>>>>>> 182af03af503ee12f2d85c06054eb39812d17f0d
 
 @Injectable()
 export class ProductService {
@@ -33,17 +36,23 @@ export class ProductService {
 
   ) { }
 
+<<<<<<< HEAD
   private async replaceTheImageKeysOfProducts(products: PopulatedProduct[]): Promise<PopulatedProduct[]> {
     const noteKeys: (keyof PopulatedProduct)[] = ['initialNoteIds', 'midNoteIds', 'baseNoteIds']
 
     //get the links of notes imageKeys, brand imageKey, and the imageKeys
     const links = await this.imageService.getImages(products.map(product => [...noteKeys.map(noteKey => product[noteKey].map((note: Note) => note.imageKey)), product.brandId.imageKey, product.imageKeys]).flat(2));
+=======
+  private async replaceTheImageKeys(products: Product[]): Promise<Product[]> {
+    const links = await this.imageService.getImages(products.map(product => product.imageKeys).flat());
+>>>>>>> 182af03af503ee12f2d85c06054eb39812d17f0d
 
     // Create a map for fast access by filename
     const linkMap = new Map(links.map(link => [link.filename, link.url]));
 
     // Map the products and replace the imageKey where available
     return products.map(currentProduct => {
+<<<<<<< HEAD
       //deep clone
       const newObj = JSON.parse(JSON.stringify(currentProduct))
       //replace the brandId
@@ -55,6 +64,13 @@ export class ProductService {
         newObj[noteKey] = currentProduct[noteKey].map((note: Note) => ({ ...note, imageKey: linkMap.get(note.imageKey) }))
       })
       return newObj as PopulatedProduct;
+=======
+      let imageKeys = currentProduct.imageKeys.map(imageKey => linkMap.get(imageKey));
+      return {
+        ...currentProduct,
+        imageKeys: imageKeys
+      } as Product;
+>>>>>>> 182af03af503ee12f2d85c06054eb39812d17f0d
     });
   }
 
@@ -108,7 +124,11 @@ export class ProductService {
     }
   }
 
+<<<<<<< HEAD
   async findAll(limit: number, page: number, replaceTheImageKey?: boolean): Promise<FindAllDto<PopulatedProduct>> {
+=======
+  async findAll(limit: number, page: number, replaceTheImageKey?: boolean): Promise<FindAllDto<Product>> {
+>>>>>>> 182af03af503ee12f2d85c06054eb39812d17f0d
     try {
       const skip = (page - 1) * limit;
 
@@ -119,11 +139,19 @@ export class ProductService {
         .populate('baseNoteIds')
         .skip(skip).limit(limit)
 
+<<<<<<< HEAD
       let products = await query.lean().exec() as unknown as PopulatedProduct[];
       let count = products.length;
 
       if (replaceTheImageKey)
         products = await this.replaceTheImageKeysOfProducts(products)
+=======
+      let products: Product[] = await query.lean().exec();
+      let count = products.length;
+
+      if (replaceTheImageKey)
+        products = await this.replaceTheImageKeys(products)
+>>>>>>> 182af03af503ee12f2d85c06054eb39812d17f0d
 
       return {
         count,

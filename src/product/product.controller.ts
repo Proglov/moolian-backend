@@ -7,7 +7,11 @@ import { AuthType } from 'src/auth/enums/auth-types';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/pagination.dto';
 import { FindAllDto } from 'src/common/findAll.dto';
+<<<<<<< HEAD
 import { PopulatedProduct } from './dto/populated-product.type';
+=======
+import { Product } from './product.schema';
+>>>>>>> 182af03af503ee12f2d85c06054eb39812d17f0d
 
 @Controller('product')
 export class ProductController {
@@ -30,7 +34,11 @@ export class ProductController {
   @Get()
   @ApiOperation({ summary: 'returns all products based on the pagination' })
   @HttpCode(HttpStatus.ACCEPTED)
+<<<<<<< HEAD
   @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Products found', type: FindAllDto<PopulatedProduct> })
+=======
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Products found', type: FindAllDto<Product> })
+>>>>>>> 182af03af503ee12f2d85c06054eb39812d17f0d
   @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Products are not found' })
   async findAll(
     @Query() query: PaginationDto
