@@ -1,10 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, HttpCode, HttpStatus, Query } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AuthType } from 'src/auth/enums/auth-types';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { PaginationDto } from 'src/common/pagination.dto';
+import { FindAllDto } from 'src/common/findAll.dto';
+import { Product } from './product.schema';
 
 @Controller('product')
 export class ProductController {
@@ -25,8 +28,14 @@ export class ProductController {
   }
 
   @Get()
-  findAll() {
-    return this.productService.findAll();
+  @ApiOperation({ summary: 'returns all products based on the pagination' })
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Products found', type: FindAllDto<Product> })
+  @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Products are not found' })
+  async findAll(
+    @Query() query: PaginationDto
+  ) {
+    return await this.productService.findAll(query.limit, query.page, true);
   }
 
   @Get(':id')

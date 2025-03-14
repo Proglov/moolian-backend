@@ -20,3 +20,10 @@ export enum Season {
     cold,
     mild
 }
+
+
+export enum Notes {
+    initialNote,
+    midNote,
+    baseNote
+}

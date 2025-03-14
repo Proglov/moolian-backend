@@ -8,6 +8,8 @@ import { Model } from 'mongoose';
 import { BrandService } from 'src/brand/brand.service';
 import { NoteService } from 'src/note/note.service';
 import { ImageService } from 'src/image/image.service';
+import { Notes } from './enums/product.enums';
+import { FindAllDto } from 'src/common/findAll.dto';
 
 @Injectable()
 export class ProductService {
@@ -29,12 +31,23 @@ export class ProductService {
 
   ) { }
 
+  private async replaceTheImageKeys(products: Product[]): Promise<Product[]> {
+    const links = await this.imageService.getImages(products.map(product => product.imageKeys).flat());
+
+    // Create a map for fast access by filename
+    const linkMap = new Map(links.map(link => [link.filename, link.url]));
+
+    // Map the products and replace the imageKey where available
+    return products.map(currentProduct => {
+      let imageKeys = currentProduct.imageKeys.map(imageKey => linkMap.get(imageKey));
+      return {
+        ...currentProduct,
+        imageKeys: imageKeys
+      } as Product;
+    });
+  }
+
   async create(createProductDto: CreateProductDto, replaceTheImageKey?: boolean) {
-    enum Notes {
-      initialNote,
-      midNote,
-      baseNote
-    }
 
     const brand = await this.brandService.findOne({ id: createProductDto.brandId }, true);
     if (!brand) throw notFoundException('برند مورد نظر یافت نشد');
@@ -84,8 +97,31 @@ export class ProductService {
     }
   }
 
-  findAll() {
-    return `This action returns all product`;
+  async findAll(limit: number, page: number, replaceTheImageKey?: boolean): Promise<FindAllDto<Product>> {
+    try {
+      const skip = (page - 1) * limit;
+
+      const query = this.productModel.find()
+        .populate('brandId')
+        .populate('initialNoteIds')
+        .populate('midNoteIds')
+        .populate('baseNoteIds')
+        .skip(skip).limit(limit)
+
+      let products: Product[] = await query.lean().exec();
+      let count = products.length;
+
+      if (replaceTheImageKey)
+        products = await this.replaceTheImageKeys(products)
+
+      return {
+        count,
+        items: products
+      }
+
+    } catch (error) {
+      throw requestTimeoutException('مشکلی در گرفتن محصولات ها رخ داده است')
+    }
   }
 
   findOne(id: number) {

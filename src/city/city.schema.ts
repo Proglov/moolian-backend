@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document, SchemaTypes, Types } from 'mongoose';
+import { Province } from 'src/province/province.schema';
 
 @Schema({ versionKey: false })
 export class City extends Document {
@@ -9,7 +10,7 @@ export class City extends Document {
     @Prop({ type: String, required: true, unique: true })
     name: string;
 
-    @Prop({ type: Types.ObjectId, ref: 'Province', required: true })
+    @Prop({ type: Types.ObjectId, ref: Province.name, required: true })
     provinceId: mongoose.Schema.Types.ObjectId;
 
 }

@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document, SchemaTypes, Types } from 'mongoose';
 import { Flavor, Gender, Season } from './enums/product.enums';
+import { Note } from 'src/note/note.schema';
+import { Brand } from 'src/brand/brand.schema';
 
 @Schema({ versionKey: false })
 export class Product extends Document {
@@ -13,7 +15,7 @@ export class Product extends Document {
     @Prop({ type: String, required: true, unique: true })
     nameEN: string;
 
-    @Prop({ type: Types.ObjectId, ref: 'Brand', required: true })
+    @Prop({ type: Types.ObjectId, ref: Brand.name, required: true })
     brandId: mongoose.Schema.Types.ObjectId;
 
     @Prop({ type: String, required: true })
@@ -48,13 +50,13 @@ export class Product extends Document {
     @Prop({ type: Number })
     weight?: number;
 
-    @Prop([{ type: Types.ObjectId, ref: 'Note', required: true }])
+    @Prop({ type: [Types.ObjectId], ref: Note.name })
     initialNoteIds: mongoose.Schema.Types.ObjectId[];
 
-    @Prop([{ type: Types.ObjectId, ref: 'Note', required: true }])
+    @Prop({ type: [Types.ObjectId], ref: Note.name })
     midNoteIds: mongoose.Schema.Types.ObjectId[];
 
-    @Prop([{ type: Types.ObjectId, ref: 'Note', required: true }])
+    @Prop({ type: [Types.ObjectId], ref: Note.name })
     baseNoteIds: mongoose.Schema.Types.ObjectId[];
 
 }
