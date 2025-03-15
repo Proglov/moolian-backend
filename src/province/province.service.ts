@@ -37,12 +37,14 @@ export class ProvinceService {
 
       const query = this.provinceModel.find().skip(skip).limit(limit)
 
-      const categories: Province[] = await query.lean().exec();
-      let count = categories.length;
+      const [provinces, count] = await Promise.all([
+        query.lean().exec() as unknown as Province[],
+        this.provinceModel.countDocuments()
+      ]);
 
       return {
         count,
-        items: categories
+        items: provinces
       }
 
     } catch (error) {

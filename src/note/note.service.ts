@@ -51,8 +51,10 @@ export class NoteService {
 
       const query = this.noteModel.find().skip(skip).limit(limit)
 
-      let notes: Note[] = await query.lean().exec();
-      let count = notes.length;
+      let [notes, count] = await Promise.all([
+        query.lean().exec() as unknown as Note[],
+        this.noteModel.countDocuments()
+      ]);
 
       if (!replaceTheImageKey)
         return { items: notes, count }

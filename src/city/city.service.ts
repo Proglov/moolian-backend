@@ -58,12 +58,14 @@ export class CityService {
 
       const query = this.cityModel.find().skip(skip).limit(limit)
 
-      const subcategories: City[] = await query.lean().exec();
-      let count = subcategories.length;
+      const [cities, count] = await Promise.all([
+        query.lean().exec() as unknown as City[],
+        this.cityModel.countDocuments()
+      ]);
 
       return {
         count,
-        items: subcategories
+        items: cities
       }
 
     } catch (error) {

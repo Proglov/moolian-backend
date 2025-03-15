@@ -44,8 +44,10 @@ export class CategoryService {
 
       const query = this.categoryModel.find().skip(skip).limit(limit)
 
-      let categories: Category[] = await query.lean().exec();
-      let count = categories.length;
+      let [categories, count] = await Promise.all([
+        query.lean().exec() as unknown as Category[],
+        this.categoryModel.countDocuments()
+      ]);
 
       if (replaceTheImageKey)
         categories = await this.imageService.replaceTheImageKey(categories)

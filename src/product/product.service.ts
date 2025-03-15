@@ -140,8 +140,10 @@ export class ProductService {
         .populate('baseNoteIds')
         .skip(skip).limit(limit)
 
-      let products = await query.lean().exec() as unknown as PopulatedProduct[];
-      let count = products.length;
+      let [products, count] = await Promise.all([
+        query.lean().exec() as unknown as PopulatedProduct[],
+        this.productModel.countDocuments()
+      ]);
 
       if (replaceTheImageKey)
         products = await this.replaceTheImageKeysOfProducts(products)

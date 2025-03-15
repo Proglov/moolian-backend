@@ -52,8 +52,10 @@ export class BrandService {
 
       const query = this.brandModel.find().skip(skip).limit(limit)
 
-      let brands: Brand[] = await query.lean().exec();
-      let count = brands.length;
+      let [brands, count] = await Promise.all([
+        query.lean().exec() as unknown as Brand[],
+        this.brandModel.countDocuments()
+      ]);
 
       if (replaceTheImageKey)
         brands = await this.imageService.replaceTheImageKey(brands)
