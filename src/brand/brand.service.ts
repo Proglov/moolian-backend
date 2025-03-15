@@ -7,6 +7,7 @@ import { badRequestException, requestTimeoutException } from 'src/common/errors'
 import { ImageService } from 'src/image/image.service';
 import { FindAllDto } from 'src/common/findAll.dto';
 import { FindOneDto } from 'src/common/findOne.dto';
+import { TemporaryImagesService } from 'src/temporary-images/temporary-images.service';
 
 @Injectable()
 export class BrandService {
@@ -20,6 +21,9 @@ export class BrandService {
     /**  Inject the image service to replace the image link */
     private readonly imageService: ImageService,
 
+    /**  Inject the Temporary images service to delete temp images after product has been created */
+    private readonly temporaryImagesService: TemporaryImagesService,
+
   ) { }
 
   async create(createBrandDto: CreateBrandDto, replaceTheImageKey?: boolean): Promise<Brand> {
@@ -28,6 +32,10 @@ export class BrandService {
       const brand = (await newBrand.save()).toObject()
       if (!replaceTheImageKey)
         return brand
+
+      //* delete the temporary image
+      await this.temporaryImagesService.deleteTemporaryImagesByNames([createBrandDto.imageKey])
+
       return (await this.imageService.replaceTheImageKey([brand]))[0]
     } catch (error) {
       //* mongoose duplication error

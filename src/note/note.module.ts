@@ -4,11 +4,13 @@ import { NoteController } from './note.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Note, NoteSchema } from './note.schema';
 import { ImageModule } from 'src/image/image.module';
+import { TemporaryImagesModule } from 'src/temporary-images/temporary-images.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Note.name, schema: NoteSchema }]),
-    ImageModule
+    ImageModule,
+    TemporaryImagesModule
   ],
   controllers: [NoteController],
   providers: [NoteService],

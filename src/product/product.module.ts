@@ -6,11 +6,13 @@ import { Product, ProductSchema } from './product.schema';
 import { ImageModule } from 'src/image/image.module';
 import { BrandModule } from 'src/brand/brand.module';
 import { NoteModule } from 'src/note/note.module';
+import { TemporaryImagesModule } from 'src/temporary-images/temporary-images.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
     ImageModule,
+    TemporaryImagesModule,
     BrandModule,
     NoteModule
   ],

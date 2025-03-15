@@ -14,6 +14,7 @@ import { PopulatedProduct } from './dto/populated-product.type';
 import { Note } from 'src/note/note.schema';
 import { FindOneDto } from 'src/common/findOne.dto';
 import { Brand } from 'src/brand/brand.schema';
+import { TemporaryImagesService } from 'src/temporary-images/temporary-images.service';
 
 @Injectable()
 export class ProductService {
@@ -32,6 +33,9 @@ export class ProductService {
 
     /**  Inject the image service to replace the image link */
     private readonly imageService: ImageService,
+
+    /**  Inject the Temporary images service to delete temp images after product has been created */
+    private readonly temporaryImagesService: TemporaryImagesService,
 
   ) { }
 
@@ -96,22 +100,6 @@ export class ProductService {
 
     const brand = await this.checkTheBrand(createProductDto.brandId);
 
-    // Create an array of promises paired with their type of note id
-    const notePromises = [
-      ...createProductDto.baseNoteIds.map(baseNoteId =>
-        this.noteService.findOne({ id: baseNoteId }, true).then(note => ({ note, type: Notes.baseNote }))
-      ),
-      ...createProductDto.midNoteIds.map(midNoteId =>
-        this.noteService.findOne({ id: midNoteId }, true).then(note => ({ note, type: Notes.midNote }))
-      ),
-      ...createProductDto.initialNoteIds.map(initialNoteId =>
-        this.noteService.findOne({ id: initialNoteId }, true).then(note => ({ note, type: Notes.initialNote }))
-      )
-    ];
-
-    const notesWithTypes = await Promise.all(notePromises);
-    if (notesWithTypes.some(item => !item.note)) throw notFoundException('نوت مورد نظر یافت نشد');
-
     // organize the notes based on their types
     const notes = await this.checkTheNotes(createProductDto.baseNoteIds, createProductDto.midNoteIds, createProductDto.initialNoteIds)
 
@@ -126,6 +114,9 @@ export class ProductService {
       };
 
       if (!replaceTheImageKey) return result;
+
+      //* delete the temporary images
+      await this.temporaryImagesService.deleteTemporaryImagesByNames(result.imageKeys)
 
       const imageKeys = await this.imageService.getImages(result.imageKeys);
       return { ...result, imageKeys: imageKeys.map(imageObj => imageObj.url) };
@@ -175,6 +166,11 @@ export class ProductService {
       await this.checkTheBrand(updateProductDto.brandId)
 
     await this.checkTheNotes(updateProductDto.baseNoteIds, updateProductDto.midNoteIds, updateProductDto.initialNoteIds)
+
+
+    //* delete the temporary images
+    if (updateProductDto.imageKeys.length > 0)
+      await this.temporaryImagesService.deleteTemporaryImagesByNames(updateProductDto.imageKeys)
 
     try {
       const existingProduct = await this.productModel.findByIdAndUpdate(id, updateProductDto, { new: true })

@@ -4,11 +4,13 @@ import { BrandController } from './brand.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Brand, BrandSchema } from './brand.schema';
 import { ImageModule } from 'src/image/image.module';
+import { TemporaryImagesModule } from 'src/temporary-images/temporary-images.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Brand.name, schema: BrandSchema }]),
-    ImageModule
+    ImageModule,
+    TemporaryImagesModule
   ],
   controllers: [BrandController],
   providers: [BrandService],
