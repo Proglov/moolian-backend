@@ -1,16 +1,16 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import { Document, SchemaTypes, Types } from 'mongoose';
 import { User } from 'src/users/user.schema';
 
 @Schema({ versionKey: false })
 export class Admin extends Document {
     @Prop({
-        type: mongoose.Schema.Types.ObjectId,
+        type: SchemaTypes.ObjectId,
         ref: User.name,
         required: true,
         unique: true
     })
-    userId: string;
+    userId: Types.ObjectId;
 }
 
 

@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document, SchemaTypes, Types } from 'mongoose';
+import { Document, SchemaTypes, Types } from 'mongoose';
 import { Flavor, Gender, Season } from './enums/product.enums';
 import { Note } from 'src/note/note.schema';
 import { Brand } from 'src/brand/brand.schema';
@@ -15,8 +15,8 @@ export class Product extends Document {
     @Prop({ type: String, required: true, unique: true })
     nameEN: string;
 
-    @Prop({ type: Types.ObjectId, ref: Brand.name, required: true })
-    brandId: mongoose.Schema.Types.ObjectId;
+    @Prop({ type: SchemaTypes.ObjectId, ref: Brand.name, required: true })
+    brandId: Types.ObjectId;
 
     @Prop({ type: String, required: true })
     desc: string;
@@ -50,14 +50,14 @@ export class Product extends Document {
     @Prop({ type: Number })
     weight?: number;
 
-    @Prop({ type: [Types.ObjectId], ref: Note.name })
-    initialNoteIds: mongoose.Schema.Types.ObjectId[];
+    @Prop({ type: [SchemaTypes.ObjectId], ref: Note.name })
+    initialNoteIds: Types.ObjectId[];
 
-    @Prop({ type: [Types.ObjectId], ref: Note.name })
-    midNoteIds: mongoose.Schema.Types.ObjectId[];
+    @Prop({ type: [SchemaTypes.ObjectId], ref: Note.name })
+    midNoteIds: Types.ObjectId[];
 
-    @Prop({ type: [Types.ObjectId], ref: Note.name })
-    baseNoteIds: mongoose.Schema.Types.ObjectId[];
+    @Prop({ type: [SchemaTypes.ObjectId], ref: Note.name })
+    baseNoteIds: Types.ObjectId[];
 
 }
 
