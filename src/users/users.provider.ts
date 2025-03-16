@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model, UpdateQuery } from 'mongoose';
+import { FilterQuery, Model, Types, UpdateQuery } from 'mongoose';
 import { User } from './user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { HashProvider } from 'src/auth/providers/password.provider';
@@ -71,7 +71,7 @@ export class UsersProvider {
     /**
      * find a single User by Id, doesn't return the password
      */
-    async findOneByID(id: string): Promise<RestrictedUser> {
+    async findOneByID(id: Types.ObjectId): Promise<RestrictedUser> {
         try {
             const existingUser = await this.userModel.findById(id).select(this.selectOptions);
             return existingUser;

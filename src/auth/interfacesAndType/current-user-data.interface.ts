@@ -1,4 +1,5 @@
+import { Types } from "mongoose";
 
 export interface CurrentUserData {
-    userId: string
+    userId: Types.ObjectId
 }

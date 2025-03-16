@@ -59,7 +59,7 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
 
             if (!isPasswordTrue) throw unauthorizedException(this.errorMessageEmailOrUsername)
 
-            return { userId: user._id.toHexString() }
+            return { userId: user._id }
         } catch (error) {
             throw unauthorizedException(this.errorMessageEmailOrUsername)
         }

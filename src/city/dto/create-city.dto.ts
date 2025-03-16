@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsString } from "class-validator";
+import { Types } from "mongoose";
 import messages from "src/common/dto.messages";
 import { idDocGenerator } from "src/common/findOne.dto";
 
@@ -18,5 +19,5 @@ export class CreateCityDto {
     @ApiProperty(idDocGenerator('provinceId', 'city'))
     @IsString(messages.isString('عکس شهر'))
     @IsNotEmpty(messages.notEmpty('عکس شهر'))
-    provinceId: string;
+    provinceId: Types.ObjectId;
 }

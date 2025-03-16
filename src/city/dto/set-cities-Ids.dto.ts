@@ -1,6 +1,7 @@
 import { ArrayNotEmpty, IsArray, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import messages from 'src/common/dto.messages';
+import { Types } from 'mongoose';
 
 const idsDoc = {
     description: 'IDs of the item, should be a non-empty ObjectId',
@@ -19,5 +20,5 @@ export class CitiesIdsDto {
     @ArrayNotEmpty(messages.notEmpty('آیدی شهرها'))
     @IsString({ message: messages.isString('آیدی شهرها').message, each: true })
     @IsArray(messages.isArray('آیدی شهرها'))
-    ids: string[];
+    ids: Types.ObjectId[];
 }

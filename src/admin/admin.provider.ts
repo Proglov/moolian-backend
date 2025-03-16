@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Admin } from './admin.schema';
 import { InjectModel } from '@nestjs/mongoose';
 
@@ -18,7 +18,7 @@ export class AdminProvider {
   /**
    * Check if the User is Admin by its Id
    */
-  async isAdmin(userId: string): Promise<boolean> {
+  async isAdmin(userId: Types.ObjectId): Promise<boolean> {
     try {
       const existingAdmin = await this.adminModel.findOne({ userId })
       if (!existingAdmin) throw new Error()

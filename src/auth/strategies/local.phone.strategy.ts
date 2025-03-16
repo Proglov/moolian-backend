@@ -50,7 +50,7 @@ export class LocalPhoneStrategy extends PassportStrategy(Strategy, 'local-phone'
 
             if (!isPasswordTrue) throw unauthorizedException(this.errorMessagePhone)
 
-            return { userId: user._id.toHexString() }
+            return { userId: user._id }
         } catch (error) {
             throw unauthorizedException(this.errorMessagePhone)
         }

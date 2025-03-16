@@ -8,6 +8,7 @@ import { ConfigType } from '@nestjs/config';
 import { Response } from 'express';
 import { JWT_Cookie_Name, REFRESH_Cookie_Name } from 'src/common/constants';
 import { CookieProvider } from 'src/cookie/cookie.provider';
+import { Types } from 'mongoose';
 
 
 /** Class to preform business operations related to the authentication */
@@ -37,7 +38,7 @@ export class AuthService {
   /**
    * Users sign in with phone number and password and gets the cookies
    */
-  async login(response: Response, userId: string): Promise<void> {
+  async login(response: Response, userId: Types.ObjectId): Promise<void> {
 
     //*get access token and refresh token
     const tokens = await this.jwtProvider.generateJwtTokens(userId);
@@ -61,7 +62,7 @@ export class AuthService {
   /**
    * Users log out and loose the cookie
    */
-  async logout(response: Response, userId: string): Promise<void> {
+  async logout(response: Response, userId: Types.ObjectId): Promise<void> {
 
     //*remove the access token to the cookie
     this.cookieProvider.removeCookie(response, JWT_Cookie_Name)
@@ -81,7 +82,7 @@ export class AuthService {
    */
   async userSignup(response: Response, userSignupDto: UserSignupDto): Promise<void> {
     const createdUser = await this.usersProvider.create(userSignupDto);
-    await this.login(response, createdUser._id as string)
+    await this.login(response, createdUser._id)
   }
 
 }

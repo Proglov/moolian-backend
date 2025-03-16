@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { badRequestException, notFoundException, requestTimeoutException, unauthorizedException } from 'src/common/errors';
 import { FindAllDto } from 'src/common/findAll.dto';
 import { FindOneDto } from 'src/common/findOne.dto';
@@ -73,7 +73,7 @@ export class CommentService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: Types.ObjectId) {
     try {
       const deletedComment = await this.commentModel.findByIdAndDelete(id, { new: true });
 
@@ -94,7 +94,7 @@ export class CommentService {
     }
   }
 
-  async toggleValidation(id: string) {
+  async toggleValidation(id: Types.ObjectId) {
     try {
       const comment = await this.commentModel.findById(id).populate({ path: 'userId', select: 'name' }).exec();
       if (!comment)
@@ -118,7 +118,7 @@ export class CommentService {
    * @param otherKey keyof Comment (if you wanna use like, it should be disLikeIds)
    * @returns Comment
    */
-  async toggleLikeOrDisLike(id: string, userInfo: CurrentUserData, key: keyof Comment, otherKey: keyof Comment) {
+  async toggleLikeOrDisLike(id: Types.ObjectId, userInfo: CurrentUserData, key: keyof Comment, otherKey: keyof Comment) {
     //the comments below, assume that you wanna use this function for liking
     try {
       const userId = new mongoose.Types.ObjectId(userInfo.userId)

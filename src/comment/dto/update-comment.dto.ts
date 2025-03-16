@@ -2,6 +2,8 @@ import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { CreateCommentDto } from './create-comment.dto';
 import messages from 'src/common/dto.messages';
 import { ArrayNotEmpty, IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { idDocGenerator } from 'src/common/findOne.dto';
+import { Types } from 'mongoose';
 
 
 
@@ -28,6 +30,11 @@ const likeIdsDoc = {
 
 export class UpdateCommentDto extends PartialType(CreateCommentDto) {
 
+    @ApiProperty(idDocGenerator('userId', 'comment'))
+    @IsString(messages.isString('آیدی کاربر کامنت'))
+    @IsNotEmpty(messages.notEmpty('آیدی کاربر کامنت'))
+    userId: Types.ObjectId;
+
     @ApiProperty(validatedDoc)
     @IsString(messages.isString('تاییدیه کامنت'))
     @IsNotEmpty(messages.notEmpty('تاییدیه کامنت'))
@@ -37,11 +44,11 @@ export class UpdateCommentDto extends PartialType(CreateCommentDto) {
     @IsString({ each: true, ...messages.isString('آیدی های کاربران لایک کننده کامنت') })
     @IsArray(messages.isArray('آیدی های کاربران لایک کننده کامنت'))
     @ArrayNotEmpty(messages.notEmpty('آیدی های کاربران لایک کننده کامنت'))
-    disLikeIds?: string[] = [];
+    disLikeIds?: Types.ObjectId[] = [];
 
     @ApiProperty(likeIdsDoc)
     @IsString({ each: true, ...messages.isString('آیدی های کاربران لایک کننده کامنت') })
     @IsArray(messages.isArray('آیدی های کاربران لایک کننده کامنت'))
     @ArrayNotEmpty(messages.notEmpty('آیدی های کاربران لایک کننده کامنت'))
-    likeIds?: string[] = [];
+    likeIds?: Types.ObjectId[] = [];
 }

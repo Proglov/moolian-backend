@@ -1,6 +1,7 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import messages from './dto.messages';
+import { Types } from 'mongoose';
 
 
 export const idDocGenerator = (name: string, item: string) => ({
@@ -14,5 +15,5 @@ export class FindOneDto {
     @ApiProperty(idDocGenerator('ID', 'item'))
     @IsString(messages.isString('آیدی'))
     @IsNotEmpty(messages.notEmpty('آیدی'))
-    id: string;
+    id: Types.ObjectId;
 }

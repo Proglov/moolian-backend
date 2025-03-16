@@ -9,6 +9,7 @@ import { REFRESH_Cookie_Name } from 'src/common/constants';
 import { unauthorizedException } from 'src/common/errors';
 import { UsersProvider } from 'src/users/users.provider';
 import { HashProvider } from '../providers/password.provider';
+import { Types } from 'mongoose';
 
 
 /** 
@@ -53,7 +54,7 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
     /**
      * check the User RefreshToken with one in the DB
      */
-    async verifyUserRefreshToken(refreshToken: string, userId: string): Promise<void> {
+    async verifyUserRefreshToken(refreshToken: string, userId: Types.ObjectId): Promise<void> {
 
         try {
             const user = await this.usersProvider.findOneByID(userId)

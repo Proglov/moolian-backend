@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { Types } from "mongoose";
 import messages from "src/common/dto.messages";
 import { idDocGenerator } from "src/common/findOne.dto";
 
@@ -19,10 +20,10 @@ export class CreateCommentDto {
     @ApiProperty(idDocGenerator('productId', 'comment'))
     @IsString(messages.isString('آیدی محصول کامنت'))
     @IsNotEmpty(messages.notEmpty('آیدی محصول کامنت'))
-    productId: string;
+    productId: Types.ObjectId;
 
     @ApiPropertyOptional(idDocGenerator('parentCommentId', 'comment'))
     @IsString(messages.isString('آیدی کامنت پدر این کامنت'))
     @IsOptional()
-    parentCommentId?: string = null;
+    parentCommentId?: Types.ObjectId = null;
 }

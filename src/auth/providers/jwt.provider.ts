@@ -5,6 +5,7 @@ import { CurrentUserData } from '../interfacesAndType/current-user-data.interfac
 import jwtConfig from '../../configs/jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { Tokens } from '../interfacesAndType/Tokens.interface';
+import { Types } from 'mongoose';
 
 
 
@@ -26,7 +27,7 @@ export class JWTProvider {
     /**
      * Sign the JWT Token using userId
      */
-    public async signToken(userId: string, expiresIn: string, secret: string) {
+    public async signToken(userId: Types.ObjectId, expiresIn: string, secret: string) {
         try {
             return await this.jwtService.signAsync({ userId }, { expiresIn, secret });
         } catch (error) {
@@ -37,7 +38,7 @@ export class JWTProvider {
     /**
      * Generate the JWT Tokens
      */
-    async generateJwtTokens(userId: string): Promise<Tokens> {
+    async generateJwtTokens(userId: Types.ObjectId): Promise<Tokens> {
         const [accessToken, refreshToken] = await Promise.all([
             this.signToken(userId, this.jwtConfiguration.accessTokenTtl + 's', this.jwtConfiguration.secret),
             this.signToken(userId, this.jwtConfiguration.refreshTokenTtl + 's', this.jwtConfiguration.refreshSecret),
