@@ -47,4 +47,10 @@ Content-Type:application/json
   "67ceb7aa7d31842c96694e58"
 ]
 
-GET http://localhost:4500/city/home-page
+POST http://localhost:4500/comment
+Content-Type:application/json
+{
+  "body": "body",
+  "userId": "676293d54f5c4704c82c0733",
+  "productId": "67d2ea7ffc18887c90e15367"
+}

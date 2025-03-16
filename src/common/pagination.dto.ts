@@ -13,7 +13,7 @@ const limitDoc = {
 
 const pageDoc = {
     title: 'page',
-    description: 'take how many items',
+    description: 'page number',
     default: 1,
     type: Number
 }

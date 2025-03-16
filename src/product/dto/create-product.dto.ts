@@ -36,7 +36,7 @@ const imageKeysDoc = {
 }
 
 const priceDoc = {
-    description: 'the price of the product in toman',
+    description: 'the price of the 30ml in toman',
     type: Number,
     example: 2_000_000
 }

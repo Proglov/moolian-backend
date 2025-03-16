@@ -7,6 +7,7 @@ import { ImageModule } from 'src/image/image.module';
 import { BrandModule } from 'src/brand/brand.module';
 import { NoteModule } from 'src/note/note.module';
 import { TemporaryImagesModule } from 'src/temporary-images/temporary-images.module';
+import { ProductProvider } from './product.provider';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { TemporaryImagesModule } from 'src/temporary-images/temporary-images.mod
     NoteModule
   ],
   controllers: [ProductController],
-  providers: [ProductService],
+  providers: [ProductService, ProductProvider],
+  exports: [ProductProvider],
 })
 export class ProductModule { }

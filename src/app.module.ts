@@ -22,6 +22,7 @@ import { CityModule } from './city/city.module';
 import { ProductModule } from './product/product.module';
 import { NoteModule } from './note/note.module';
 import { BrandModule } from './brand/brand.module';
+import { CommentModule } from './comment/comment.module';
 
 
 const ENV = process.env.NODE_ENV;
@@ -52,7 +53,8 @@ const ENV = process.env.NODE_ENV;
     CityModule,
     ProductModule,
     NoteModule,
-    BrandModule
+    BrandModule,
+    CommentModule
   ],
   controllers: [AppController],
   providers: [
