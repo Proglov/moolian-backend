@@ -70,7 +70,7 @@ export class CommentController {
   }
 
   @Auth(AuthType.Admin)
-  @Patch(':id/toggle')
+  @Patch(':id/toggleValidation')
   @ApiOperation({ summary: 'toggles validation of a comment' })
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Comment validation toggled' })
