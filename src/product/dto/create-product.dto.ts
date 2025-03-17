@@ -5,6 +5,7 @@ import { Flavor, Gender, Season } from '../enums/product.enums';
 import { NoteWithCent } from '../product.schema';
 import { Types } from 'mongoose';
 import { Type } from 'class-transformer';
+import { idDocGenerator } from 'src/common/findOne.dto';
 
 
 const nameFADoc = {
@@ -64,7 +65,7 @@ const countryDoc = {
 
 const olfactoryDoc = {
     description: 'the olfactory of the product',
-    type: Number,
+    type: String,
     example: 'چوبی معطر'
 }
 
@@ -92,11 +93,6 @@ const centDoc = {
     example: 50
 }
 
-const noteIdDoc = {
-    description: 'the brandId of the product',
-    type: String,
-    example: '67cd7baedb92fc567e9df356'
-}
 class NoteWithCentDto implements NoteWithCent {
     @ApiProperty(centDoc)
     @IsPositive(messages.isPositive('درصد نوت محصول'))
@@ -104,7 +100,7 @@ class NoteWithCentDto implements NoteWithCent {
     @Max(...messages.max('درصد نوت محصول', 100))
     cent: number;
 
-    @ApiProperty(noteIdDoc)
+    @ApiProperty(idDocGenerator('noteId', 'product'))
     @IsString(messages.isString('آیدی نوت محصول'))
     @IsNotEmpty(messages.notEmpty('آیدی نوت محصول'))
     noteId: Types.ObjectId;
@@ -202,23 +198,23 @@ export class CreateProductDto {
     @ValidateNested({ each: true })
     @Type(() => NoteWithCentDto)
     @IsObject({ each: true })
-    @IsArray(messages.isArray('آیدی های نوت های اولیه محصول'))
-    @ArrayNotEmpty(messages.notEmpty('آیدی های نوت های اولیه محصول'))
+    @IsArray(messages.isArray('آیدی های نوت های اولیه محصول به همراه درصد'))
+    @ArrayNotEmpty(messages.notEmpty('آیدی های نوت های اولیه محصول به همراه درصد'))
     initialNoteObjects: NoteWithCentDto[];
 
     @ApiProperty(midNoteIdsDoc)
     @ValidateNested({ each: true })
     @Type(() => NoteWithCentDto)
     @IsObject({ each: true })
-    @IsArray(messages.isArray('آیدی های نوت های میانی محصول'))
-    @ArrayNotEmpty(messages.notEmpty('آیدی های نوت های میانی محصول'))
+    @IsArray(messages.isArray('آیدی های نوت های میانی محصول به همراه درصد'))
+    @ArrayNotEmpty(messages.notEmpty('آیدی های نوت های میانی محصول به همراه درصد'))
     midNoteObjects: NoteWithCentDto[];
 
     @ApiProperty(baseNoteIdsDoc)
     @ValidateNested({ each: true })
     @Type(() => NoteWithCentDto)
     @IsObject({ each: true })
-    @IsArray(messages.isArray('آیدی های نوت های پابه محصول'))
-    @ArrayNotEmpty(messages.notEmpty('آیدی های نوت های پابه محصول'))
+    @IsArray(messages.isArray('آیدی های نوت های پابه محصول به به همراه درصد'))
+    @ArrayNotEmpty(messages.notEmpty('آیدی های نوت های پابه محصول به به همراه درصد'))
     baseNoteObjects: NoteWithCentDto[];
 }

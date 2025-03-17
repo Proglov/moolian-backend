@@ -17,7 +17,7 @@ export class CreateCityDto {
     name: string;
 
     @ApiProperty(idDocGenerator('provinceId', 'city'))
-    @IsString(messages.isString('عکس شهر'))
-    @IsNotEmpty(messages.notEmpty('عکس شهر'))
+    @IsString(messages.isString('آیدی استان شهر'))
+    @IsNotEmpty(messages.notEmpty('آیدی استان شهر'))
     provinceId: Types.ObjectId;
 }
