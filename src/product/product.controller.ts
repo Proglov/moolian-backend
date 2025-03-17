@@ -67,4 +67,18 @@ export class ProductController {
     return this.productService.update(findOneDto.id, updateProductDto);
   }
 
+
+  @Auth(AuthType.Admin)
+  @Patch(':id/toggleAvailability')
+  @ApiOperation({ summary: 'toggles availability of a product' })
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Product availability toggled' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'product is not found' })
+  @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Product availability is not toggled' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
+  toggleAvailability(
+    @Param() findOneDto: FindOneDto
+  ) {
+    return this.productService.toggleAvailability(findOneDto.id);
+  }
 }

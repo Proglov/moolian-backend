@@ -20,6 +20,9 @@ export class Product extends Document {
     @Prop({ type: String, required: true, unique: true })
     nameEN: string;
 
+    @Prop({ type: Boolean, default: true })
+    availability: boolean;
+
     @Prop({ type: SchemaTypes.ObjectId, ref: Brand.name, required: true })
     brandId: Types.ObjectId;
 

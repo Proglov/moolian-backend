@@ -199,4 +199,19 @@ export class ProductService {
       throw requestTimeoutException('مشکلی در آپدیت کردن محصول رخ داده است')
     }
   }
+
+  async toggleAvailability(id: Types.ObjectId) {
+    try {
+      const product = await this.productModel.findById(id).select('availability').exec();
+      if (!product)
+        throw new NotFoundException()
+
+      product.availability = !product.availability
+      await product.save()
+    } catch (error) {
+      if (error instanceof NotFoundException || error?.name == 'TypeError' || error?.name == 'CastError')
+        throw notFoundException('آیدی محصول مورد نظر یافت نشد')
+      throw requestTimeoutException('مشکلی در گرفتن محصول رخ داده است')
+    }
+  }
 }
