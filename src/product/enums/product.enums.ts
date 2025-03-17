@@ -16,9 +16,10 @@ export enum Flavor {
 }
 
 export enum Season {
-    warm,
-    cold,
-    mild
+    spring,
+    summer,
+    autumn,
+    winter,
 }
 
 

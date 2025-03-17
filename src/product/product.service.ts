@@ -3,14 +3,14 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { badRequestException, notFoundException, requestTimeoutException } from 'src/common/errors';
 import { InjectModel } from '@nestjs/mongoose';
-import { Product } from './product.schema';
-import { Model } from 'mongoose';
+import { NoteWithCent, Product } from './product.schema';
+import { Model, Types } from 'mongoose';
 import { BrandService } from 'src/brand/brand.service';
 import { NoteService } from 'src/note/note.service';
 import { ImageService } from 'src/image/image.service';
 import { Notes } from './enums/product.enums';
 import { FindAllDto } from 'src/common/findAll.dto';
-import { PopulatedProduct } from './dto/populated-product.type';
+import { PopulatedNoteWithCent, PopulatedProduct } from './dto/populated-product.type';
 import { Note } from 'src/note/note.schema';
 import { FindOneDto } from 'src/common/findOne.dto';
 import { Brand } from 'src/brand/brand.schema';
@@ -40,56 +40,66 @@ export class ProductService {
   ) { }
 
   private async replaceTheImageKeysOfProducts(products: PopulatedProduct[]): Promise<PopulatedProduct[]> {
-    const noteKeys: (keyof PopulatedProduct)[] = ['initialNoteIds', 'midNoteIds', 'baseNoteIds']
+    const noteKeys: (keyof PopulatedProduct)[] = ['initialNoteObjects', 'midNoteObjects', 'baseNoteObjects']
 
     //get the links of notes imageKeys, brand imageKey, and the imageKeys
-    const links = await this.imageService.getImages(products.map(product => [...noteKeys.map(noteKey => product[noteKey].map((note: Note) => note.imageKey)), product.brandId.imageKey, product.imageKeys]).flat(2));
+    const links = await this.imageService.getImages(products.map(product => [...noteKeys.map(noteKey => product[noteKey].map((noteObj: PopulatedNoteWithCent) => noteObj.noteId.imageKey)), product.brandId.imageKey, product.imageKeys]).flat(2));
 
     // Create a map for fast access by filename
     const linkMap = new Map(links.map(link => [link.filename, link.url]));
 
     // Map the products and replace the imageKey where available
-    return products.map(currentProduct => {
+    return products.map(product => {
       //deep clone
-      const newObj = JSON.parse(JSON.stringify(currentProduct))
+      const newObj = JSON.parse(JSON.stringify(product))
       //replace the brandId
-      newObj.brandId = { ...currentProduct.brandId, imageKey: linkMap.get(currentProduct.brandId.imageKey) }
+      newObj.brandId = { ...product.brandId, imageKey: linkMap.get(product.brandId.imageKey) }
       //replace the imageKeys
-      newObj.imageKeys = currentProduct.imageKeys.map(imageKey => linkMap.get(imageKey));
+      newObj.imageKeys = product.imageKeys.map(imageKey => linkMap.get(imageKey));
       //replace the notes
       noteKeys.map(noteKey => {
-        newObj[noteKey] = currentProduct[noteKey].map((note: Note) => ({ ...note, imageKey: linkMap.get(note.imageKey) }))
+        newObj[noteKey] = product[noteKey].map((note: PopulatedNoteWithCent) => ({ ...note, imageKey: linkMap.get(note.noteId.imageKey) }))
       })
       return newObj as PopulatedProduct;
     });
   }
 
-  async checkTheBrand(id: string): Promise<Brand> {
+  noteObjectPopulateHelper(path: string) {
+    return {
+      path,
+      select: 'noteId cent',
+      populate: {
+        path: 'noteId'
+      },
+    }
+  }
+
+  async checkTheBrand(id: Types.ObjectId): Promise<Brand> {
     const brand = await this.brandService.findOne({ id }, true);
     if (!brand) throw notFoundException('برند مورد نظر یافت نشد');
     return brand
   }
 
-  async checkTheNotes(baseNoteIds?: string[], midNoteIds?: string[], initialNoteIds?: string[]): Promise<Record<Notes, Note[]>> {
+  async checkTheNotes(baseNoteObjects?: NoteWithCent[], midNoteObjects?: NoteWithCent[], initialNoteObjects?: NoteWithCent[]): Promise<Record<Notes, PopulatedNoteWithCent[]>> {
     // Create an array of promises paired with their type of note id
     const notePromises = [
-      ...baseNoteIds.map(baseNoteId =>
-        this.noteService.findOne({ id: baseNoteId }, true).then(note => ({ note, type: Notes.baseNote }))
+      ...baseNoteObjects.map(baseNoteObject =>
+        this.noteService.findOne({ id: baseNoteObject.noteId }, true).then((note: Note) => ({ noteObj: { noteId: note, cent: baseNoteObject.cent }, type: Notes.baseNote }))
       ),
-      ...midNoteIds.map(midNoteId =>
-        this.noteService.findOne({ id: midNoteId }, true).then(note => ({ note, type: Notes.midNote }))
+      ...midNoteObjects.map(midNoteObject =>
+        this.noteService.findOne({ id: midNoteObject.noteId }, true).then((note: Note) => ({ noteObj: { noteId: note, cent: midNoteObject.cent }, type: Notes.midNote }))
       ),
-      ...initialNoteIds.map(initialNoteId =>
-        this.noteService.findOne({ id: initialNoteId }, true).then(note => ({ note, type: Notes.initialNote }))
+      ...initialNoteObjects.map(initialNoteObject =>
+        this.noteService.findOne({ id: initialNoteObject.noteId }, true).then((note: Note) => ({ noteObj: { noteId: note, cent: initialNoteObject.cent }, type: Notes.initialNote }))
       )
     ];
-    const notesWithTypes = await Promise.all(notePromises);
-    if ((baseNoteIds.length !== 0 || initialNoteIds.length !== 0 || midNoteIds.length !== 0) && notesWithTypes.every(item => !item.note))
+    const noteObjectsWithTypes = await Promise.all(notePromises);
+    if ((baseNoteObjects.length !== 0 || initialNoteObjects.length !== 0 || midNoteObjects.length !== 0) && noteObjectsWithTypes.every(item => !item.noteObj.noteId._id))
       throw notFoundException('نوت مورد نظر یافت نشد');
 
     // organize the notes based on their types
-    const notes = notesWithTypes.reduce((acc, { note, type }) => {
-      acc[type] = [...(acc[type] || []), note];
+    const notes = noteObjectsWithTypes.reduce((acc, { noteObj, type }) => {
+      acc[type] = [...(acc[type] || []), noteObj];
       return acc;
     }, { [Notes.baseNote]: [], [Notes.initialNote]: [], [Notes.midNote]: [] });
 
@@ -101,16 +111,16 @@ export class ProductService {
     const brand = await this.checkTheBrand(createProductDto.brandId);
 
     // organize the notes based on their types
-    const notes = await this.checkTheNotes(createProductDto.baseNoteIds, createProductDto.midNoteIds, createProductDto.initialNoteIds)
+    const notes = await this.checkTheNotes(createProductDto.baseNoteObjects, createProductDto.midNoteObjects, createProductDto.initialNoteObjects)
 
     try {
       const newProduct = await new this.productModel(createProductDto).save();
       const result = {
         ...newProduct.toObject(),
         brandId: brand,
-        initialNoteIds: notes[Notes.initialNote],
-        baseNoteIds: notes[Notes.baseNote],
-        midNoteIds: notes[Notes.midNote],
+        initialNoteObjects: notes[Notes.initialNote],
+        baseNoteObjects: notes[Notes.baseNote],
+        midNoteObjects: notes[Notes.midNote],
       };
 
       if (!replaceTheImageKey) return result;
@@ -135,9 +145,9 @@ export class ProductService {
 
       const query = this.productModel.find()
         .populate('brandId')
-        .populate('initialNoteIds')
-        .populate('midNoteIds')
-        .populate('baseNoteIds')
+        .populate(this.noteObjectPopulateHelper('initialNoteObjects'))
+        .populate(this.noteObjectPopulateHelper('midNoteObjects'))
+        .populate(this.noteObjectPopulateHelper('baseNoteObjects'))
         .skip(skip).limit(limit)
 
       let [products, count] = await Promise.all([
@@ -163,11 +173,11 @@ export class ProductService {
     throw new ServiceUnavailableException('this method is not completed yet')
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto) {
+  async update(id: Types.ObjectId, updateProductDto: UpdateProductDto) {
     if (updateProductDto?.brandId)
       await this.checkTheBrand(updateProductDto.brandId)
 
-    await this.checkTheNotes(updateProductDto.baseNoteIds, updateProductDto.midNoteIds, updateProductDto.initialNoteIds)
+    await this.checkTheNotes(updateProductDto.baseNoteObjects, updateProductDto.midNoteObjects, updateProductDto.initialNoteObjects)
 
 
     //* delete the temporary images

@@ -1,11 +1,15 @@
 import { Brand } from 'src/brand/brand.schema';
 import { Product } from '../product.schema';
 import { Note } from 'src/note/note.schema';
+import { OmitType } from '@nestjs/swagger';
 
-// Define the populated Product type
-export type PopulatedProduct = Omit<Product, 'brandId' | 'initialNoteIds' | 'midNoteIds' | 'baseNoteIds'> & {
+export class PopulatedNoteWithCent {
+    noteId: Note;
+    cent: number;
+}
+export class PopulatedProduct extends OmitType(Product, ['brandId', 'initialNoteObjects', 'midNoteObjects', 'baseNoteObjects'] as const) {
     brandId: Brand; // Populate Brand
-    initialNoteIds: Note[]; // Populate initial notes
-    midNoteIds: Note[]; // Populate mid notes
-    baseNoteIds: Note[]; // Populate base notes
-};
+    initialNoteObjects: PopulatedNoteWithCent[]; // Populate initial notes
+    midNoteObjects: PopulatedNoteWithCent[]; // Populate mid notes
+    baseNoteObjects: PopulatedNoteWithCent[]; // Populate base notes
+}

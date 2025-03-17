@@ -4,6 +4,11 @@ import { Flavor, Gender, Season } from './enums/product.enums';
 import { Note } from 'src/note/note.schema';
 import { Brand } from 'src/brand/brand.schema';
 
+export interface NoteWithCent {
+    noteId: Types.ObjectId; // The ID of the note
+    cent: number; // The cent from 1 to 100
+}
+
 @Schema({ versionKey: false })
 export class Product extends Document {
     @Prop({ type: SchemaTypes.ObjectId, auto: true })
@@ -46,18 +51,17 @@ export class Product extends Document {
     @Prop({ type: String })
     country?: string;
 
-    // weight of the 30ml in gr
-    @Prop({ type: Number })
-    weight?: number;
+    @Prop({ type: String })
+    Olfactory: string;
 
-    @Prop({ type: [SchemaTypes.ObjectId], ref: Note.name })
-    initialNoteIds: Types.ObjectId[];
+    @Prop({ type: [{ noteId: { type: SchemaTypes.ObjectId, ref: Note.name }, cent: { type: Number, min: 1, max: 100 } }] })
+    initialNoteObjects: NoteWithCent[];
 
-    @Prop({ type: [SchemaTypes.ObjectId], ref: Note.name })
-    midNoteIds: Types.ObjectId[];
+    @Prop({ type: [{ noteId: { type: SchemaTypes.ObjectId, ref: Note.name }, cent: { type: Number, min: 1, max: 100 } }] })
+    midNoteObjects: NoteWithCent[];
 
-    @Prop({ type: [SchemaTypes.ObjectId], ref: Note.name })
-    baseNoteIds: Types.ObjectId[];
+    @Prop({ type: [{ noteId: { type: SchemaTypes.ObjectId, ref: Note.name }, cent: { type: Number, min: 1, max: 100 } }] })
+    baseNoteObjects: NoteWithCent[];
 
 }
 
