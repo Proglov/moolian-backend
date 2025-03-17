@@ -46,8 +46,8 @@ export class CreateUserDto {
     @ApiProperty(usernameDoc)
     @IsString(messages.isString('نام کاربری'))
     @IsNotEmpty(messages.notEmpty('نام کاربری'))
-    @MaxLength(...messages.max('نام کاربری', 15))
-    @MinLength(...messages.min('نام کاربری', 8))
+    @MaxLength(...messages.maxLength('نام کاربری', 15))
+    @MinLength(...messages.minLength('نام کاربری', 8))
     @Validate(IsNotEmail, [{ message: 'نام کاربری نمی‌تواند ایمیل باشد!' }])
     username: string;
 
