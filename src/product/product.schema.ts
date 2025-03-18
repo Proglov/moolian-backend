@@ -57,13 +57,13 @@ export class Product extends Document {
     @Prop({ type: String })
     Olfactory: string;
 
-    @Prop({ type: [{ noteId: { type: SchemaTypes.ObjectId, ref: Note.name }, cent: { type: Number, min: 1, max: 100 } }] })
+    @Prop({ type: [{ _id: false, noteId: { type: SchemaTypes.ObjectId, ref: Note.name }, cent: { type: Number, min: 1, max: 100 } }] })
     initialNoteObjects: NoteWithCent[];
 
-    @Prop({ type: [{ noteId: { type: SchemaTypes.ObjectId, ref: Note.name }, cent: { type: Number, min: 1, max: 100 } }] })
+    @Prop({ type: [{ _id: false, noteId: { type: SchemaTypes.ObjectId, ref: Note.name }, cent: { type: Number, min: 1, max: 100 } }] })
     midNoteObjects: NoteWithCent[];
 
-    @Prop({ type: [{ noteId: { type: SchemaTypes.ObjectId, ref: Note.name }, cent: { type: Number, min: 1, max: 100 } }] })
+    @Prop({ type: [{ _id: false, noteId: { type: SchemaTypes.ObjectId, ref: Note.name }, cent: { type: Number, min: 1, max: 100 } }] })
     baseNoteObjects: NoteWithCent[];
 
 }

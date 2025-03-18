@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { requestTimeoutException } from 'src/common/errors';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from './product.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { FindOneDto } from 'src/common/findOne.dto';
 
 @Injectable()
@@ -21,6 +21,14 @@ export class ProductProvider {
       return await this.productModel.findById(findOneDto.id).lean().exec() as unknown as Product
     } catch (error) {
       throw requestTimeoutException('مشکلی در گرفتن محصول رخ داده است')
+    }
+  }
+
+  async findMany(ids: Types.ObjectId[]): Promise<Product[]> {
+    try {
+      return await this.productModel.find({ _id: { $in: ids } }).lean().exec() as unknown as Product[]
+    } catch (error) {
+      throw requestTimeoutException('مشکلی در گرفتن محصولات رخ داده است')
     }
   }
 }
