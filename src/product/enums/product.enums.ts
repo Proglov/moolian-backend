@@ -1,25 +1,25 @@
 
 export enum Gender {
-    male,
-    female,
-    unisex
+    male = "male",
+    female = "female",
+    unisex = "unisex"
 }
 
 export enum Flavor {
-    warm,
-    cold,
-    bitter,
-    sweet,
-    spicy,
-    mild
+    warm = 'warm',
+    cold = 'cold',
+    bitter = 'bitter',
+    sweet = 'sweet',
+    spicy = 'spicy',
+    mild = 'mild'
 
 }
 
 export enum Season {
-    spring,
-    summer,
-    autumn,
-    winter,
+    spring = "spring",
+    summer = "summer",
+    autumn = "autumn",
+    winter = "winter"
 }
 
 

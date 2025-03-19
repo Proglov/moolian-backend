@@ -70,18 +70,21 @@ const olfactoryDoc = {
 }
 
 const genderDoc = {
+    enum: Gender,
     description: 'the gender of the product buyer',
     type: Number,
     example: "unisex"
 }
 
 const flavorDoc = {
+    enum: Flavor,
     description: 'the flavor of the product',
     type: Number,
     example: ["warm", "bitter"]
 }
 
 const seasonDoc = {
+    enum: Season,
     description: 'array of the season of the product',
     type: Number,
     example: ["spring", "autumn"]
