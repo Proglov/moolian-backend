@@ -1,7 +1,7 @@
 import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsObject, IsOptional, IsPositive, IsString, Max, Min, ValidateNested } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import messages from 'src/common/dto.messages';
-import { Flavor, Gender, Season } from '../enums/product.enums';
+import { Category, Flavor, Gender, Season } from '../enums/product.enums';
 import { NoteWithCent } from '../product.schema';
 import { Types } from 'mongoose';
 import { Type } from 'class-transformer';
@@ -73,21 +73,28 @@ const genderDoc = {
     enum: Gender,
     description: 'the gender of the product buyer',
     type: Number,
-    example: "unisex"
+    example: Gender.unisex
+}
+
+const categoryDoc = {
+    enum: Category,
+    description: 'the category of the product buyer',
+    type: Number,
+    example: Category.gift
 }
 
 const flavorDoc = {
     enum: Flavor,
     description: 'the flavor of the product',
     type: Number,
-    example: ["warm", "bitter"]
+    example: [Flavor.warm, Flavor.bitter]
 }
 
 const seasonDoc = {
     enum: Season,
     description: 'array of the season of the product',
     type: Number,
-    example: ["spring", "autumn"]
+    example: [Season.spring, Season.autumn]
 }
 
 const centDoc = {
@@ -184,6 +191,10 @@ export class CreateProductDto {
     @ApiProperty(genderDoc)
     @IsEnum(Gender, { message: messages.isEnum('جنسیت خریدار محصول', Gender).message })
     gender: Gender;
+
+    @ApiProperty(categoryDoc)
+    @IsEnum(Category, { message: messages.isEnum('دسته بندی محصول', Category).message })
+    category: Category;
 
     @ApiProperty(flavorDoc)
     @IsArray(messages.isArray('طبع محصول'))

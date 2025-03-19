@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, SchemaTypes, Types } from 'mongoose';
-import { Flavor, Gender, Season } from './enums/product.enums';
+import { Category, Flavor, Gender, Season } from './enums/product.enums';
 import { Note } from 'src/note/note.schema';
 import { Brand } from 'src/brand/brand.schema';
 
@@ -56,6 +56,9 @@ export class Product extends Document {
 
     @Prop({ type: String })
     Olfactory: string;
+
+    @Prop({ type: String, enum: Category })
+    category: string;
 
     @Prop({ type: [{ _id: false, noteId: { type: SchemaTypes.ObjectId, ref: Note.name }, cent: { type: Number, min: 1, max: 100 } }] })
     initialNoteObjects: NoteWithCent[];

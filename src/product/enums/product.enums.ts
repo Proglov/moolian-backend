@@ -22,6 +22,13 @@ export enum Season {
     winter = "winter"
 }
 
+export enum Category {
+    management = "management",
+    party = "party",
+    sport = "sport",
+    gift = "gift"
+}
+
 
 export enum Notes {
     initialNote,
