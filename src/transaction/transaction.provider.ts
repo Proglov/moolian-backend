@@ -49,4 +49,14 @@ export class TransactionProvider {
       throw requestTimeoutException('مشکلی در گرفتن تراکنش رخ داده است')
     }
   }
+
+  async findOneWithInteraction(findOneDto: FindOneDto): Promise<Transaction> {
+    try {
+      return await this.transactionModel.findById(findOneDto.id).populate(this.productPopulationObject).exec();
+    } catch (error) {
+      if (error?.name == 'TypeError' || error?.name == 'CastError')
+        throw badRequestException('آیدی تراکنش مورد نظر صحیح نمیباشد')
+      throw requestTimeoutException('مشکلی در گرفتن تراکنش رخ داده است')
+    }
+  }
 }

@@ -1,8 +1,14 @@
 
 export enum Status {
-    Requested,
-    Accepted,
-    Sent,
-    Received,
-    Canceled
+    Requested = "Requested",
+    Accepted = "Accepted",
+    Sent = "Sent",
+    Received = "Received",
+    Canceled = "Canceled"
+}
+
+export enum NewStatusBySeller {
+    Accepted = "Accepted",
+    Sent = "Sent",
+    Received = "Received"
 }

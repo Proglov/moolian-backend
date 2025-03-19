@@ -3,12 +3,16 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { BoughtProducts, Transaction } from './transaction.schema';
 import { Model, Types } from 'mongoose';
-import { badRequestException, conflictException, requestTimeoutException } from 'src/common/errors';
+import { badRequestException, conflictException, forbiddenException, notFoundException, requestTimeoutException, unauthorizedException } from 'src/common/errors';
 import { ProductProvider } from 'src/product/product.provider';
 import { CurrentUserData } from 'src/auth/interfacesAndType/current-user-data.interface';
 import { FindAllDto } from 'src/common/findAll.dto';
 import { FindOneDto } from 'src/common/findOne.dto';
 import { TransactionProvider } from './transaction.provider';
+import { PatchTransactionStatusBySellerDto } from './dto/patch-status.dto';
+import { Status } from './enums/transaction.enums';
+import { CancelTransActionDto } from './dto/cancel-transaction.dto';
+import { OpinionTransActionDto } from './dto/opinion-transaction.dto';
 
 @Injectable()
 export class TransactionService {
@@ -114,6 +118,78 @@ export class TransactionService {
   }
 
   async findOne(findOneDto: FindOneDto): Promise<Transaction> {
-    return this.transactionProvider.findOne(findOneDto)
+    return await this.transactionProvider.findOne(findOneDto)
+  }
+
+  async toggleStatus(findOneDto: FindOneDto, query: PatchTransactionStatusBySellerDto) {
+    const transaction = await this.transactionProvider.findOneWithInteraction(findOneDto)
+    if (!transaction)
+      throw notFoundException('آیدی تراکنش مورد نظر یافت نشد')
+
+    try {
+      transaction.status = query.status
+      await transaction.save()
+      return transaction
+    } catch (error) {
+      throw requestTimeoutException('مشکلی در آپدیت تراکنش رخ داده است')
+    }
+  }
+
+  async cancelBySeller(findOneDto: FindOneDto, cancelTransActionDto: CancelTransActionDto) {
+    const transaction = await this.transactionProvider.findOneWithInteraction(findOneDto)
+    if (!transaction)
+      throw notFoundException('آیدی تراکنش مورد نظر یافت نشد')
+
+    try {
+      transaction.status = Status.Canceled
+      transaction.canceled = {
+        didSellerCanceled: true,
+        reason: cancelTransActionDto.reason
+      }
+      await transaction.save()
+      return transaction
+    } catch (error) {
+      throw requestTimeoutException('مشکلی در آپدیت تراکنش رخ داده است')
+    }
+  }
+
+  async cancelByUser(findOneDto: FindOneDto, userInfo: CurrentUserData, cancelTransActionDto: CancelTransActionDto) {
+    const transaction = await this.transactionProvider.findOneWithInteraction(findOneDto)
+    if (!transaction)
+      throw notFoundException('آیدی تراکنش مورد نظر یافت نشد')
+    if (!transaction.userId.equals(userInfo.userId))
+      throw unauthorizedException("شما احراز هویت نشده اید")
+    if (transaction.status === Status.Canceled)
+      throw forbiddenException("سفارش از قبل کنسل شده است!")
+    if (transaction.status !== Status.Requested)
+      throw forbiddenException("امکان کنسل کردن سفارش پس از تایید آن ممکن نمیباشد")
+    try {
+      transaction.status = Status.Canceled
+      transaction.canceled = {
+        didSellerCanceled: false,
+        reason: cancelTransActionDto.reason
+      }
+      await transaction.save()
+      return transaction
+    } catch (error) {
+      throw requestTimeoutException('مشکلی در آپدیت تراکنش رخ داده است')
+    }
+  }
+
+  async opinion(findOneDto: FindOneDto, userInfo: CurrentUserData, opinionTransActionDto: OpinionTransActionDto) {
+    const transaction = await this.transactionProvider.findOneWithInteraction(findOneDto)
+    if (!transaction)
+      throw notFoundException('آیدی تراکنش مورد نظر یافت نشد')
+    if (transaction.status !== Status.Received && transaction.status !== Status.Canceled)
+      throw badRequestException('تنها امکان نظر دادن به سفارشات پس از دریافت یا لغو امکان پذیر است')
+    if (!transaction.userId.equals(userInfo.userId))
+      throw unauthorizedException("شما احراز هویت نشده اید")
+    try {
+      transaction.opinion = opinionTransActionDto
+      await transaction.save()
+      return transaction
+    } catch (error) {
+      throw requestTimeoutException('مشکلی در آپدیت تراکنش رخ داده است')
+    }
   }
 }

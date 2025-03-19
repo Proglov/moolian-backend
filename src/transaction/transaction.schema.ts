@@ -39,11 +39,11 @@ export class Transaction extends Document {
     @Prop({ type: [{ _id: false, productId: { type: SchemaTypes.ObjectId, ref: Product.name }, quantity: { type: Number, min: 1, max: 100 } }] })
     boughtProducts: BoughtProducts[];
 
-    @Prop({ type: { didSellerCanceled: { type: Boolean }, reason: { type: String } } })
-    canceled: ICanceled;
+    @Prop({ type: { _id: false, didSellerCanceled: { type: Boolean }, reason: { type: String } } })
+    canceled?: ICanceled;
 
-    @Prop({ type: { rate: { type: Number }, comment: { type: String, default: '' } } })
-    opinion: IOpinion;
+    @Prop({ type: { _id: false, rate: { type: Number, min: 1, max: 5 }, comment: { type: String, default: '' } } })
+    opinion?: IOpinion;
 
     @Prop({ type: String, required: true })
     address: string;
@@ -51,8 +51,8 @@ export class Transaction extends Document {
     @Prop({ type: String, required: true })
     shouldBeSentAt: string;
 
-    @Prop({ type: Number, default: Status.Requested, enum: Status })
-    status: number;
+    @Prop({ type: String, default: Status.Requested, enum: Status })
+    status: string;
 
     @Prop({ default: now() })
     createdAt: Date;

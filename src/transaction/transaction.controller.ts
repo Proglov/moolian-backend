@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, HttpCode, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, HttpCode, HttpStatus, Query, Patch } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
@@ -10,6 +10,9 @@ import { PaginationDto } from 'src/common/pagination.dto';
 import { FindAllDto } from 'src/common/findAll.dto';
 import { Transaction } from './transaction.schema';
 import { FindOneDto } from 'src/common/findOne.dto';
+import { PatchTransactionStatusBySellerDto } from './dto/patch-status.dto';
+import { CancelTransActionDto } from './dto/cancel-transaction.dto';
+import { OpinionTransActionDto } from './dto/opinion-transaction.dto';
 
 @Controller('transaction')
 export class TransactionController {
@@ -95,5 +98,70 @@ export class TransactionController {
     @Param() findOneDto: FindOneDto
   ) {
     return await this.transactionService.findOne(findOneDto);
+  }
+
+  @Auth(AuthType.Admin)
+  @Patch(':id/status')
+  @ApiOperation({ summary: 'toggles status of a transaction' })
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Transaction status toggled' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'transaction is not found' })
+  @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Transaction status is not toggled' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
+  async toggleStatus(
+    @Param() findOneDto: FindOneDto,
+    @Query() query: PatchTransactionStatusBySellerDto
+  ) {
+    return await this.transactionService.toggleStatus(findOneDto, query);
+  }
+
+  @Auth(AuthType.Admin)
+  @Patch(':id/cancel')
+  @ApiOperation({ summary: 'cancels the transaction by the seller' })
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Transaction status toggled' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'transaction is not found' })
+  @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Transaction status is not toggled' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
+  async cancelBySeller(
+    @Param() findOneDto: FindOneDto,
+    @Body() cancelTransActionDto: CancelTransActionDto
+  ) {
+    return await this.transactionService.cancelBySeller(findOneDto, cancelTransActionDto);
+  }
+
+  @Auth(AuthType.Bearer)
+  @Patch(':id/cancel/user')
+  @ApiOperation({ summary: 'cancels the transaction by the user' })
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Transaction status toggled' })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'User is trying to cancel the accepted transaction' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'transaction is not found' })
+  @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Transaction status is not toggled' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
+  async cancelByUser(
+    @Param() findOneDto: FindOneDto,
+    @Body() cancelTransActionDto: CancelTransActionDto,
+    @CurrentUser() userInfo: CurrentUserData
+  ) {
+    return await this.transactionService.cancelByUser(findOneDto, userInfo, cancelTransActionDto);
+  }
+
+  @Auth(AuthType.Bearer)
+  @Patch(':id/opinion')
+  @ApiOperation({ summary: 'cancels the transaction by the user' })
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Transaction status toggled' })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'User is trying to cancel the accepted transaction' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Transaction status is neither canceled nor received!' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'transaction is not found' })
+  @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Transaction status is not toggled' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
+  async opinion(
+    @Param() findOneDto: FindOneDto,
+    @Body() opinionTransActionDto: OpinionTransActionDto,
+    @CurrentUser() userInfo: CurrentUserData
+  ) {
+    return await this.transactionService.opinion(findOneDto, userInfo, opinionTransActionDto);
   }
 }
