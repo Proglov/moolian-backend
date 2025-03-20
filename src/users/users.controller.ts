@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, HttpStatus, Param } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
 import { Auth } from 'src/auth/decorators/auth.decorator';
@@ -7,6 +7,10 @@ import { CurrentUserData } from 'src/auth/interfacesAndType/current-user-data.in
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { RestrictedUser } from './dto/types';
 import { FindOneDto } from 'src/common/findOne.dto';
+import { PaginationDto } from 'src/common/pagination.dto';
+import { FindAllDto } from 'src/common/findAll.dto';
+import { User } from './user.schema';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 
 /** End points related to the users */
@@ -20,6 +24,44 @@ export class UsersController {
         private readonly userService: UsersService
     ) { }
 
+    @Auth(AuthType.Admin)
+    @Get()
+    @ApiOperation({ summary: 'returns all users based on the pagination' })
+    @HttpCode(HttpStatus.ACCEPTED)
+    @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Users found', type: FindAllDto<User> })
+    @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Users are not found' })
+    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
+    async findAll(
+        @Query() query: PaginationDto
+    ) {
+        return await this.userService.findAll(query.limit, query.page);
+    }
+
+    @Auth(AuthType.Bearer)
+    @Patch()
+    @ApiOperation({ summary: 'updates a user' })
+    @HttpCode(HttpStatus.OK)
+    @ApiResponse({ status: HttpStatus.OK, description: 'User updated' })
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'User credentials has conflict' })
+    @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'User is not updated' })
+    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "some ids can't be found" })
+    update(
+        @CurrentUser() userInfo: CurrentUserData,
+        @Body() updateUserDto: UpdateUserDto
+    ) {
+        return this.userService.update(userInfo, updateUserDto);
+    }
+
+    @Auth(AuthType.Admin)
+    @Get('admin')
+    @ApiOperation({ summary: 'returns true if the user is admin' })
+    @HttpCode(HttpStatus.ACCEPTED)
+    @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'you are admin' })
+    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't admin" })
+    async isAdmin() {
+        return true
+    }
 
     /**
      * find a single User using their extracted Id, doesn't return the password

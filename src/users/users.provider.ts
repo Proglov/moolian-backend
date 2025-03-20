@@ -1,11 +1,13 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, Types, UpdateQuery } from 'mongoose';
 import { User } from './user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { HashProvider } from 'src/auth/providers/password.provider';
 import { RestrictedUser, TCreateUser, TFindUserByIdentifier } from './dto/types';
-import { badRequestException, requestTimeoutException } from 'src/common/errors';
+import { badRequestException, notFoundException, requestTimeoutException } from 'src/common/errors';
+import { FindAllDto } from 'src/common/findAll.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 
 /** Class to preform business operations related to the users, used by other modules mostly */
@@ -93,4 +95,63 @@ export class UsersProvider {
         }
     }
 
+
+    async findAll(limit: number, page: number): Promise<FindAllDto<User>> {
+        try {
+            const skip = (page - 1) * limit;
+
+            const query = this.userModel.find()
+                .select('-password -refreshToken')
+                .skip(skip).limit(limit)
+
+            let [users, count] = await Promise.all([
+                query.lean().exec() as unknown as User[],
+                this.userModel.countDocuments()
+            ]);
+
+
+            return {
+                count,
+                items: users
+            }
+
+        } catch (error) {
+            throw requestTimeoutException('مشکلی در گرفتن کاربران رخ داده است')
+        }
+    }
+
+    async update(id: Types.ObjectId, updateUserDto: UpdateUserDto) {
+        try {
+            const newObj: Partial<User> = { ...updateUserDto }
+
+            if (!!updateUserDto.phone)
+                newObj.isPhoneVerified = false;
+            if (!!updateUserDto.email)
+                newObj.isEmailVerified = false;
+            if (!!updateUserDto.password) {
+                const hashedPassword = await this.hashProvider.hashString(updateUserDto.password)
+                newObj.password = hashedPassword;
+            }
+
+            await this.userModel.findByIdAndUpdate(id, newObj);
+
+        } catch (error) {
+            if (error instanceof NotFoundException)
+                throw notFoundException('آیدی کاربر یافت نشد');
+
+            //* mongoose duplication error
+            if (error?.code === 11000) {
+                const DB_Error = Object.keys(error?.keyPattern)[0]
+                switch (DB_Error) {
+                    case 'email':
+                        throw badRequestException('این ایمیل قبلا ثبت نام شده است')
+                    case 'phone':
+                        throw badRequestException('این شماره قبلا ثبت نام شده است')
+                    case 'username':
+                        throw badRequestException('این نام کاربری قبلا ثبت نام شده است')
+                }
+            }
+            throw requestTimeoutException('مشکلی در ویرایش کاربر رخ داده است')
+        }
+    }
 }
