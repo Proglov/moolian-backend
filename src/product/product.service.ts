@@ -15,6 +15,7 @@ import { Note } from 'src/note/note.schema';
 import { FindOneDto } from 'src/common/findOne.dto';
 import { Brand } from 'src/brand/brand.schema';
 import { TemporaryImagesService } from 'src/temporary-images/temporary-images.service';
+import { ProductProvider } from './product.provider';
 
 @Injectable()
 export class ProductService {
@@ -24,6 +25,9 @@ export class ProductService {
     /**  Inject the Product Model */
     @InjectModel(Product.name)
     private readonly productModel: Model<Product>,
+
+    /**  Inject the product provider */
+    private readonly productProvider: ProductProvider,
 
     /**  Inject the brand service */
     private readonly brandService: BrandService,
@@ -38,31 +42,6 @@ export class ProductService {
     private readonly temporaryImagesService: TemporaryImagesService,
 
   ) { }
-
-  private async replaceTheImageKeysOfProducts(products: PopulatedProduct[]): Promise<PopulatedProduct[]> {
-    const noteKeys: (keyof PopulatedProduct)[] = ['initialNoteObjects', 'midNoteObjects', 'baseNoteObjects']
-
-    //get the links of notes imageKeys, brand imageKey, and the imageKeys
-    const links = await this.imageService.getImages(products.map(product => [...noteKeys.map(noteKey => product[noteKey].map((noteObj: PopulatedNoteWithCent) => noteObj.noteId.imageKey)), product.brandId.imageKey, product.imageKeys]).flat(2));
-
-    // Create a map for fast access by filename
-    const linkMap = new Map(links.map(link => [link.filename, link.url]));
-
-    // Map the products and replace the imageKey where available
-    return products.map(product => {
-      //deep clone
-      const newObj = JSON.parse(JSON.stringify(product))
-      //replace the brandId
-      newObj.brandId = { ...product.brandId, imageKey: linkMap.get(product.brandId.imageKey) }
-      //replace the imageKeys
-      newObj.imageKeys = product.imageKeys.map(imageKey => linkMap.get(imageKey));
-      //replace the notes
-      noteKeys.map(noteKey => {
-        newObj[noteKey] = product[noteKey].map((note: PopulatedNoteWithCent) => ({ ...note, imageKey: linkMap.get(note.noteId.imageKey) }))
-      })
-      return newObj as PopulatedProduct;
-    });
-  }
 
   noteObjectPopulateHelper(path: string) {
     return {
@@ -156,7 +135,7 @@ export class ProductService {
       ]);
 
       if (replaceTheImageKey)
-        products = await this.replaceTheImageKeysOfProducts(products)
+        products = await this.productProvider.replaceTheImageKeysOfProducts(products)
 
       return {
         count,
