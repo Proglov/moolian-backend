@@ -1,10 +1,10 @@
 {
-  "name": "online-shop-nest",
+  "name": "moolian",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "Mohammad Parvizi",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
