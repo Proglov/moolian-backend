@@ -48,7 +48,7 @@ export class ProductProvider {
   }
 
   async replaceTheImageKeysOnlyOfProducts(products: Product[]): Promise<Product[]> {
-    //get the links of notes imageKeys, brand imageKey, and the imageKeys
+    //get the links of the imageKeys
     const links = await this.imageService.getImages(products.map(product => product.imageKeys).flat());
 
     // Create a map for fast access by filename
