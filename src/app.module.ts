@@ -24,6 +24,7 @@ import { BrandModule } from './brand/brand.module';
 import { CommentModule } from './comment/comment.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { FestivalModule } from './discount-festival/festival.module';
+import { ArticleModule } from './article/article.module';
 
 
 const ENV = process.env.NODE_ENV;
@@ -56,7 +57,8 @@ const ENV = process.env.NODE_ENV;
     BrandModule,
     CommentModule,
     TransactionModule,
-    FestivalModule
+    FestivalModule,
+    ArticleModule
   ],
   controllers: [AppController],
   providers: [
