@@ -13,5 +13,6 @@ import { FestivalProvider } from './festival.provider';
   ],
   controllers: [FestivalController],
   providers: [FestivalService, FestivalProvider],
+  exports: [FestivalProvider]
 })
 export class FestivalModule { }

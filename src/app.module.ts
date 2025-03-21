@@ -25,6 +25,7 @@ import { CommentModule } from './comment/comment.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { FestivalModule } from './discount-festival/festival.module';
 import { ArticleModule } from './article/article.module';
+import { CronjobModule } from './cronjob/cronjob.module';
 
 
 const ENV = process.env.NODE_ENV;
@@ -44,6 +45,7 @@ const ENV = process.env.NODE_ENV;
         uri: configService.getOrThrow('database.URI')
       })
     }),
+    CronjobModule,
     UsersModule,
     AuthModule,
     AdminModule,

@@ -110,4 +110,14 @@ export class FestivalService {
         }
     }
 
+    async deleteExpiredFestivals() {
+        try {
+            const now = Date.now()
+            const conditionQuery = { until: { $lte: now } }
+            await this.festivalModel.deleteMany(conditionQuery);
+        } catch (error) {
+            throw requestTimeoutException('مشکلی در پاک کردن جشنواره رخ داده است')
+        }
+    }
+
 }
