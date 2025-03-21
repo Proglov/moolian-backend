@@ -6,9 +6,9 @@ import messages from "./dto.messages";
 const itemsDoc = {
     title: 'items',
     description: 'items',
-    example: {
+    example: [{
         _id: '676293d54f5c4704c82c0733'
-    }
+    }]
 }
 
 const countDoc = {
