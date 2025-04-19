@@ -5,12 +5,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as colors from 'colors';
 import * as cookieParser from 'cookie-parser';
 import { JWT_Cookie_Name } from './common/constants';
+import { corsOptions } from './configs/cors.config';
 
 
 
 async function bootstrap() {
   const PORT = process.env.PORT ?? 4500
   const ENV = process.env.NODE_ENV || 'unset'
+  const allowedOrigins = process.env?.ALLOWED_ORIGINS.split(',') || []
 
   const app = await NestFactory.create(AppModule);
 
@@ -23,6 +25,9 @@ async function bootstrap() {
 
   //cookie parser
   app.use(cookieParser());
+
+  //cors
+  app.enableCors(corsOptions(allowedOrigins))
 
   //swagger configuration
   if (ENV === 'development') {

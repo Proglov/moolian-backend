@@ -9,6 +9,7 @@ import { AdminModule } from './admin/admin.module';
 import appConfig from './configs/app.config';
 import databaseConfig from './configs/database.config';
 import emailConfig from './configs/email.config';
+import corsConfig from './configs/cors.config';
 import environmentValidation from './configs/environment.validation';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthenticationGuard } from './auth/guards/authentication.guard';
@@ -35,7 +36,7 @@ const ENV = process.env.NODE_ENV;
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ENV === 'development' ? '.env.development' : ENV === 'test' ? '.env.test' : '.env',
-      load: [appConfig, databaseConfig, emailConfig],
+      load: [appConfig, databaseConfig, emailConfig, corsConfig],
       validationSchema: environmentValidation
     }),
     MongooseModule.forRootAsync({

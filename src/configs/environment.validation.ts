@@ -16,5 +16,6 @@ export default Joi.object({
     LIARA_ENDPOINT: Joi.string().uri().required(),
     LIARA_BUCKET_NAME: Joi.string().required(),
     LIARA_ACCESS_KEY: Joi.string().required(),
-    LIARA_SECRET_KEY: Joi.string().required()
+    LIARA_SECRET_KEY: Joi.string().required(),
+    ALLOWED_ORIGINS: Joi.string().required()
 })
