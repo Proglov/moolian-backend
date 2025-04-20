@@ -41,7 +41,7 @@ export class ProductProvider {
       newObj.imageKeys = product.imageKeys.map(imageKey => linkMap.get(imageKey));
       //replace the notes
       noteKeys.map(noteKey => {
-        newObj[noteKey] = product[noteKey].map((note: PopulatedNoteWithCent) => ({ ...note, imageKey: linkMap.get(note.noteId.imageKey) }))
+        newObj[noteKey] = product[noteKey].map((note: PopulatedNoteWithCent) => ({ ...note, noteId: { ...note.noteId.toObject(), imageKey: linkMap.get(note.noteId.imageKey) } }))
       })
       return newObj as PopulatedProduct;
     });
