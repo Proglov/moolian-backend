@@ -14,7 +14,7 @@ import { FindOneDto } from 'src/common/findOne.dto';
 export class ProductController {
   constructor(private readonly productService: ProductService) { }
 
-  @Auth(AuthType.Admin)
+  // @Auth(AuthType.Admin)
   @Post()
   @ApiOperation({ summary: 'creates a product' })
   @HttpCode(HttpStatus.CREATED)
