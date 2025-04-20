@@ -93,10 +93,7 @@ export class ProductService {
     const notes = await this.checkTheNotes(createProductDto.baseNoteObjects, createProductDto.midNoteObjects, createProductDto.initialNoteObjects)
 
     try {
-      console.log(createProductDto.olfactory);
       const newProduct = await new this.productModel(createProductDto).save();
-      console.log(newProduct.olfactory);
-      console.log(newProduct.nameEN);
       const result = {
         ...newProduct.toObject(),
         brandId: brand,
