@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { UserSignupDto } from 'src/auth/dto/user-signup.dto';
 import { UsersProvider } from 'src/users/users.provider';
 import { JWTProvider } from './providers/jwt.provider';
@@ -18,6 +18,7 @@ export class AuthService {
   /** Inject the dependencies */
   constructor(
     /** Inject the UsersProvider from Users Module for creating and finding the user  */
+    @Inject(forwardRef(() => UsersProvider))
     private readonly usersProvider: UsersProvider,
 
     /** Inject the JWTProvider to return the Token  */
