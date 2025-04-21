@@ -1,8 +1,8 @@
-import { Controller, Post, Body, HttpStatus, HttpCode, UseGuards, Res, Get } from '@nestjs/common';
+import { Controller, Post, Body, HttpStatus, HttpCode, UseGuards, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserSignupDto } from './dto/user-signup.dto';
-import { UserSignInWithPhoneDto } from './dto/user-signIn.dto';
+import { UserSignInWithPhoneDto, UserSignInWithUsernameOrEmailDto } from './dto/user-signIn.dto';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { Response } from 'express';
 import { CurrentUserData } from './interfacesAndType/current-user-data.interface';
@@ -68,7 +68,7 @@ export class AuthController {
   @ApiOperation({ summary: 'user signs in with Email-Username and password and gets the jwt' })
   @ApiBody({
     description: 'User login with phone number and password',
-    type: UserSignInWithPhoneDto,
+    type: UserSignInWithUsernameOrEmailDto,
   })
   @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'User Signed In' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
@@ -97,7 +97,7 @@ export class AuthController {
 
 
   /** User Log Out */
-  @Get('user/logout')
+  @Post('user/logout')
   @Auth(AuthType.Bearer)
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({ summary: 'user logs out, looses the refresh token and access token' })
