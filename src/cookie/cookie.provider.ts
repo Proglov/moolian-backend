@@ -18,7 +18,7 @@ export class CookieProvider {
         response.cookie(name, data, {
             httpOnly: this.isProduction,
             secure: this.isProduction,
-            sameSite: 'none',
+            sameSite: 'lax',
             expires
         })
     }
@@ -31,7 +31,7 @@ export class CookieProvider {
         response.cookie(name, '', {
             httpOnly: this.isProduction,
             secure: this.isProduction,
-            sameSite: 'none',
+            sameSite: 'lax',
             expires: new Date(0), // Set to a date in the past to remove the cookie
         })
     }
