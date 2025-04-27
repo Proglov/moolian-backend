@@ -20,7 +20,7 @@ import { Types } from 'mongoose';
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
 
-    private errorMessagePhone = 'رمز عبور یا شماره همراه نادرست است';
+    private errorMessageRefresh = 'رفرش توکن ناموفق بود';
 
     /** Inject the dependencies */
     constructor(
@@ -62,10 +62,10 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
             const isSameToken = await this.hashProvider.compareHashed(refreshToken, user.refreshToken)
 
             //check if the tokens are different
-            if (!isSameToken) throw unauthorizedException(this.errorMessagePhone)
+            if (!isSameToken) throw unauthorizedException(this.errorMessageRefresh)
 
         } catch (error) {
-            throw unauthorizedException(this.errorMessagePhone)
+            throw unauthorizedException(this.errorMessageRefresh)
         }
 
     }
