@@ -14,7 +14,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @Injectable()
 export class UsersProvider {
 
-    readonly selectOptions = '-password'
+    readonly selectOptions = '-password -refreshToken'
 
     /** Inject the dependencies */
     constructor(
@@ -101,7 +101,7 @@ export class UsersProvider {
             const skip = (page - 1) * limit;
 
             const query = this.userModel.find()
-                .select('-password -refreshToken')
+                .select(this.selectOptions)
                 .skip(skip).limit(limit)
 
             let [users, count] = await Promise.all([
@@ -133,7 +133,7 @@ export class UsersProvider {
                 newObj.password = hashedPassword;
             }
 
-            await this.userModel.findByIdAndUpdate(id, newObj);
+            return await this.userModel.findByIdAndUpdate(id, newObj);
 
         } catch (error) {
             if (error instanceof NotFoundException)
