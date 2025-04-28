@@ -36,7 +36,7 @@ const imageKeysDoc = {
     description: 'ImageKeys of the product, must be a non-empty array of strings',
     type: String,
     isArray: true,
-    example: ['1741259929433_ghahve.jpg', '1741259929433_ghahve.jpg']
+    example: ['1745851214101_197232-3840x2160-desktop-4k-cat-wallpaper.jpg', '1745851214101_197232-3840x2160-desktop-4k-cat-wallpaper.jpg']
 }
 
 const priceDoc = {

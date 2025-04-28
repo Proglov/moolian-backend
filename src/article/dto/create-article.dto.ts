@@ -27,7 +27,7 @@ const tagsDoc = {
 const imageKeyDoc = {
     description: 'ImageKey of the product, must be a non-empty string',
     type: String,
-    example: '1741259929433_ghahve.jpg'
+    example: '1745851214101_197232-3840x2160-desktop-4k-cat-wallpaper.jpg'
 }
 
 const productIdsDoc = {
