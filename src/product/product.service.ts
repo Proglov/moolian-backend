@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { badRequestException, notFoundException, requestTimeoutException } from 'src/common/errors';
@@ -227,6 +227,7 @@ export class ProductService {
             price: { $first: '$price' },
             gender: { $first: '$gender' },
             flavor: { $first: '$flavor' },
+            category: { $first: '$category' },
             year: { $first: '$year' },
             season: { $first: '$season' },
             maker: { $first: '$maker' },
@@ -369,6 +370,7 @@ export class ProductService {
             price: { $first: '$price' },
             gender: { $first: '$gender' },
             flavor: { $first: '$flavor' },
+            category: { $first: '$category' },
             year: { $first: '$year' },
             season: { $first: '$season' },
             maker: { $first: '$maker' },
@@ -421,21 +423,6 @@ export class ProductService {
         throw badRequestException('محصولی با همین نام موجود است');
 
       throw requestTimeoutException('مشکلی در آپدیت کردن محصول رخ داده است')
-    }
-  }
-
-  async toggleAvailability(id: Types.ObjectId) {
-    try {
-      const product = await this.productModel.findById(id).select('availability').exec();
-      if (!product)
-        throw new NotFoundException()
-
-      product.availability = !product.availability
-      await product.save()
-    } catch (error) {
-      if (error instanceof NotFoundException || error?.name == 'TypeError' || error?.name == 'CastError')
-        throw notFoundException('آیدی محصول مورد نظر یافت نشد')
-      throw requestTimeoutException('مشکلی در گرفتن محصول رخ داده است')
     }
   }
 }

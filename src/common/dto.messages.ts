@@ -5,6 +5,7 @@ type returnedObject = {
 
 const messages = {
     isString: (value: string): returnedObject => ({ message: value + ' باید رشته متنی باشد' }),
+    isBoolean: (value: string): returnedObject => ({ message: value + ' باید بولین باشد' }),
     isEnum: (value: string, theEnum: object): returnedObject => {
         const acceptable = Object.values(theEnum).join(', ');
         return { message: value + ' باید یکی از مقادیر [' + acceptable + '] باشد' };
