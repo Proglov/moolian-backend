@@ -46,7 +46,7 @@ export class CommentService {
     try {
       const skip = (page - 1) * limit;
 
-      const query = this.commentModel.find().skip(skip).limit(limit)
+      const query = this.commentModel.find().populate({ path: 'userId', select: 'name' }).populate({ path: 'productId', select: 'nameFA' }).sort({ _id: -1 }).skip(skip).limit(limit)
 
       const [comments, count] = await Promise.all([
         query.lean().exec() as unknown as Comment[],
