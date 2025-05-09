@@ -9,6 +9,7 @@ import { PaginationDto } from 'src/common/pagination.dto';
 import { FindAllDto } from 'src/common/findAll.dto';
 import { PopulatedProduct } from './dto/populated-product.type';
 import { FindOneDto } from 'src/common/findOne.dto';
+import { GetProductsDto } from './dto/get-products.dto';
 
 @Controller('product')
 export class ProductController {
@@ -34,9 +35,9 @@ export class ProductController {
   @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Products found', type: FindAllDto<PopulatedProduct> })
   @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Products are not found' })
   async findAll(
-    @Query() query: PaginationDto
+    @Query() query: GetProductsDto
   ) {
-    return await this.productService.findAll(query.limit, query.page, true);
+    return await this.productService.findAll(query, true);
   }
 
   @Get(':id')

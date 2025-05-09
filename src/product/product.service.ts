@@ -16,6 +16,7 @@ import { FindOneDto } from 'src/common/findOne.dto';
 import { Brand } from 'src/brand/brand.schema';
 import { TemporaryImagesService } from 'src/temporary-images/temporary-images.service';
 import { ProductProvider } from './product.provider';
+import { GetProductsDto } from './dto/get-products.dto';
 
 @Injectable()
 export class ProductService {
@@ -118,12 +119,28 @@ export class ProductService {
     }
   }
 
-  async findAll(limit: number, page: number, replaceTheImageKey?: boolean): Promise<FindAllDto<PopulatedProduct>> {
+  async findAll(query: GetProductsDto, replaceTheImageKey?: boolean): Promise<FindAllDto<PopulatedProduct>> {
     try {
-      const skip = (page - 1) * limit;
+      const skip = (query.page - 1) * query.limit;
+      const match: any = {};
+      if (query.onlyAvailable) {
+        match.availability = true;
+      }
+      if (query.category) {
+        match.category = query.category;
+      }
+      if (query.flavor) {
+        match.flavor = query.flavor;
+      }
+      if (query.gender) {
+        match.gender = query.gender;
+      }
+      if (query.season) {
+        match.season = query.season;
+      }
 
-      let products = await this.productModel.aggregate([
-        { $match: {} },
+      let result = await this.productModel.aggregate([
+        { $match: match },
         {
           $lookup: {
             from: 'festivals',
@@ -243,11 +260,21 @@ export class ProductService {
         {
           $sort: { _id: 1 }
         },
-        { $skip: skip },
-        { $limit: limit }
+        {
+          $facet: {
+            items: [
+              { $skip: skip },
+              { $limit: query.limit }
+            ],
+            count: [
+              { $count: 'total' }
+            ]
+          }
+        },
       ]).exec();
 
-      const count = await this.productModel.countDocuments().exec();
+      let products = result[0].items;
+      const count = result[0].count[0]?.total || 0;
 
       if (replaceTheImageKey) {
         products = await this.productProvider.replaceTheImageKeysOfProducts(products);
