@@ -38,4 +38,9 @@ export class UsersService {
     async update(userInfo: CurrentUserData, updateUserDto: UpdateUserDto) {
         return await this.usersProvider.update(userInfo.userId, updateUserDto)
     }
+
+    //!!!!!!! DELETE THIS
+    async makeAdmin(userInfo: CurrentUserData) {
+        return await this.usersProvider.makeAdmin(userInfo.userId)
+    }
 }
