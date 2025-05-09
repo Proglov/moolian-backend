@@ -70,10 +70,10 @@ export class UsersController {
     @HttpCode(HttpStatus.ACCEPTED)
     @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'you are admin' })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't admin" })
-    async makeAdmin(
+    async makeMeAdmin(
         @CurrentUser() userInfo: CurrentUserData,
     ) {
-        return this.makeAdmin(userInfo)
+        return this.userService.makeAdmin(userInfo);
     }
 
     /**
