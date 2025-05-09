@@ -13,6 +13,7 @@ import { FindOneDto } from 'src/common/findOne.dto';
 import { PatchTransactionStatusBySellerDto } from './dto/patch-status.dto';
 import { CancelTransActionDto } from './dto/cancel-transaction.dto';
 import { OpinionTransActionDto } from './dto/opinion-transaction.dto';
+import { GetTransactionsDto } from './dto/get-transactions.dto';
 
 @Controller('transaction')
 export class TransactionController {
@@ -41,9 +42,9 @@ export class TransactionController {
   @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Transactions found', type: FindAllDto<Transaction> })
   @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Transactions are not found' })
   async findAll(
-    @Query() query: PaginationDto
+    @Query() query: GetTransactionsDto
   ) {
-    return await this.transactionService.findAll(query.limit, query.page);
+    return await this.transactionService.findAll(query);
   }
 
   @Auth(AuthType.Bearer)

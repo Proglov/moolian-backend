@@ -13,6 +13,7 @@ import { PatchTransactionStatusBySellerDto } from './dto/patch-status.dto';
 import { Status } from './enums/transaction.enums';
 import { CancelTransActionDto } from './dto/cancel-transaction.dto';
 import { OpinionTransActionDto } from './dto/opinion-transaction.dto';
+import { GetTransactionsDto } from './dto/get-transactions.dto';
 
 @Injectable()
 export class TransactionService {
@@ -94,8 +95,11 @@ export class TransactionService {
     }
   }
 
-  async findAll(limit: number, page: number): Promise<FindAllDto<Transaction>> {
-    return this.transactionProvider.findAll({}, limit, page)
+  async findAll(query: GetTransactionsDto): Promise<FindAllDto<Transaction>> {
+    const match: any = {}
+    if (query.onlyRequested)
+      match.status = Status.Requested
+    return this.transactionProvider.findAll(match, query.limit, query.page)
   }
 
   async findAllMine(userInfo: CurrentUserData, limit: number, page: number): Promise<FindAllDto<Transaction>> {
