@@ -1,0 +1,16 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install dependencies (including dev dependencies)
+COPY package*.json ./
+RUN npm install
+
+# Copy all source files
+COPY . .
+
+# Expose port 4500 for NestJS dev server
+EXPOSE 4500
+
+# Start NestJS in watch mode for hot reload
+CMD ["npm", "run", "dev"]
