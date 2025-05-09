@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsBoolean, IsEnum, IsString } from "class-validator";
+import { IsBoolean, IsEnum, IsOptional, IsString } from "class-validator";
 import messages from "src/common/dto.messages";
 import { PaginationDto } from "src/common/pagination.dto";
 import { Category, Flavor, Gender, Season } from "../enums/product.enums";
@@ -48,27 +48,32 @@ const onlyAvailableDoc = {
 
 export class GetProductsDto extends PaginationDto {
     @ApiPropertyOptional(onlyAvailableDoc)
+    @IsOptional()
     @IsBoolean()
     @Transform(({ value }) => value === 'true')
     onlyAvailable?: boolean = false;
 
     @ApiPropertyOptional(categoryDoc)
+    @IsOptional()
     @IsString(messages.isString('دسته بندی'))
     @IsEnum(Category, { message: messages.isEnum('دسته بندی', Category).message })
-    category?: string = '';
+    category?: string;
 
     @ApiPropertyOptional(flavorDoc)
+    @IsOptional()
     @IsString(messages.isString('طعم'))
     @IsEnum(Flavor, { message: messages.isEnum('طعم', Flavor).message })
-    flavor?: string = '';
+    flavor?: string;
 
     @ApiPropertyOptional(genderDoc)
+    @IsOptional()
     @IsString(messages.isString('جنسیت'))
     @IsEnum(Gender, { message: messages.isEnum('جنسیت', Gender).message })
-    gender?: string = '';
+    gender?: string;
 
     @ApiPropertyOptional(seasonDoc)
+    @IsOptional()
     @IsString(messages.isString('فصل'))
     @IsEnum(Season, { message: messages.isEnum('فصل', Season).message })
-    season?: string = '';
+    season?: string;
 }
