@@ -1,4 +1,4 @@
-FROM node:18-alpine AS builder
+FROM node AS builder
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ COPY . .
 RUN npm run build
 
 # Production image
-FROM node:18-alpine
+FROM node
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ RUN npm ci --only=production
 # Copy built files from builder
 COPY --from=builder /app/dist ./dist
 
-EXPOSE 5000
+EXPOSE 4500
 
 # Start the backend
 CMD ["node", "dist/main.js"]

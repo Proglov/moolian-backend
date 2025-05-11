@@ -1,7 +1,7 @@
 import { IsArray, IsEmail, IsNotEmpty, IsOptional, IsString, Matches, MaxLength, MinLength, Validate } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import messages from 'src/common/dto.messages';
-import { IsNotEmail } from 'src/auth/decorators/IsNotEmail.decorator';
+import { IsNotEmail } from 'src/auth/decorators/isNotEmail.decorator';
 import { Transform } from 'class-transformer';
 
 const usernameDoc = {
