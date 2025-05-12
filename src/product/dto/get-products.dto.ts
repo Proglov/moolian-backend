@@ -2,7 +2,7 @@ import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsBoolean, IsEnum, IsOptional, IsString } from "class-validator";
 import messages from "src/common/dto.messages";
 import { PaginationDto } from "src/common/pagination.dto";
-import { Category, Flavor, Gender, Season } from "../enums/product.enums";
+import { Category, Flavor, Gender, OrderBy, Season } from "../enums/product.enums";
 import { Transform } from "class-transformer";
 
 
@@ -35,6 +35,14 @@ const seasonDoc = {
     enum: Season,
     example: Season.autumn,
     description: 'season of the product',
+    type: String
+}
+
+const orderByDoc = {
+    title: 'orderBy',
+    enum: OrderBy,
+    example: OrderBy.expensive,
+    description: 'orderBy of the product',
     type: String
 }
 
@@ -76,4 +84,10 @@ export class GetProductsDto extends PaginationDto {
     @IsString(messages.isString('فصل'))
     @IsEnum(Season, { message: messages.isEnum('فصل', Season).message })
     season?: string;
+
+    @ApiPropertyOptional(orderByDoc)
+    @IsOptional()
+    @IsString(messages.isString('مرتب سازی'))
+    @IsEnum(OrderBy, { message: messages.isEnum('مرتب سازی', OrderBy).message })
+    orderBy?: string;
 }

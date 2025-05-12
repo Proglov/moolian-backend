@@ -29,6 +29,11 @@ export enum Category {
     gift = "gift"
 }
 
+export enum OrderBy {
+    New = "New",
+    cheap = "cheap",
+    expensive = "expensive",
+}
 
 export enum Notes {
     initialNote,

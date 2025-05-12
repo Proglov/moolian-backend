@@ -8,7 +8,7 @@ import { Model, Types } from 'mongoose';
 import { BrandService } from 'src/brand/brand.service';
 import { NoteService } from 'src/note/note.service';
 import { ImageService } from 'src/image/image.service';
-import { Notes } from './enums/product.enums';
+import { Notes, OrderBy } from './enums/product.enums';
 import { FindAllDto } from 'src/common/findAll.dto';
 import { PopulatedNoteWithCent, PopulatedProduct } from './dto/populated-product.type';
 import { Note } from 'src/note/note.schema';
@@ -122,7 +122,7 @@ export class ProductService {
   async findAll(query: GetProductsDto, replaceTheImageKey?: boolean): Promise<FindAllDto<PopulatedProduct>> {
     try {
       const skip = (query.page - 1) * query.limit;
-      const match: any = {};
+      const match: any = {}, sort: any = {};
       if (query.onlyAvailable) {
         match.availability = true;
       }
@@ -137,6 +137,20 @@ export class ProductService {
       }
       if (query.season) {
         match.season = query.season;
+      }
+      switch (query.orderBy) {
+        case OrderBy.cheap:
+          sort.price = 1;
+          break;
+        case OrderBy.expensive:
+          sort.price = -1;
+          break;
+        case OrderBy.New:
+          sort._id = -1;
+          break;
+        default:
+          sort._id = 1;
+          break;
       }
 
       let result = await this.productModel.aggregate([
@@ -258,7 +272,7 @@ export class ProductService {
           }
         },
         {
-          $sort: { _id: 1 }
+          $sort: sort
         },
         {
           $facet: {
