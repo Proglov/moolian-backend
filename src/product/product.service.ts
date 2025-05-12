@@ -141,9 +141,11 @@ export class ProductService {
       switch (query.orderBy) {
         case OrderBy.cheap:
           sort.price = 1;
+          sort._id = 1;
           break;
         case OrderBy.expensive:
           sort.price = -1;
+          sort._id = 1;
           break;
         case OrderBy.New:
           sort._id = -1;
