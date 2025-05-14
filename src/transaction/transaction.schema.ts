@@ -3,10 +3,12 @@ import { Document, now, SchemaTypes, Types } from 'mongoose';
 import { Product } from 'src/product/product.schema';
 import { User } from 'src/users/user.schema';
 import { Status } from './enums/transaction.enums';
+import { Volume } from './enums/transaction.enums';
 
 export interface BoughtProducts {
     productId: Types.ObjectId;
     quantity: number;
+    volume: number;
 }
 
 export interface ICanceled {
@@ -36,7 +38,7 @@ export class Transaction extends Document {
     @Prop({ type: Number, required: true })
     shippingCost: number;
 
-    @Prop({ type: [{ _id: false, productId: { type: SchemaTypes.ObjectId, ref: Product.name }, quantity: { type: Number, min: 1, max: 100 } }] })
+    @Prop({ type: [{ _id: false, productId: { type: SchemaTypes.ObjectId, ref: Product.name }, quantity: { type: Number, min: 1, max: 100 }, volume: { type: Number, enum: Volume } }] })
     boughtProducts: BoughtProducts[];
 
     @Prop({ type: { _id: false, didSellerCanceled: { type: Boolean }, reason: { type: String } } })

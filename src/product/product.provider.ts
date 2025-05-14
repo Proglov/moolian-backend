@@ -86,4 +86,29 @@ export class ProductProvider {
       throw requestTimeoutException('مشکلی در گرفتن محصولات رخ داده است')
     }
   }
+
+  async findManyWithFestivals(ids: Types.ObjectId[]): Promise<PopulatedProduct[]> {
+    try {
+      const newIds = ids.map(id => new Types.ObjectId(id))
+      return await this.productModel.aggregate([
+        { $match: { _id: { $in: newIds } } },
+        {
+          $lookup: {
+            from: 'festivals',
+            localField: '_id',
+            foreignField: 'productId',
+            as: 'festival'
+          }
+        },
+        {
+          $unwind: {
+            path: '$festival',
+            preserveNullAndEmptyArrays: true
+          }
+        },
+      ])
+    } catch (error) {
+      throw requestTimeoutException('مشکلی در گرفتن محصولات رخ داده است')
+    }
+  }
 }

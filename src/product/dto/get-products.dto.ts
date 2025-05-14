@@ -69,8 +69,8 @@ export class GetProductsDto extends PaginationDto {
 
     @ApiPropertyOptional(flavorDoc)
     @IsOptional()
-    @IsString(messages.isString('طعم'))
-    @IsEnum(Flavor, { message: messages.isEnum('طعم', Flavor).message })
+    @IsString(messages.isString('طبع'))
+    @IsEnum(Flavor, { message: messages.isEnum('طبع', Flavor).message })
     flavor?: string;
 
     @ApiPropertyOptional(genderDoc)

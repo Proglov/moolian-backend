@@ -10,7 +10,7 @@ import { FindAllDto } from 'src/common/findAll.dto';
 import { FindOneDto } from 'src/common/findOne.dto';
 import { TransactionProvider } from './transaction.provider';
 import { PatchTransactionStatusBySellerDto } from './dto/patch-status.dto';
-import { Status } from './enums/transaction.enums';
+import { Status, volumeMultipliers } from './enums/transaction.enums';
 import { CancelTransActionDto } from './dto/cancel-transaction.dto';
 import { OpinionTransActionDto } from './dto/opinion-transaction.dto';
 import { GetTransactionsDto } from './dto/get-transactions.dto';
@@ -41,32 +41,44 @@ export class TransactionService {
     if (!createTransactionDto.boughtProducts.length)
       throw badRequestException('محصولات ضروری میباشند')
 
-    const products = await this.productProvider.findMany(createTransactionDto.boughtProducts.map((bp: BoughtProducts) => bp.productId))
 
-    //? notice the boughtProducts shouldn't have common Id
-    if (products.length !== createTransactionDto.boughtProducts.length)
-      throw badRequestException('آیدی محصولات صحیح نمیباشند')
+    const uniqueProductIds = [...new Set(createTransactionDto.boughtProducts.map(bp => bp.productId))];
 
-    const productsAndQuantities = new Map(createTransactionDto.boughtProducts.map(bp => [bp.productId.toString(), bp.quantity]));
 
-    //* check if we have the product
-    products.map(product => {
-      if (!product.availability)
-        throw conflictException(`محصول مورد نظر (${product.nameFA}) موجود نمیباشد!`)
-    })
+    const products = await this.productProvider.findManyWithFestivals(uniqueProductIds)
+
+    //? Validate that all product IDs exist and check if we have the product
+    for (const bp of createTransactionDto.boughtProducts) {
+      const product = products.find(p => p._id.toString() === bp.productId.toString());
+      if (!product) {
+        throw badRequestException('آیدی محصولات صحیح نمیباشند');
+      }
+      if (!product.availability) {
+        throw conflictException(`محصول مورد نظر (${product.nameFA}) موجود نمیباشد!`);
+      }
+    }
+
 
     let totalDiscount = 0
-    let totalPrice = products.reduce((acc, currentProduct) => {
-      //*the price of the product times its quantity
-      const thisPrice = currentProduct.price * productsAndQuantities.get(currentProduct._id.toString())
-      //TODO handle the festival discount here
+    let totalPrice = createTransactionDto.boughtProducts.reduce((acc, bp) => {
+      const currentProduct = products.find(p => p._id.toString() === bp.productId.toString());
+
+      const multiplier = volumeMultipliers[bp.volume];
+      if (!multiplier) {
+        throw badRequestException('حجم نامعتبر است');
+      }
+
+      //*the price of the product times its quantity times the volume multiplier
+      const thisPrice = currentProduct.price * multiplier * bp.quantity;
+      if (currentProduct.festival?.offPercentage > 0 && parseInt(currentProduct.festival?.until) >= Date.now())
+        totalDiscount += thisPrice * currentProduct.festival.offPercentage / 100
+      //TODO handle the major discount here
       // if (currentProduct?.majorShoppingOffPercentage > 0 && currentProduct?.quantity >= currentProduct?.majorQuantity)
       //   totalDiscount += thisPrice * currentProduct.majorShoppingOffPercentage / 100
-      // else if (currentProduct?.festivalOffPercentage > 0 && currentProduct?.until >= Date.now())
-      //   totalDiscount += thisPrice * currentProduct.festivalOffPercentage / 100
       return acc + thisPrice
     }, 0)
 
+    totalPrice -= totalDiscount
 
     //TODO handle the code discount here
 
