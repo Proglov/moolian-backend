@@ -157,136 +157,133 @@ export class ProductService {
 
       let result = await this.productModel.aggregate([
         { $match: match },
-        {
-          $lookup: {
-            from: 'festivals',
-            localField: '_id',
-            foreignField: 'productId',
-            as: 'festival'
-          }
-        },
-        {
-          $unwind: {
-            path: '$festival',
-            preserveNullAndEmptyArrays: true
-          }
-        },
-        {
-          $lookup: {
-            from: 'brands',
-            localField: 'brandId',
-            foreignField: '_id',
-            as: 'brandId'
-          }
-        },
-        {
-          $unwind: {
-            path: '$brandId',
-            preserveNullAndEmptyArrays: true
-          }
-        },
-        {
-          $lookup: {
-            from: 'notes',
-            localField: 'initialNoteObjects.noteId',
-            foreignField: '_id',
-            as: 'initialNotes'
-          }
-        },
-        {
-          $lookup: {
-            from: 'notes',
-            localField: 'midNoteObjects.noteId',
-            foreignField: '_id',
-            as: 'midNotes'
-          }
-        },
-        {
-          $lookup: {
-            from: 'notes',
-            localField: 'baseNoteObjects.noteId',
-            foreignField: '_id',
-            as: 'baseNotes'
-          }
-        },
-        {
-          $addFields: {
-            initialNoteObjects: {
-              $map: {
-                input: '$initialNoteObjects',
-                as: 'inputNote',
-                in: {
-                  $mergeObjects: [
-                    { noteId: { $arrayElemAt: ['$initialNotes', { $indexOfArray: ['$initialNotes._id', '$$inputNote.noteId'] }] } },
-                    { cent: '$$inputNote.cent' }
-                  ]
-                }
-              }
-            },
-            midNoteObjects: {
-              $map: {
-                input: '$midNoteObjects',
-                as: 'inputNote',
-                in: {
-                  $mergeObjects: [
-                    { noteId: { $arrayElemAt: ['$midNotes', { $indexOfArray: ['$midNotes._id', '$$inputNote.noteId'] }] } },
-                    { cent: '$$inputNote.cent' }
-                  ]
-                }
-              }
-            },
-            baseNoteObjects: {
-              $map: {
-                input: '$baseNoteObjects',
-                as: 'inputNote',
-                in: {
-                  $mergeObjects: [
-                    { noteId: { $arrayElemAt: ['$baseNotes', { $indexOfArray: ['$baseNotes._id', '$$inputNote.noteId'] }] } },
-                    { cent: '$$inputNote.cent' }
-                  ]
-                }
-              }
-            }
-          }
-        },
-        {
-          $group: {
-            _id: '$_id',
-            nameFA: { $first: '$nameFA' },
-            nameEN: { $first: '$nameEN' },
-            brandId: { $first: '$brandId' },
-            desc: { $first: '$desc' },
-            imageKeys: { $first: '$imageKeys' },
-            price: { $first: '$price' },
-            gender: { $first: '$gender' },
-            flavor: { $first: '$flavor' },
-            category: { $first: '$category' },
-            year: { $first: '$year' },
-            season: { $first: '$season' },
-            maker: { $first: '$maker' },
-            country: { $first: '$country' },
-            initialNoteObjects: { $first: '$initialNoteObjects' },
-            midNoteObjects: { $first: '$midNoteObjects' },
-            baseNoteObjects: { $first: '$baseNoteObjects' },
-            availability: { $first: '$availability' },
-            olfactory: { $first: '$olfactory' },
-            festival: { $first: '$festival' }
-          }
-        },
-        {
-          $sort: sort
-        },
+        { $sort: sort },
         {
           $facet: {
             items: [
               { $skip: skip },
-              { $limit: query.limit }
+              { $limit: query.limit },
+              {
+                $lookup: {
+                  from: 'festivals',
+                  localField: '_id',
+                  foreignField: 'productId',
+                  as: 'festival'
+                }
+              },
+              {
+                $unwind: {
+                  path: '$festival',
+                  preserveNullAndEmptyArrays: true
+                }
+              },
+              {
+                $lookup: {
+                  from: 'brands',
+                  localField: 'brandId',
+                  foreignField: '_id',
+                  as: 'brandId'
+                }
+              },
+              {
+                $unwind: {
+                  path: '$brandId',
+                  preserveNullAndEmptyArrays: true
+                }
+              },
+              {
+                $lookup: {
+                  from: 'notes',
+                  localField: 'initialNoteObjects.noteId',
+                  foreignField: '_id',
+                  as: 'initialNotes'
+                }
+              },
+              {
+                $lookup: {
+                  from: 'notes',
+                  localField: 'midNoteObjects.noteId',
+                  foreignField: '_id',
+                  as: 'midNotes'
+                }
+              },
+              {
+                $lookup: {
+                  from: 'notes',
+                  localField: 'baseNoteObjects.noteId',
+                  foreignField: '_id',
+                  as: 'baseNotes'
+                }
+              },
+              {
+                $addFields: {
+                  initialNoteObjects: {
+                    $map: {
+                      input: '$initialNoteObjects',
+                      as: 'inputNote',
+                      in: {
+                        $mergeObjects: [
+                          { noteId: { $arrayElemAt: ['$initialNotes', { $indexOfArray: ['$initialNotes._id', '$$inputNote.noteId'] }] } },
+                          { cent: '$$inputNote.cent' }
+                        ]
+                      }
+                    }
+                  },
+                  midNoteObjects: {
+                    $map: {
+                      input: '$midNoteObjects',
+                      as: 'inputNote',
+                      in: {
+                        $mergeObjects: [
+                          { noteId: { $arrayElemAt: ['$midNotes', { $indexOfArray: ['$midNotes._id', '$$inputNote.noteId'] }] } },
+                          { cent: '$$inputNote.cent' }
+                        ]
+                      }
+                    }
+                  },
+                  baseNoteObjects: {
+                    $map: {
+                      input: '$baseNoteObjects',
+                      as: 'inputNote',
+                      in: {
+                        $mergeObjects: [
+                          { noteId: { $arrayElemAt: ['$baseNotes', { $indexOfArray: ['$baseNotes._id', '$$inputNote.noteId'] }] } },
+                          { cent: '$$inputNote.cent' }
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                $project: {
+                  nameFA: 1,
+                  nameEN: 1,
+                  brandId: 1,
+                  desc: 1,
+                  imageKeys: 1,
+                  price: 1,
+                  gender: 1,
+                  flavor: 1,
+                  category: 1,
+                  year: 1,
+                  season: 1,
+                  maker: 1,
+                  country: 1,
+                  initialNoteObjects: 1,
+                  midNoteObjects: 1,
+                  baseNoteObjects: 1,
+                  availability: 1,
+                  olfactory: 1,
+                  festival: 1
+                }
+              }
             ],
             count: [
               { $count: 'total' }
             ]
           }
-        },
+        }
       ]).exec();
 
       let products = result[0].items;
