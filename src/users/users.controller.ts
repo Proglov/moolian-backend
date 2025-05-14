@@ -63,19 +63,6 @@ export class UsersController {
         return true
     }
 
-    //!!!!!!! DELETE THIS
-    @Auth(AuthType.Bearer)
-    @Get('make-admin')
-    @ApiOperation({ summary: 'returns true if the user is admin' })
-    @HttpCode(HttpStatus.ACCEPTED)
-    @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'you are admin' })
-    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't admin" })
-    async makeMeAdmin(
-        @CurrentUser() userInfo: CurrentUserData,
-    ) {
-        return this.userService.makeAdmin(userInfo);
-    }
-
     /**
      * find a single User using their extracted Id, doesn't return the password
      * Authenticated Users Only

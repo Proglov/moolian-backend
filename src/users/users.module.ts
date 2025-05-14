@@ -6,13 +6,10 @@ import { User, UserSchema } from './user.schema';
 import { UsersProvider } from './users.provider';
 import { AuthModule } from 'src/auth/auth.module';
 import { AdminModule } from 'src/admin/admin.module';
-import { Admin, AdminSchema } from 'src/admin/admin.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    //!!!!!!! DELETE THIS
-    MongooseModule.forFeature([{ name: Admin.name, schema: AdminSchema }]),
     forwardRef(() => AuthModule),
     AdminModule
   ],

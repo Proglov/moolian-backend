@@ -8,7 +8,6 @@ import { RestrictedUser, TCreateUser, TFindUserByIdentifier } from './dto/types'
 import { badRequestException, notFoundException, requestTimeoutException } from 'src/common/errors';
 import { FindAllDto } from 'src/common/findAll.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Admin } from 'src/admin/admin.schema';
 
 
 /** Class to preform business operations related to the users, used by other modules mostly */
@@ -19,11 +18,6 @@ export class UsersProvider {
 
     /** Inject the dependencies */
     constructor(
-        //!!!!!!! DELETE THIS
-        /**  Inject the Admin Model */
-        @InjectModel(Admin.name)
-        private readonly adminModel: Model<Admin>,
-
         /**  Inject the User Model */
         @InjectModel(User.name)
         private readonly userModel: Model<User>,
@@ -158,16 +152,6 @@ export class UsersProvider {
                 }
             }
             throw requestTimeoutException('مشکلی در ویرایش کاربر رخ داده است')
-        }
-    }
-
-    //!!!!!!! DELETE THIS
-    async makeAdmin(id: Types.ObjectId) {
-        try {
-            const createdAdmin = new this.adminModel({ userId: id });
-            await createdAdmin.save()
-        } catch (error) {
-            throw requestTimeoutException(error)
         }
     }
 }
