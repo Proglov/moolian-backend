@@ -42,6 +42,18 @@ export class CommentController {
     return await this.commentService.findAll(query.limit, query.page);
   }
 
+  @Get('product/:id')
+  @ApiOperation({ summary: 'returns all comments of a product based on the pagination' })
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Comments found', type: FindAllDto<Comment> })
+  @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Comments are not found' })
+  async findAllByProductId(
+    @Query() query: PaginationDto,
+    @Param() findOneDto: FindOneDto
+  ) {
+    return await this.commentService.findAllByProductId(query.limit, query.page, findOneDto);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'returns a comment with its id' })
   @HttpCode(HttpStatus.ACCEPTED)

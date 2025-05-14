@@ -63,6 +63,64 @@ export class CommentService {
     }
   }
 
+  async findAllByProductId(limit: number, page: number, findOneDto: FindOneDto): Promise<FindAllDto<Comment>> {
+    try {
+      const skip = (page - 1) * limit;
+      const filter = { productId: new Types.ObjectId(findOneDto.id) };
+
+      const result = await this.commentModel.aggregate([
+        { $match: filter },
+        {
+          $facet: {
+            items: [
+              { $sort: { _id: -1 } },
+              { $skip: skip },
+              { $limit: limit },
+              {
+                $lookup: {
+                  from: "users",
+                  localField: "userId",
+                  foreignField: "_id",
+                  as: "userId"
+                }
+              },
+              { $unwind: "$userId" },
+              {
+                $project: {
+                  _id: 1,
+                  body: 1,
+                  parentCommentId: 1,
+                  disLikeIds: 1,
+                  likeIds: 1,
+                  validated: 1,
+                  productId: 1,
+                  userId: {
+                    _id: "$userId._id",
+                    name: "$userId.name"
+                  }
+                }
+              }
+            ],
+            count: [
+              { $count: "total" }
+            ]
+          }
+        }
+      ]);
+
+      const items = result[0]?.items || [];
+      const count = result[0]?.count[0]?.total || 0;
+
+      return {
+        count,
+        items
+      };
+    } catch (error) {
+      throw requestTimeoutException('مشکلی در گرفتن کامنتها رخ داده است');
+    }
+  }
+
+
   async findOne(findOneDto: FindOneDto): Promise<Comment> {
     try {
       return await this.commentModel.findById(findOneDto.id).populate({ path: 'userId', select: 'name' }).lean().exec();
