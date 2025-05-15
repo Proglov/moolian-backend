@@ -66,7 +66,7 @@ export class CommentService {
   async findAllByProductId(limit: number, page: number, findOneDto: FindOneDto): Promise<FindAllDto<Comment>> {
     try {
       const skip = (page - 1) * limit;
-      const filter = { productId: new Types.ObjectId(findOneDto.id) };
+      const filter = { productId: new Types.ObjectId(findOneDto.id), validated: true };
 
       const result = await this.commentModel.aggregate([
         { $match: filter },
@@ -84,7 +84,12 @@ export class CommentService {
                   as: "userId"
                 }
               },
-              { $unwind: "$userId" },
+              {
+                $unwind: {
+                  path: "$userId",
+                  preserveNullAndEmptyArrays: true
+                }
+              },
               {
                 $project: {
                   _id: 1,
