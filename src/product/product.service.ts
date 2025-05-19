@@ -303,6 +303,48 @@ export class ProductService {
     }
   }
 
+  async findAllByIds(ids: Types.ObjectId[], replaceTheImageKey?: boolean): Promise<Product[]> {
+    try {
+      let products = await this.productModel.aggregate([
+        { $match: { _id: { $in: ids.map(id => new Types.ObjectId(id)) } } },
+        {
+          $lookup: {
+            from: 'festivals',
+            localField: '_id',
+            foreignField: 'productId',
+            as: 'festival'
+          }
+        },
+        {
+          $unwind: {
+            path: '$festival',
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $group: {
+            _id: '$_id',
+            nameFA: { $first: '$nameFA' },
+            nameEN: { $first: '$nameEN' },
+            imageKeys: { $first: '$imageKeys' },
+            price: { $first: '$price' },
+            festival: { $first: '$festival' }
+          }
+        }
+      ]).exec();
+
+
+      if (replaceTheImageKey) {
+        products = await this.productProvider.replaceTheImageKeysOnlyOfProducts(products);
+      }
+
+      return products;
+
+    } catch (error) {
+      throw requestTimeoutException('مشکلی در گرفتن محصولات رخ داده است');
+    }
+  }
+
   async findOne(findOneDto: FindOneDto, replaceTheImageKey?: boolean): Promise<any> {
     try {
       const productWithFestival = await this.productModel.aggregate([
