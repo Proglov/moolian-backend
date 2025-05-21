@@ -84,17 +84,6 @@ export class UsersProvider {
         }
     }
 
-    /**
-     * Updates a single user
-     */
-    async updateUser(query: FilterQuery<User>, data: UpdateQuery<User>) {
-        try {
-            return await this.userModel.findOneAndUpdate(query, data).select(this.selectOptions)
-        } catch (error) {
-            throw requestTimeoutException('مشکلی در آپدیت کردن کاربر رخ داده است')
-        }
-    }
-
 
     async findAll(limit: number, page: number): Promise<FindAllDto<User>> {
         try {
@@ -120,6 +109,17 @@ export class UsersProvider {
         }
     }
 
+    /**
+     * Updates a single user
+     */
+    async updateUser(query: FilterQuery<User>, data: UpdateQuery<User>) {
+        try {
+            return await this.userModel.findOneAndUpdate(query, data).select(this.selectOptions)
+        } catch (error) {
+            throw requestTimeoutException('مشکلی در آپدیت کردن کاربر رخ داده است')
+        }
+    }
+
     async update(id: Types.ObjectId, updateUserDto: UpdateUserDto) {
         try {
             const newObj: Partial<User> = { ...updateUserDto }
@@ -128,12 +128,14 @@ export class UsersProvider {
                 newObj.isPhoneVerified = false;
             if (!!updateUserDto.email)
                 newObj.isEmailVerified = false;
+            if (Array.isArray(updateUserDto.address) && updateUserDto.address.length > 3)
+                throw new Error('Address Error');
             if (!!updateUserDto.password) {
                 const hashedPassword = await this.hashProvider.hashString(updateUserDto.password)
                 newObj.password = hashedPassword;
             }
 
-            return await this.userModel.findByIdAndUpdate(id, newObj);
+            return await this.userModel.findByIdAndUpdate(id, newObj, { returnDocument: 'after' }).select(this.selectOptions);
 
         } catch (error) {
             if (error instanceof NotFoundException)
@@ -151,6 +153,8 @@ export class UsersProvider {
                         throw badRequestException('این نام کاربری قبلا ثبت نام شده است')
                 }
             }
+            if (error.message == 'Address Error')
+                throw badRequestException('امکان درج بیش از سه آدرس وجود ندارد')
             throw requestTimeoutException('مشکلی در ویرایش کاربر رخ داده است')
         }
     }
