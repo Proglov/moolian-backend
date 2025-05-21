@@ -33,11 +33,6 @@ export class TransactionService {
 
   async create(userInfo: CurrentUserData, createTransactionDto: CreateTransactionDto): Promise<Types.ObjectId> {
 
-    //* check if the shouldBeSentAt is after the latency
-    const latency = 3_600_000    //? one hour
-    if (parseInt(createTransactionDto.shouldBeSentAt) - Date.now() < latency)
-      throw badRequestException('ارسال در این زمان مقدور نمیباشد!')
-
     if (!createTransactionDto.boughtProducts.length)
       throw badRequestException('محصولات ضروری میباشند')
 
@@ -93,7 +88,7 @@ export class TransactionService {
         totalPrice,
         boughtProducts: createTransactionDto.boughtProducts,
         address: createTransactionDto.address,
-        shouldBeSentAt: createTransactionDto.shouldBeSentAt,
+        shouldBeSentAt: '1842237668599', //TODO handle the time of sending
         totalDiscount: totalDiscount > 0 ? totalDiscount : undefined
       })
 
@@ -103,6 +98,7 @@ export class TransactionService {
 
       return newTransaction?._id;
     } catch (error) {
+      console.log(error);
       throw requestTimeoutException('مشکلی در ایجاد تراکنش رخ داده است')
     }
   }

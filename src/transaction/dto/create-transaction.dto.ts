@@ -15,12 +15,6 @@ const addressDoc = {
     example: 'تهران سوهانک'
 }
 
-const shouldBeSentAtDoc = {
-    description: 'the shouldBeSentAt of the tx. it should be an epoch time',
-    type: String,
-    example: '1842237668599'
-}
-
 const quantityDoc = {
     description: 'the quantity of the tx, should be a number between 1 and 100',
     type: Number,
@@ -66,11 +60,6 @@ export class CreateTransactionDto {
     @IsString(messages.isString('آدرس ارسال'))
     @IsNotEmpty(messages.notEmpty('آدرس ارسال'))
     address: string;
-
-    @ApiProperty(shouldBeSentAtDoc)
-    @IsString(messages.isString('زمان ارسال'))
-    @IsNotEmpty(messages.notEmpty('زمان ارسال'))
-    shouldBeSentAt: string;
 
     @ApiProperty(boughtProductsDoc)
     @ValidateNested({ each: true })
