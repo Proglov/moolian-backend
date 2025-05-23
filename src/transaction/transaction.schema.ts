@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, now, SchemaTypes, Types } from 'mongoose';
+import { Document, SchemaTypes, Types } from 'mongoose';
 import { Product } from 'src/product/product.schema';
 import { User } from 'src/users/user.schema';
 import { Status } from './enums/transaction.enums';
@@ -56,7 +56,7 @@ export class Transaction extends Document {
     @Prop({ type: String, default: Status.Requested, enum: Status })
     status: string;
 
-    @Prop({ default: now() })
+    @Prop({ default: () => new Date() })
     createdAt: Date;
 }
 
