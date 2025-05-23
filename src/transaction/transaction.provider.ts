@@ -23,7 +23,7 @@ export class TransactionProvider {
     try {
       const skip = (page - 1) * limit;
 
-      const query = this.transactionModel.find(condition).populate(this.userPopulationObject).populate(this.productPopulationObject).sort('desc').skip(skip).limit(limit)
+      const query = this.transactionModel.find(condition).populate(this.userPopulationObject).populate(this.productPopulationObject).sort({ createdAt: -1, _id: -1 }).skip(skip).limit(limit)
 
       const [transactions, count] = await Promise.all([
         query.lean().exec() as unknown as Transaction[],
