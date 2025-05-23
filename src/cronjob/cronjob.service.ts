@@ -23,6 +23,7 @@ export class CronjobService {
             Logger.log('unusedImages Cron Job is successfully finished!'.bgGreen);
         } catch (error) {
             Logger.error('some thing went wrong during deleting unused images')
+            Logger.error(error)
         }
     }
 
@@ -34,6 +35,7 @@ export class CronjobService {
             Logger.log('festivals Cron Job is successfully finished!'.bgGreen);
         } catch (error) {
             Logger.error('some thing went wrong during deleting festivals')
+            Logger.error(error)
         }
     }
 }
