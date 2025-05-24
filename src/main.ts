@@ -43,7 +43,13 @@ async function bootstrap() {
     SwaggerModule.setup('api', app, document)
   }
 
-  await app.listen(PORT);
+  //app listen
+  if (ENV === 'development') {
+    await app.listen(PORT);
+  } else {
+    await app.listen(PORT, '0.0.0.0');
+  }
+
 
   const messages = [
     colors.black.bgWhite.bold('App Running in '.toUpperCase()),
