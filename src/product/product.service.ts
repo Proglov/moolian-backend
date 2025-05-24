@@ -335,10 +335,28 @@ export class ProductService {
           }
         },
         {
+          $lookup: {
+            from: 'brands',
+            localField: 'brandId',
+            foreignField: '_id',
+            as: 'brandId'
+          }
+        },
+        {
+          $unwind: {
+            path: '$brandId',
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
           $group: {
             _id: '$_id',
             nameFA: { $first: '$nameFA' },
             nameEN: { $first: '$nameEN' },
+            flavor: { $first: '$flavor' },
+            category: { $first: '$category' },
+            season: { $first: '$season' },
+            brandId: { $first: '$brandId' },
             imageKeys: { $first: '$imageKeys' },
             price: { $first: '$price' },
             festival: { $first: '$festival' }
@@ -348,7 +366,7 @@ export class ProductService {
 
 
       if (replaceTheImageKey) {
-        products = await this.productProvider.replaceTheImageKeysOnlyOfProducts(products);
+        products = await this.productProvider.replaceTheImageKeysAndBrandImageOfProducts(products);
       }
 
       return products;

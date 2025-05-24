@@ -54,6 +54,26 @@ export class ProductProvider {
     });
   }
 
+  async replaceTheImageKeysAndBrandImageOfProducts(products: PopulatedProduct[]): Promise<PopulatedProduct[]> {
+
+    //get the links of notes imageKeys, brand imageKey, and the imageKeys
+    const links = await this.imageService.getImages(products.map(product => [product.brandId.imageKey, product.imageKeys]).flat(2));
+
+    // Create a map for fast access by filename
+    const linkMap = new Map(links.map(link => [link.filename, link.url]));
+
+    // Map the products and replace the imageKey where available
+    return products.map(product => {
+      //deep clone
+      const newObj = JSON.parse(JSON.stringify(product))
+      //replace the brandId
+      newObj.brandId = { ...product.brandId, imageKey: linkMap.get(product.brandId.imageKey) }
+      //replace the imageKeys
+      newObj.imageKeys = product.imageKeys.map(imageKey => linkMap.get(imageKey));
+      return newObj as PopulatedProduct;
+    });
+  }
+
   async replaceTheImageKeysOnlyOfProducts(products: Product[]): Promise<Product[]> {
     //get the links of the imageKeys
     const links = await this.imageService.getImages(products.map(product => product.imageKeys).flat());
