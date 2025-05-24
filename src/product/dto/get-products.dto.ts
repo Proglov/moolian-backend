@@ -53,6 +53,11 @@ const onlyAvailableDoc = {
     type: Boolean
 }
 
+const searchDoc = {
+    description: 'the search string of the product',
+    type: String,
+    example: 'کرید اونتوس'
+}
 
 export class GetProductsDto extends PaginationDto {
     @ApiPropertyOptional(onlyAvailableDoc)
@@ -66,6 +71,11 @@ export class GetProductsDto extends PaginationDto {
     @IsString(messages.isString('دسته بندی'))
     @IsEnum(Category, { message: messages.isEnum('دسته بندی', Category).message })
     category?: string;
+
+    @ApiPropertyOptional(searchDoc)
+    @IsOptional()
+    @IsString(messages.isString('جست و جوی محصول'))
+    search?: string;
 
     @ApiPropertyOptional(flavorDoc)
     @IsOptional()

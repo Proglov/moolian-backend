@@ -123,6 +123,7 @@ export class ProductService {
     try {
       const skip = (query.page - 1) * query.limit;
       const match: any = {}, sort: any = {};
+      const search = query.search?.trim();
       if (query.onlyAvailable) {
         match.availability = true;
       }
@@ -153,6 +154,18 @@ export class ProductService {
         default:
           sort._id = 1;
           break;
+      }
+      if (search) {
+        const regex = new RegExp(search, 'i');
+
+        match.$or = [
+          { nameFA: regex },
+          { nameEN: regex },
+          { desc: regex },
+          { maker: regex },
+          { country: regex },
+          { olfactory: regex },
+        ];
       }
 
       let result = await this.productModel.aggregate([
@@ -275,7 +288,7 @@ export class ProductService {
                   baseNoteObjects: 1,
                   availability: 1,
                   olfactory: 1,
-                  festival: 1
+                  festival: 1,
                 }
               }
             ],
