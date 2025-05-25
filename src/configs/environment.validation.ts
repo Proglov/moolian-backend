@@ -17,5 +17,16 @@ export default Joi.object({
     LIARA_BUCKET_NAME: Joi.string().required(),
     LIARA_ACCESS_KEY: Joi.string().required(),
     LIARA_SECRET_KEY: Joi.string().required(),
-    ALLOWED_ORIGINS: Joi.string().required()
+    ALLOWED_ORIGINS: Joi.string().required(),
+    FIREBASE_TYPE: Joi.string().required(),
+    FIREBASE_PROJECT_ID: Joi.string().required(),
+    FIREBASE_PRIVATE_KEY: Joi.string().required(),
+    FIREBASE_PRIVATE_KEY_ID: Joi.string().required(),
+    FIREBASE_CLIENT_EMAIL: Joi.string().required(),
+    FIREBASE_CLIENT_ID: Joi.string().required(),
+    FIREBASE_AUTH_URI: Joi.string().required(),
+    FIREBASE_TOKEN_URI: Joi.string().required(),
+    FIREBASE_AUTH_CERT_URL: Joi.string().required(),
+    FIREBASE_CLIENT_CERT_URL: Joi.string().required(),
+    FIREBASE_UNIVERSAL_DOMAIN: Joi.string().required()
 })

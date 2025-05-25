@@ -5,11 +5,13 @@ import { ProductModule } from 'src/product/product.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Transaction, TransactionSchema } from './transaction.schema';
 import { TransactionProvider } from './transaction.provider';
+import { FirebaseModule } from 'src/firebase/firebase.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Transaction.name, schema: TransactionSchema }]),
-    ProductModule
+    ProductModule,
+    FirebaseModule
   ],
   controllers: [TransactionController],
   providers: [TransactionService, TransactionProvider],

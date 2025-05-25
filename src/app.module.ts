@@ -27,6 +27,7 @@ import { TransactionModule } from './transaction/transaction.module';
 import { FestivalModule } from './discount-festival/festival.module';
 import { ArticleModule } from './article/article.module';
 import { CronjobModule } from './cronjob/cronjob.module';
+import { FirebaseModule } from './firebase/firebase.module';
 
 
 const ENV = process.env.NODE_ENV;
@@ -37,7 +38,8 @@ const ENV = process.env.NODE_ENV;
       isGlobal: true,
       envFilePath: ENV === 'development' ? '.env.development' : ENV === 'test' ? '.env.test' : '.env',
       load: [appConfig, databaseConfig, emailConfig, corsConfig],
-      validationSchema: environmentValidation
+      validationSchema: environmentValidation,
+      cache: ENV === 'production'
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
@@ -61,7 +63,8 @@ const ENV = process.env.NODE_ENV;
     CommentModule,
     TransactionModule,
     FestivalModule,
-    ArticleModule
+    ArticleModule,
+    FirebaseModule
   ],
   controllers: [AppController],
   providers: [

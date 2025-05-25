@@ -11,6 +11,9 @@ export class Admin extends Document {
         unique: true
     })
     userId: Types.ObjectId;
+
+    @Prop({ type: String, required: false })
+    notificationToken?: string;
 }
 
 

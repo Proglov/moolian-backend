@@ -27,4 +27,16 @@ export class AdminProvider {
       return false
     }
   }
+
+  /**
+   * returns all notificationTokens
+   */
+  async getNotificationTokens(): Promise<string[]> {
+    try {
+      const admins = await this.adminModel.find({})
+      return admins.map(admin => admin.notificationToken).filter(Boolean)
+    } catch (error) {
+      return []
+    }
+  }
 }

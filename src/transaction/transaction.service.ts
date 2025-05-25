@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { BoughtProducts, Transaction } from './transaction.schema';
+import { Transaction } from './transaction.schema';
 import { Model, Types } from 'mongoose';
 import { badRequestException, conflictException, forbiddenException, notFoundException, requestTimeoutException, unauthorizedException } from 'src/common/errors';
 import { ProductProvider } from 'src/product/product.provider';
@@ -14,6 +14,7 @@ import { Status, volumeMultipliers } from './enums/transaction.enums';
 import { CancelTransActionDto } from './dto/cancel-transaction.dto';
 import { OpinionTransActionDto } from './dto/opinion-transaction.dto';
 import { GetTransactionsDto } from './dto/get-transactions.dto';
+import { FirebaseService } from 'src/firebase/firebase.service';
 
 @Injectable()
 export class TransactionService {
@@ -28,7 +29,10 @@ export class TransactionService {
     private readonly productProvider: ProductProvider,
 
     /**  Inject the transaction provider */
-    private readonly transactionProvider: TransactionProvider
+    private readonly transactionProvider: TransactionProvider,
+
+    /**  Inject the firebase service */
+    private readonly firebaseService: FirebaseService
   ) { }
 
   async create(userInfo: CurrentUserData, createTransactionDto: CreateTransactionDto): Promise<Types.ObjectId> {
@@ -67,7 +71,7 @@ export class TransactionService {
       const thisPrice = currentProduct.price * multiplier * bp.quantity;
       if (currentProduct.festival?.offPercentage > 0 && parseInt(currentProduct.festival?.until) >= Date.now())
         totalDiscount += thisPrice * currentProduct.festival.offPercentage / 100
-      //TODO handle the major discount here
+      //* handle the major discount here
       // if (currentProduct?.majorShoppingOffPercentage > 0 && currentProduct?.quantity >= currentProduct?.majorQuantity)
       //   totalDiscount += thisPrice * currentProduct.majorShoppingOffPercentage / 100
       return acc + thisPrice
@@ -75,7 +79,7 @@ export class TransactionService {
 
     totalPrice -= totalDiscount
 
-    //TODO handle the code discount here
+    //* handle the code discount here
 
     //TODO handle the shipping cost here
     const shippingCost = 50000;
@@ -94,11 +98,14 @@ export class TransactionService {
 
       await newTransaction.save();
 
-      //TODO Send Notification
+      //? Send Notification
+      this.firebaseService.sendNotificationToAdmins(
+        'سفارش جدید',
+        `کاربری به اندازه ${totalPrice} تومان خرید کرده است`
+      )
 
       return newTransaction?._id;
     } catch (error) {
-      console.log(error);
       throw requestTimeoutException('مشکلی در ایجاد تراکنش رخ داده است')
     }
   }
@@ -175,13 +182,27 @@ export class TransactionService {
       throw forbiddenException("سفارش از قبل کنسل شده است!")
     if (transaction.status !== Status.Requested)
       throw forbiddenException("امکان کنسل کردن سفارش پس از تایید آن ممکن نمیباشد")
+
+    //* time check: allow cancel only within 1 hour of creation
+    const cancellationLimit = 60 * 60 * 1000; // 1hr
+    if (Date.now() - transaction.createdAt.getTime() > cancellationLimit) {
+      throw forbiddenException("امکان کنسل کردن سفارش پس از گذشت ۱ ساعت وجود ندارد");
+    }
+
     try {
       transaction.status = Status.Canceled
       transaction.canceled = {
         didSellerCanceled: false,
         reason: cancelTransActionDto.reason
       }
-      await transaction.save()
+      await transaction.save();
+
+      //? Send Notification
+      this.firebaseService.sendNotificationToAdmins(
+        'لغو سفارش',
+        'کاربری سفارش خود را لغو کرد'
+      )
+
       return transaction
     } catch (error) {
       throw requestTimeoutException('مشکلی در آپدیت تراکنش رخ داده است')
