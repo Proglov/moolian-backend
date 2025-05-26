@@ -28,6 +28,7 @@ import { FestivalModule } from './discount-festival/festival.module';
 import { ArticleModule } from './article/article.module';
 import { CronjobModule } from './cronjob/cronjob.module';
 import { FirebaseModule } from './firebase/firebase.module';
+import { EmailModule } from './email/email.module';
 
 
 const ENV = process.env.NODE_ENV;
@@ -52,7 +53,7 @@ const ENV = process.env.NODE_ENV;
     UsersModule,
     AuthModule,
     AdminModule,
-    // EmailModule,
+    EmailModule,
     ImageModule,
     TemporaryImagesModule,
     ProvinceModule,

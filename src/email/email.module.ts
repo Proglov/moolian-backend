@@ -4,7 +4,6 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 
-//! this module is commented in the app.module
 @Module({
   imports: [
     MailerModule.forRootAsync({
