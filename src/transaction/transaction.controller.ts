@@ -67,7 +67,6 @@ export class TransactionController {
   @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Transactions found', type: FindAllDto<Transaction> })
   @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Transactions are not found' })
   async findAllOfAUser(
-
     @Param() findOneDto: FindOneDto,
     @Query() query: PaginationDto
   ) {
