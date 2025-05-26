@@ -16,7 +16,6 @@ export class CookieProvider {
         expires.setTime(expires.getTime() + expiresIn * 1000)
 
         response.cookie(name, data, {
-            domain: '.moolianperfume.com',
             httpOnly: this.isProduction,
             secure: this.isProduction,
             sameSite: 'lax',
@@ -30,7 +29,6 @@ export class CookieProvider {
     removeCookie(response: Response, name: string): void {
 
         response.cookie(name, '', {
-            domain: '.moolianperfume.com',
             httpOnly: this.isProduction,
             secure: this.isProduction,
             sameSite: 'lax',
