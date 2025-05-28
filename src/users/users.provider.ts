@@ -5,9 +5,10 @@ import { User } from './user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { HashProvider } from 'src/auth/providers/password.provider';
 import { RestrictedUser, TCreateUser, TFindUserByIdentifier } from './dto/types';
-import { badRequestException, notFoundException, requestTimeoutException } from 'src/common/errors';
+import { badRequestException, notFoundException, requestTimeoutException, unauthorizedException } from 'src/common/errors';
 import { FindAllDto } from 'src/common/findAll.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 
 /** Class to preform business operations related to the users, used by other modules mostly */
@@ -61,8 +62,7 @@ export class UsersProvider {
      */
     async findOneByIdentifierAndGetPassword(input: TFindUserByIdentifier): Promise<Pick<User, 'password' | "_id">> {
         try {
-            const existingUser = await this.userModel.findOne(input).select('password');
-            return existingUser;
+            return await this.userModel.findOne(input).select('password');
         } catch (error) {
             if (error.name == 'CastError')
                 throw badRequestException('آیدی کاربر صحیح نمیباشد')
@@ -130,10 +130,6 @@ export class UsersProvider {
                 newObj.isEmailVerified = false;
             if (Array.isArray(updateUserDto.address) && updateUserDto.address.length > 3)
                 throw new Error('Address Error');
-            if (!!updateUserDto.password) {
-                const hashedPassword = await this.hashProvider.hashString(updateUserDto.password)
-                newObj.password = hashedPassword;
-            }
 
             return await this.userModel.findByIdAndUpdate(id, newObj, { returnDocument: 'after' }).select(this.selectOptions);
 
@@ -157,5 +153,19 @@ export class UsersProvider {
                 throw badRequestException('امکان درج بیش از سه آدرس وجود ندارد')
             throw requestTimeoutException('مشکلی در ویرایش کاربر رخ داده است')
         }
+    }
+
+    async changePassword(userId: Types.ObjectId, changePasswordDto: ChangePasswordDto) {
+        const user = await this.userModel.findById(userId).select('password');
+        const isPasswordTrue = await this.hashProvider.compareHashed(changePasswordDto.currentPassword, user.password);
+        if (!isPasswordTrue) throw unauthorizedException('رمزعبور فعلی وارد شده صحیح نمیباشد');
+        try {
+            const hashedPassword = await this.hashProvider.hashString(changePasswordDto.password)
+            user.password = hashedPassword;
+            await user.save();
+        } catch (error) {
+            throw requestTimeoutException('مشکلی در ذخیره سازی رمزعبور رخ داده است')
+        }
+
     }
 }

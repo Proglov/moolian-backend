@@ -7,6 +7,7 @@ import { FindAllDto } from 'src/common/findAll.dto';
 import { User } from './user.schema';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CurrentUserData } from 'src/auth/interfacesAndType/current-user-data.interface';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 
 /** Class to preform business operations related to the users, used by the controller mostly */
@@ -37,5 +38,9 @@ export class UsersService {
 
     async update(userInfo: CurrentUserData, updateUserDto: UpdateUserDto) {
         return await this.usersProvider.update(userInfo.userId, updateUserDto)
+    }
+
+    async changePassword(userInfo: CurrentUserData, changePasswordDto: ChangePasswordDto) {
+        return await this.usersProvider.changePassword(userInfo.userId, changePasswordDto)
     }
 }

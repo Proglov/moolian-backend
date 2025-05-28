@@ -11,6 +11,7 @@ import { PaginationDto } from 'src/common/pagination.dto';
 import { FindAllDto } from 'src/common/findAll.dto';
 import { User } from './user.schema';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 
 /** End points related to the users */
@@ -45,12 +46,26 @@ export class UsersController {
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'User credentials has conflict' })
     @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'User is not updated' })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
-    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "some ids can't be found" })
     update(
         @CurrentUser() userInfo: CurrentUserData,
         @Body() updateUserDto: UpdateUserDto
     ) {
         return this.userService.update(userInfo, updateUserDto);
+    }
+
+    @Auth(AuthType.Bearer)
+    @Patch('/password')
+    @ApiOperation({ summary: 'changes the password of the user' })
+    @HttpCode(HttpStatus.OK)
+    @ApiResponse({ status: HttpStatus.OK, description: 'User updated' })
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'User credentials has conflict' })
+    @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'User is not updated' })
+    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
+    changePAssword(
+        @CurrentUser() userInfo: CurrentUserData,
+        @Body() changePasswordDto: ChangePasswordDto
+    ) {
+        return this.userService.changePassword(userInfo, changePasswordDto);
     }
 
     @Auth(AuthType.Admin)
