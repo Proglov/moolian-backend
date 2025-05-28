@@ -1,5 +1,4 @@
-import { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { DeleteObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import * as sharp from 'sharp';
@@ -14,16 +13,9 @@ import { IGetImageResponse } from './dto/getImage.types';
 export class ImageService {
 
     // S3 instance
-    private readonly s3 = new S3Client({
-        region: "default",
-        endpoint: this.s3StorageConfiguration.endpoint,
-        credentials: {
-            accessKeyId: this.s3StorageConfiguration.access,
-            secretAccessKey: this.s3StorageConfiguration.secret,
-        },
-    })
+    private readonly s3: S3Client;
 
-    private readonly bucketName = this.s3StorageConfiguration.bucketName
+    private readonly bucketName: string;
 
     /** Inject the dependencies */
     constructor(
@@ -33,7 +25,18 @@ export class ImageService {
 
         /**  Inject the temporary-images service */
         private readonly temporaryImagesService: TemporaryImagesService
-    ) { }
+    ) {
+        this.s3 = new S3Client({
+            region: 'default',
+            endpoint: this.s3StorageConfiguration.endpoint,
+            credentials: {
+                accessKeyId: this.s3StorageConfiguration.access,
+                secretAccessKey: this.s3StorageConfiguration.secret,
+            },
+        });
+
+        this.bucketName = this.s3StorageConfiguration.bucketName;
+    }
 
     async resizeImage(file: Buffer): Promise<Buffer> {
         return sharp(file).resize({ height: 600, width: 800, fit: "cover" }).toBuffer()
@@ -61,29 +64,13 @@ export class ImageService {
         }
     }
 
-    async getImage(filename: string): Promise<IGetImageResponse> {
-        try {
-            const params = {
-                Bucket: this.bucketName,
-                Key: filename,
-            };
-
-            const command = new GetObjectCommand(params);
-            const url = await getSignedUrl(this.s3, command);
-            return { url, filename }
-        } catch (error) {
-            throw requestTimeoutException('مشکلی در دریافت عکس رخ داد')
-        }
+    getImage(filename: string): IGetImageResponse {
+        const url = `${this.s3StorageConfiguration.endpoint}/${this.bucketName}/${filename}`;
+        return { url, filename };
     }
 
-    async getImages(filenames: string[]): Promise<IGetImageResponse[]> {
-        try {
-            // Wait for all promises to resolve
-            const urlObjects = await Promise.all(filenames.map(filename => this.getImage(filename)));
-            return urlObjects;
-        } catch (error) {
-            throw requestTimeoutException('مشکلی در دریافت عکس ها رخ داد')
-        }
+    getImages(filenames: string[]): IGetImageResponse[] {
+        return filenames.map(filename => this.getImage(filename));
     }
 
     async deleteImage(filename: string): Promise<void> {
@@ -172,8 +159,8 @@ export class ImageService {
         }
     }
 
-    async replaceTheImageKey<T extends { imageKey: string }>(items: T[]): Promise<T[]> {
-        const links = await this.getImages(items.map(item => item.imageKey));
+    replaceTheImageKey<T extends { imageKey: string }>(items: T[]): T[] {
+        const links = this.getImages(items.map(item => item.imageKey));
 
         // Create a map for fast access by filename
         const linkMap = new Map(links.map(link => [link.filename, link.url]));

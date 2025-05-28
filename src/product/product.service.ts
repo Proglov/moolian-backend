@@ -108,7 +108,7 @@ export class ProductService {
       //* delete the temporary images
       await this.temporaryImagesService.deleteTemporaryImagesByNames(result.imageKeys)
 
-      const imageKeys = await this.imageService.getImages(result.imageKeys);
+      const imageKeys = this.imageService.getImages(result.imageKeys);
       return { ...result, imageKeys: imageKeys.map(imageObj => imageObj.url) };
 
     } catch (error) {

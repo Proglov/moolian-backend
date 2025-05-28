@@ -33,9 +33,9 @@ export class ArticleService {
 
   readonly productIdsPopulationObject = { path: "productIds", select: "nameFA" }
 
-  async replaceImageKeyOfArticles(articles: Article[]): Promise<Article[]> {
+  replaceImageKeyOfArticles(articles: Article[]): Article[] {
     //get the link of imageKey
-    const links = await this.imageService.getImages(articles.map(article => article.imageKey));
+    const links = this.imageService.getImages(articles.map(article => article.imageKey));
 
     // Create a map for fast access by filename
     const linkMap = new Map(links.map(link => [link.filename, link.url]));

@@ -35,7 +35,7 @@ export class NoteService {
       //* delete the temporary image
       await this.temporaryImagesService.deleteTemporaryImagesByNames([createNoteDto.imageKey])
 
-      return (await this.imageService.replaceTheImageKey([note]))[0]
+      return (this.imageService.replaceTheImageKey([note]))[0]
     } catch (error) {
       //* mongoose duplication error
       if (error?.code === 11000 && Object.keys(error?.keyPattern)[0] === 'name')
@@ -59,7 +59,7 @@ export class NoteService {
       if (!replaceTheImageKey)
         return { items: notes, count }
 
-      notes = await this.imageService.replaceTheImageKey(notes)
+      notes = this.imageService.replaceTheImageKey(notes)
 
       return {
         count,
@@ -78,7 +78,7 @@ export class NoteService {
       if (!replaceTheImageKey)
         return note
 
-      return (await this.imageService.replaceTheImageKey([note]))[0]
+      return (this.imageService.replaceTheImageKey([note]))[0]
     } catch (error) {
       if (error?.name == 'TypeError' || error?.name == 'CastError')
         throw badRequestException('آیدی نوت مورد نظر صحیح نمیباشد')

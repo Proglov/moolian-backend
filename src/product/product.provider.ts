@@ -22,11 +22,11 @@ export class ProductProvider {
   ) { }
 
 
-  async replaceTheImageKeysOfProducts(products: PopulatedProduct[]): Promise<PopulatedProduct[]> {
+  replaceTheImageKeysOfProducts(products: PopulatedProduct[]): PopulatedProduct[] {
     const noteKeys: (keyof PopulatedProduct)[] = ['initialNoteObjects', 'midNoteObjects', 'baseNoteObjects']
 
     //get the links of notes imageKeys, brand imageKey, and the imageKeys
-    const links = await this.imageService.getImages(products.map(product => [...noteKeys.map(noteKey => product[noteKey].map((noteObj: PopulatedNoteWithCent) => noteObj.noteId.imageKey)), product.brandId.imageKey, product.imageKeys]).flat(2));
+    const links = this.imageService.getImages(products.map(product => [...noteKeys.map(noteKey => product[noteKey].map((noteObj: PopulatedNoteWithCent) => noteObj.noteId.imageKey)), product.brandId.imageKey, product.imageKeys]).flat(2));
 
     // Create a map for fast access by filename
     const linkMap = new Map(links.map(link => [link.filename, link.url]));
@@ -54,10 +54,10 @@ export class ProductProvider {
     });
   }
 
-  async replaceTheImageKeysAndBrandImageOfProducts(products: PopulatedProduct[]): Promise<PopulatedProduct[]> {
+  replaceTheImageKeysAndBrandImageOfProducts(products: PopulatedProduct[]): PopulatedProduct[] {
 
     //get the links of notes imageKeys, brand imageKey, and the imageKeys
-    const links = await this.imageService.getImages(products.map(product => [product.brandId.imageKey, product.imageKeys]).flat(2));
+    const links = this.imageService.getImages(products.map(product => [product.brandId.imageKey, product.imageKeys]).flat(2));
 
     // Create a map for fast access by filename
     const linkMap = new Map(links.map(link => [link.filename, link.url]));
@@ -74,9 +74,9 @@ export class ProductProvider {
     });
   }
 
-  async replaceTheImageKeysOnlyOfProducts(products: Product[]): Promise<Product[]> {
+  replaceTheImageKeysOnlyOfProducts(products: Product[]): Product[] {
     //get the links of the imageKeys
-    const links = await this.imageService.getImages(products.map(product => product.imageKeys).flat());
+    const links = this.imageService.getImages(products.map(product => product.imageKeys).flat());
 
     // Create a map for fast access by filename
     const linkMap = new Map(links.map(link => [link.filename, link.url]));

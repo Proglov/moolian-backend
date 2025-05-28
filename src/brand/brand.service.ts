@@ -36,7 +36,7 @@ export class BrandService {
       //* delete the temporary image
       await this.temporaryImagesService.deleteTemporaryImagesByNames([createBrandDto.imageKey])
 
-      return (await this.imageService.replaceTheImageKey([brand]))[0]
+      return (this.imageService.replaceTheImageKey([brand]))[0]
     } catch (error) {
       //* mongoose duplication error
       if (error?.code === 11000 && (Object.keys(error?.keyPattern)[0] === 'nameFA' || Object.keys(error?.keyPattern)[0] === 'nameEN'))
@@ -58,7 +58,7 @@ export class BrandService {
       ]);
 
       if (replaceTheImageKey)
-        brands = await this.imageService.replaceTheImageKey(brands)
+        brands = this.imageService.replaceTheImageKey(brands)
 
       return {
         count,
@@ -75,7 +75,7 @@ export class BrandService {
       const brand = await this.brandModel.findById(findOneDto.id).lean().exec();
       if (!replaceTheImageKey)
         return brand
-      return (await this.imageService.replaceTheImageKey([brand]))[0]
+      return (this.imageService.replaceTheImageKey([brand]))[0]
     } catch (error) {
       if (error?.name == 'TypeError' || error?.name == 'CastError')
         throw badRequestException('آیدی برند مورد نظر صحیح نمیباشد')
