@@ -2,10 +2,12 @@ import { Module } from '@nestjs/common';
 import { EmailProvider } from './email.provider';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import apiConfig from 'src/configs/api.config';
 
 
 @Module({
   imports: [
+    ConfigModule.forFeature(apiConfig),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
