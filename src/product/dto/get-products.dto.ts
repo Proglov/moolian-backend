@@ -1,9 +1,11 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsBoolean, IsEnum, IsOptional, IsString } from "class-validator";
+import { IsArray, IsBoolean, IsEnum, IsOptional, IsString } from "class-validator";
 import messages from "src/common/dto.messages";
 import { PaginationDto } from "src/common/pagination.dto";
 import { Category, Flavor, Gender, OrderBy, Season } from "../enums/product.enums";
 import { Transform } from "class-transformer";
+import { Types } from "mongoose";
+import { idDocGenerator } from "src/common/findOne.dto";
 
 
 const categoryDoc = {
@@ -65,6 +67,11 @@ export class GetProductsDto extends PaginationDto {
     @IsBoolean()
     @Transform(({ value }) => value === 'true')
     onlyAvailable?: boolean = false;
+
+    @ApiPropertyOptional(idDocGenerator('brandId', 'product'))
+    @IsOptional()
+    @IsString(messages.isString('آیدی برندها'))
+    brandId?: string;
 
     @ApiPropertyOptional(categoryDoc)
     @IsOptional()

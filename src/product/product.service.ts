@@ -139,6 +139,9 @@ export class ProductService {
       if (query.season) {
         match.season = query.season;
       }
+      if (query.brandId) {
+        match.brandId = new Types.ObjectId(query.brandId);
+      }
       switch (query.orderBy) {
         case OrderBy.cheap:
           sort.price = 1;
@@ -303,7 +306,7 @@ export class ProductService {
       const count = result[0].count[0]?.total || 0;
 
       if (replaceTheImageKey) {
-        products = await this.productProvider.replaceTheImageKeysOfProducts(products);
+        products = this.productProvider.replaceTheImageKeysOfProducts(products);
       }
 
       return {
@@ -366,7 +369,7 @@ export class ProductService {
 
 
       if (replaceTheImageKey) {
-        products = await this.productProvider.replaceTheImageKeysAndBrandImageOfProducts(products);
+        products = this.productProvider.replaceTheImageKeysAndBrandImageOfProducts(products);
       }
 
       return products;
@@ -502,7 +505,7 @@ export class ProductService {
       let product = productWithFestival[0];
 
       if (replaceTheImageKey) {
-        product = (await this.productProvider.replaceTheImageKeysOfProducts([product]))[0];
+        product = (this.productProvider.replaceTheImageKeysOfProducts([product]))[0];
       }
 
       return product;
