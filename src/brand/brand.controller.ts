@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, HttpCode, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, HttpCode, HttpStatus, Query, Delete, Patch } from '@nestjs/common';
 import { BrandService } from './brand.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { AuthType } from 'src/auth/enums/auth-types';
@@ -8,6 +8,7 @@ import { PaginationDto } from 'src/common/pagination.dto';
 import { FindAllDto } from 'src/common/findAll.dto';
 import { Brand } from './brand.schema';
 import { FindOneDto } from 'src/common/findOne.dto';
+import { UpdateBrandDto } from './dto/update-brand.dto';
 
 @Controller('brand')
 export class BrandController {
@@ -48,6 +49,33 @@ export class BrandController {
     @Param() findOneDto: FindOneDto
   ) {
     return await this.brandService.findOne(findOneDto, true);
+  }
+
+  @Patch(':id')
+  @Auth(AuthType.Admin)
+  @ApiOperation({ summary: 'updates a brand with its id' })
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Brand updated' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Brand Id is not correct' })
+  @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Brand is not updated' })
+  async updateOne(
+    @Param() findOneDto: FindOneDto,
+    @Body() updateBrandDto: UpdateBrandDto
+  ) {
+    return await this.brandService.updateOne(findOneDto.id, updateBrandDto);
+  }
+
+  @Delete(':id')
+  @Auth(AuthType.Admin)
+  @ApiOperation({ summary: 'deletes a brand with its id' })
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Brand deleted' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Brand Id is not correct' })
+  @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Brand is not deleted' })
+  async deleteOne(
+    @Param() findOneDto: FindOneDto
+  ) {
+    return await this.brandService.deleteOne(findOneDto.id);
   }
 
 }

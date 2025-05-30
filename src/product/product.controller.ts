@@ -5,7 +5,6 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AuthType } from 'src/auth/enums/auth-types';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { PaginationDto } from 'src/common/pagination.dto';
 import { FindAllDto } from 'src/common/findAll.dto';
 import { PopulatedProduct } from './dto/populated-product.type';
 import { FindOneDto } from 'src/common/findOne.dto';

@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Brand } from './brand.schema';
-import { Model } from 'mongoose';
-import { badRequestException, requestTimeoutException } from 'src/common/errors';
+import { Model, Types } from 'mongoose';
+import { badRequestException, conflictException, notFoundException, requestTimeoutException } from 'src/common/errors';
 import { ImageService } from 'src/image/image.service';
 import { FindAllDto } from 'src/common/findAll.dto';
 import { FindOneDto } from 'src/common/findOne.dto';
 import { TemporaryImagesService } from 'src/temporary-images/temporary-images.service';
+import { ProductProvider } from 'src/product/product.provider';
+import { UpdateBrandDto } from './dto/update-brand.dto';
 
 @Injectable()
 export class BrandService {
@@ -24,6 +26,9 @@ export class BrandService {
     /**  Inject the Temporary images service to delete temp images after product has been created */
     private readonly temporaryImagesService: TemporaryImagesService,
 
+    /**  Inject the product provider to count the products of a brand*/
+    @Inject(forwardRef(() => ProductProvider))
+    private readonly productProvider: ProductProvider
   ) { }
 
   async create(createBrandDto: CreateBrandDto, replaceTheImageKey?: boolean): Promise<Brand> {
@@ -83,4 +88,37 @@ export class BrandService {
     }
   }
 
+  async deleteOne(id: Types.ObjectId) {
+    const count = await this.productProvider.countProductsOfABrand(id);
+    if (count > 0) throw conflictException(`تعداد ${count} عدد برند با این برند وجود دارد`);
+
+    try {
+      const brand = await this.brandModel.findByIdAndDelete(id)
+      await this.imageService.deleteImage(brand.imageKey)
+    } catch (error) {
+      throw requestTimeoutException('مشکلی در پاک کردن برند پیش آمده است')
+    }
+  }
+
+  async updateOne(id: Types.ObjectId, updateBrandDto: UpdateBrandDto) {
+
+    //* delete the temporary images
+    if (updateBrandDto.imageKey)
+      await this.temporaryImagesService.deleteTemporaryImagesByNames([updateBrandDto.imageKey])
+
+    try {
+      const existingBrand = await this.brandModel.findByIdAndUpdate(id, updateBrandDto, { new: true })
+      if (!existingBrand)
+        throw notFoundException();
+      return existingBrand
+    } catch (error) {
+      if (error instanceof NotFoundException)
+        throw notFoundException('آیدی برند یافت نشد');
+
+      if (error?.code === 11000 && ['nameFA', 'nameEN'].includes(Object.keys(error?.keyPattern)[0]))
+        throw badRequestException('برندی با همین نام موجود است');
+
+      throw requestTimeoutException('مشکلی در آپدیت کردن برند رخ داده است')
+    }
+  }
 }

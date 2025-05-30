@@ -131,4 +131,12 @@ export class ProductProvider {
       throw requestTimeoutException('مشکلی در گرفتن محصولات رخ داده است')
     }
   }
+
+  async countProductsOfABrand(brandId: Types.ObjectId): Promise<number> {
+    try {
+      return await this.productModel.countDocuments({ brandId });
+    } catch (error) {
+      throw requestTimeoutException('مشکلی در شمردن محصولات برند رخ داده است')
+    }
+  }
 }
