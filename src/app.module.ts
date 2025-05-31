@@ -30,6 +30,7 @@ import { CronjobModule } from './cronjob/cronjob.module';
 import { FirebaseModule } from './firebase/firebase.module';
 import { EmailModule } from './email/email.module';
 import { EmailOTPModule } from './email-otp/email-otp.module';
+import { PaymentModule } from './payment/payment.module';
 
 
 const ENV = process.env.NODE_ENV;
@@ -67,7 +68,8 @@ const ENV = process.env.NODE_ENV;
     FestivalModule,
     ArticleModule,
     FirebaseModule,
-    EmailOTPModule
+    EmailOTPModule,
+    PaymentModule
   ],
   controllers: [AppController],
   providers: [

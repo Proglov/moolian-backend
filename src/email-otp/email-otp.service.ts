@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { EmailOTP } from './email-otp.schema';
 import { conflictException, forbiddenException, requestTimeoutException } from 'src/common/errors';
 import { InjectModel } from '@nestjs/mongoose';
@@ -7,8 +7,6 @@ import { VerifyEmailOTPDto } from './dto/verify-email-otp';
 import { UsersProvider } from 'src/users/users.provider';
 import { randomBytes } from 'crypto';
 import { EmailProvider } from 'src/email/email.provider';
-import { ConfigType } from '@nestjs/config';
-import apiConfig from 'src/configs/api.config';
 
 @Injectable()
 export class EmailOTPService {

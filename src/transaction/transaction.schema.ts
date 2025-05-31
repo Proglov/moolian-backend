@@ -50,10 +50,13 @@ export class Transaction extends Document {
     @Prop({ type: String, required: true })
     address: string;
 
+    @Prop({ type: String })
+    refId?: string;
+
     @Prop({ type: String, required: true })
     shouldBeSentAt: string;
 
-    @Prop({ type: String, default: Status.Requested, enum: Status })
+    @Prop({ type: String, default: Status.Initial, enum: Status })
     status: string;
 
     @Prop({ default: () => new Date() })

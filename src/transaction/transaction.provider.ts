@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Transaction } from './transaction.schema';
 import { Model } from 'mongoose';
-import { badRequestException, requestTimeoutException } from 'src/common/errors';
+import { badRequestException, notFoundException, requestTimeoutException } from 'src/common/errors';
 import { FindAllDto } from 'src/common/findAll.dto';
 import { FindOneDto } from 'src/common/findOne.dto';
+import { PatchTransactionStatusBySellerDto } from './dto/patch-status.dto';
 
 @Injectable()
 export class TransactionProvider {
@@ -59,4 +60,35 @@ export class TransactionProvider {
       throw requestTimeoutException('مشکلی در گرفتن تراکنش رخ داده است')
     }
   }
+
+  async toggleStatus(findOneDto: FindOneDto, query: PatchTransactionStatusBySellerDto) {
+    const transaction = await this.findOneWithInteraction(findOneDto)
+    if (!transaction)
+      throw notFoundException('تراکنش مورد نظر یافت نشد')
+
+    try {
+      transaction.status = query.status
+      await transaction.save()
+      return transaction
+    } catch (error) {
+      throw requestTimeoutException('مشکلی در آپدیت تراکنش رخ داده است')
+    }
+  }
+
+  async approvePayment(findOneDto: FindOneDto, query: PatchTransactionStatusBySellerDto, refId: string) {
+    const transaction = await this.findOneWithInteraction(findOneDto)
+    if (!transaction)
+      throw notFoundException('تراکنش مورد نظر یافت نشد')
+
+    try {
+      transaction.status = query.status;
+      transaction.refId = refId
+      await transaction.save()
+      return transaction
+    } catch (error) {
+      throw requestTimeoutException('مشکلی در آپدیت تراکنش رخ داده است')
+    }
+  }
+
+
 }

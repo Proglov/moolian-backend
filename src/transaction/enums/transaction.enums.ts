@@ -1,5 +1,6 @@
 
 export enum Status {
+    Initial = "Initial",
     Requested = "Requested",
     Accepted = "Accepted",
     Sent = "Sent",
@@ -8,6 +9,7 @@ export enum Status {
 }
 
 export enum NewStatusBySeller {
+    Requested = "Requested",
     Accepted = "Accepted",
     Sent = "Sent",
     Received = "Received"

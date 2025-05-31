@@ -14,7 +14,6 @@ export class EmailProvider {
         /**  Inject the Email service */
         private readonly mailService: MailerService,
 
-
         /** Inject api config to access back end url */
         @Inject(apiConfig.KEY)
         private readonly apiConfiguration: ConfigType<typeof apiConfig>,

@@ -21,7 +21,7 @@ export class TransactionController {
 
   @Auth(AuthType.Bearer)
   @Post()
-  @ApiOperation({ summary: 'creates a transaction' })
+  @ApiOperation({ summary: 'creates a transaction and returns the payment url string' })
   @HttpCode(HttpStatus.CREATED)
   @ApiResponse({ status: HttpStatus.CREATED, description: 'Transaction created' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Transaction is not valid' })

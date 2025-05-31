@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, ForbiddenException, NotFoundException, RequestTimeoutException, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, ConflictException, ForbiddenException, NotFoundException, RequestTimeoutException, UnauthorizedException, InternalServerErrorException } from "@nestjs/common";
 import { ClassConstructor, plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 
@@ -16,6 +16,8 @@ export const notFoundException = (...messages: string[]) => new NotFoundExceptio
 export const conflictException = (...messages: string[]) => new ConflictException([...messages])
 
 export const forbiddenException = (...messages: string[]) => new ForbiddenException([...messages])
+
+export const internalServerErrorException = (...messages: string[]) => new InternalServerErrorException([...messages])
 
 
 export const validateDTO = async<T extends object>(dto: ClassConstructor<T>, object: any): Promise<Boolean> => {

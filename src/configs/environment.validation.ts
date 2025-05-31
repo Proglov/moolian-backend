@@ -29,5 +29,6 @@ export default Joi.object({
     FIREBASE_TOKEN_URI: Joi.string().required(),
     FIREBASE_AUTH_CERT_URL: Joi.string().required(),
     FIREBASE_CLIENT_CERT_URL: Joi.string().required(),
-    FIREBASE_UNIVERSAL_DOMAIN: Joi.string().required()
+    FIREBASE_UNIVERSAL_DOMAIN: Joi.string().required(),
+    PAYPING_API_KEY: Joi.string().required()
 })

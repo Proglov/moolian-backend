@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Transaction } from './transaction.schema';
 import { Model, Types } from 'mongoose';
-import { badRequestException, conflictException, forbiddenException, notFoundException, requestTimeoutException, unauthorizedException } from 'src/common/errors';
+import { badRequestException, conflictException, forbiddenException, internalServerErrorException, notFoundException, requestTimeoutException, unauthorizedException } from 'src/common/errors';
 import { ProductProvider } from 'src/product/product.provider';
 import { CurrentUserData } from 'src/auth/interfacesAndType/current-user-data.interface';
 import { FindAllDto } from 'src/common/findAll.dto';
@@ -15,6 +15,8 @@ import { CancelTransActionDto } from './dto/cancel-transaction.dto';
 import { OpinionTransActionDto } from './dto/opinion-transaction.dto';
 import { GetTransactionsDto } from './dto/get-transactions.dto';
 import { FirebaseService } from 'src/firebase/firebase.service';
+import { PaymentProvider } from 'src/payment/payment.provider';
+import { UsersProvider } from 'src/users/users.provider';
 
 @Injectable()
 export class TransactionService {
@@ -31,18 +33,27 @@ export class TransactionService {
     /**  Inject the transaction provider */
     private readonly transactionProvider: TransactionProvider,
 
+    /**  Inject the users provider */
+    private readonly usersProvider: UsersProvider,
+
     /**  Inject the firebase service */
-    private readonly firebaseService: FirebaseService
+    private readonly firebaseService: FirebaseService,
+
+    /**  Inject the payment provider */
+    @Inject(forwardRef(() => PaymentProvider))
+    private readonly paymentProvider: PaymentProvider
   ) { }
 
-  async create(userInfo: CurrentUserData, createTransactionDto: CreateTransactionDto): Promise<Types.ObjectId> {
+  async create(userInfo: CurrentUserData, createTransactionDto: CreateTransactionDto): Promise<string> {
 
     if (!createTransactionDto.boughtProducts.length)
       throw badRequestException('محصولات ضروری میباشند')
 
+    const user = await this.usersProvider.findOneByID(userInfo.userId);
+    if (!user)
+      throw unauthorizedException('کاربر مورد نظر یافت نشد');
 
     const uniqueProductIds = [...new Set(createTransactionDto.boughtProducts.map(bp => bp.productId))];
-
 
     const products = await this.productProvider.findManyWithFestivals(uniqueProductIds)
 
@@ -57,7 +68,6 @@ export class TransactionService {
       }
     }
 
-
     let totalDiscount = 0
     let totalPrice = createTransactionDto.boughtProducts.reduce((acc, bp) => {
       const currentProduct = products.find(p => p._id.toString() === bp.productId.toString());
@@ -71,22 +81,18 @@ export class TransactionService {
       const thisPrice = currentProduct.price * multiplier * bp.quantity;
       if (currentProduct.festival?.offPercentage > 0 && parseInt(currentProduct.festival?.until) >= Date.now())
         totalDiscount += thisPrice * currentProduct.festival.offPercentage / 100
-      //* handle the major discount here
-      // if (currentProduct?.majorShoppingOffPercentage > 0 && currentProduct?.quantity >= currentProduct?.majorQuantity)
-      //   totalDiscount += thisPrice * currentProduct.majorShoppingOffPercentage / 100
       return acc + thisPrice
     }, 0)
 
     totalPrice -= totalDiscount
 
-    //* handle the code discount here
-
     //TODO handle the shipping cost here
     const shippingCost = 50000;
     totalPrice += shippingCost;
 
+    let newTransaction: Transaction;
     try {
-      const newTransaction = new this.transactionModel({
+      newTransaction = new this.transactionModel({
         userId: userInfo.userId,
         shippingCost,
         totalPrice,
@@ -95,19 +101,26 @@ export class TransactionService {
         shouldBeSentAt: '1842237668599', //TODO handle the time of sending
         totalDiscount: totalDiscount > 0 ? totalDiscount : undefined
       })
-
       await newTransaction.save();
-
-      //? Send Notification
-      this.firebaseService.sendNotificationToAdmins(
-        'سفارش جدید',
-        `کاربری به اندازه ${totalPrice} تومان خرید کرده است`
-      )
-
-      return newTransaction?._id;
     } catch (error) {
       throw requestTimeoutException('مشکلی در ایجاد تراکنش رخ داده است')
     }
+
+    let paymentUrl: string;
+    try {
+      paymentUrl = await this.paymentProvider.requestPayment(newTransaction, user.phone);
+
+    } catch (error) {
+      throw internalServerErrorException('مشکلی در ارتباط با درگاه پرداخت رخ داده است؛ لطفا با پشتیبانی تماس بگیرید')
+    }
+
+    //? Send Notification
+    this.firebaseService.sendNotificationToAdmins(
+      'سفارش جدید',
+      `کاربری به اندازه ${totalPrice} تومان خرید کرده است`
+    )
+
+    return paymentUrl;
   }
 
   async findAll(query: GetTransactionsDto): Promise<FindAllDto<Transaction>> {
@@ -141,17 +154,7 @@ export class TransactionService {
   }
 
   async toggleStatus(findOneDto: FindOneDto, query: PatchTransactionStatusBySellerDto) {
-    const transaction = await this.transactionProvider.findOneWithInteraction(findOneDto)
-    if (!transaction)
-      throw notFoundException('آیدی تراکنش مورد نظر یافت نشد')
-
-    try {
-      transaction.status = query.status
-      await transaction.save()
-      return transaction
-    } catch (error) {
-      throw requestTimeoutException('مشکلی در آپدیت تراکنش رخ داده است')
-    }
+    return await this.transactionProvider.toggleStatus(findOneDto, query)
   }
 
   async cancelBySeller(findOneDto: FindOneDto, cancelTransActionDto: CancelTransActionDto) {
