@@ -31,6 +31,7 @@ import { FirebaseModule } from './firebase/firebase.module';
 import { EmailModule } from './email/email.module';
 import { EmailOTPModule } from './email-otp/email-otp.module';
 import { PaymentModule } from './payment/payment.module';
+import apiConfig from './configs/api.config';
 
 
 const ENV = process.env.NODE_ENV;
@@ -40,7 +41,7 @@ const ENV = process.env.NODE_ENV;
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ENV === 'development' ? '.env.development' : ENV === 'test' ? '.env.test' : '.env',
-      load: [appConfig, databaseConfig, emailConfig, corsConfig],
+      load: [appConfig, databaseConfig, corsConfig, apiConfig],
       validationSchema: environmentValidation,
       cache: ENV === 'production'
     }),

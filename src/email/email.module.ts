@@ -2,29 +2,33 @@ import { Module } from '@nestjs/common';
 import { EmailProvider } from './email.provider';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import apiConfig from 'src/configs/api.config';
+import emailConfig from 'src/configs/email.config';
 
 
 @Module({
   imports: [
-    ConfigModule.forFeature(apiConfig),
+    ConfigModule,
+    ConfigModule.forRoot({ load: [emailConfig] }),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        defaults: {
-          from: configService.getOrThrow('email.from'),
-        },
-        transport: {
-          host: configService.getOrThrow('email.host'),
-          port: configService.getOrThrow('email.port'),
-          auth: {
-            user: configService.getOrThrow('email.username'),
-            pass: configService.getOrThrow('email.password'),
-          }
-        }
-      })
-    })
+      useFactory: (configService: ConfigService) => {
+        const emailCfg = configService.get<ReturnType<typeof emailConfig>>('email');
+        return {
+          defaults: {
+            from: emailCfg.from,
+          },
+          transport: {
+            host: emailCfg.host,
+            port: Number(emailCfg.port),
+            auth: {
+              user: emailCfg.username,
+              pass: emailCfg.password,
+            },
+          },
+        };
+      },
+    }),
   ],
   controllers: [],
   providers: [EmailProvider],
