@@ -3,17 +3,13 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { badRequestException, notFoundException, requestTimeoutException } from 'src/common/errors';
 import { InjectModel } from '@nestjs/mongoose';
-import { NoteWithCent, Product } from './product.schema';
+import { Product } from './product.schema';
 import { Model, Types } from 'mongoose';
-import { BrandService } from 'src/brand/brand.service';
-import { NoteService } from 'src/note/note.service';
 import { ImageService } from 'src/image/image.service';
 import { Notes, OrderBy } from './enums/product.enums';
 import { FindAllDto } from 'src/common/findAll.dto';
-import { PopulatedNoteWithCent, PopulatedProduct } from './dto/populated-product.type';
-import { Note } from 'src/note/note.schema';
+import { PopulatedProduct } from './dto/populated-product.type';
 import { FindOneDto } from 'src/common/findOne.dto';
-import { Brand } from 'src/brand/brand.schema';
 import { TemporaryImagesService } from 'src/temporary-images/temporary-images.service';
 import { ProductProvider } from './product.provider';
 import { GetProductsDto } from './dto/get-products.dto';
@@ -30,12 +26,6 @@ export class ProductService {
     /**  Inject the product provider */
     private readonly productProvider: ProductProvider,
 
-    /**  Inject the brand service */
-    private readonly brandService: BrandService,
-
-    /**  Inject the note service */
-    private readonly noteService: NoteService,
-
     /**  Inject the image service to replace the image link */
     private readonly imageService: ImageService,
 
@@ -44,54 +34,12 @@ export class ProductService {
 
   ) { }
 
-  noteObjectPopulateHelper(path: string) {
-    return {
-      path,
-      select: 'noteId cent',
-      populate: {
-        path: 'noteId'
-      },
-    }
-  }
-
-  async checkTheBrand(id: Types.ObjectId): Promise<Brand> {
-    const brand = await this.brandService.findOne({ id }, true);
-    if (!brand) throw notFoundException('برند مورد نظر یافت نشد');
-    return brand
-  }
-
-  async checkTheNotes(baseNoteObjects?: NoteWithCent[], midNoteObjects?: NoteWithCent[], initialNoteObjects?: NoteWithCent[]): Promise<Record<Notes, PopulatedNoteWithCent[]>> {
-    // Create an array of promises paired with their type of note id
-    const notePromises = [
-      ...baseNoteObjects.map(baseNoteObject =>
-        this.noteService.findOne({ id: baseNoteObject.noteId }, true).then((note: Note) => ({ noteObj: { noteId: note, cent: baseNoteObject.cent }, type: Notes.baseNote }))
-      ),
-      ...midNoteObjects.map(midNoteObject =>
-        this.noteService.findOne({ id: midNoteObject.noteId }, true).then((note: Note) => ({ noteObj: { noteId: note, cent: midNoteObject.cent }, type: Notes.midNote }))
-      ),
-      ...initialNoteObjects.map(initialNoteObject =>
-        this.noteService.findOne({ id: initialNoteObject.noteId }, true).then((note: Note) => ({ noteObj: { noteId: note, cent: initialNoteObject.cent }, type: Notes.initialNote }))
-      )
-    ];
-    const noteObjectsWithTypes = await Promise.all(notePromises);
-    if ((baseNoteObjects.length !== 0 || initialNoteObjects.length !== 0 || midNoteObjects.length !== 0) && noteObjectsWithTypes.every(item => !item.noteObj.noteId._id))
-      throw notFoundException('نوت مورد نظر یافت نشد');
-
-    // organize the notes based on their types
-    const notes = noteObjectsWithTypes.reduce((acc, { noteObj, type }) => {
-      acc[type] = [...(acc[type] || []), noteObj];
-      return acc;
-    }, { [Notes.baseNote]: [], [Notes.initialNote]: [], [Notes.midNote]: [] });
-
-    return notes
-  }
-
   async create(createProductDto: CreateProductDto, replaceTheImageKey?: boolean) {
 
-    const brand = await this.checkTheBrand(createProductDto.brandId);
+    const brand = await this.productProvider.checkTheBrand(createProductDto.brandId);
 
     // organize the notes based on their types
-    const notes = await this.checkTheNotes(createProductDto.baseNoteObjects, createProductDto.midNoteObjects, createProductDto.initialNoteObjects)
+    const notes = await this.productProvider.checkTheNotes(createProductDto.baseNoteObjects, createProductDto.midNoteObjects, createProductDto.initialNoteObjects)
 
     try {
       const newProduct = await new this.productModel(createProductDto).save();
@@ -124,24 +72,13 @@ export class ProductService {
       const skip = (query.page - 1) * query.limit;
       const match: any = {}, sort: any = {};
       const search = query.search?.trim();
-      if (query.onlyAvailable) {
-        match.availability = true;
-      }
-      if (query.category) {
-        match.category = query.category;
-      }
-      if (query.flavor) {
-        match.flavor = query.flavor;
-      }
-      if (query.gender) {
-        match.gender = query.gender;
-      }
-      if (query.season) {
-        match.season = query.season;
-      }
-      if (query.brandId) {
-        match.brandId = new Types.ObjectId(query.brandId);
-      }
+
+      if (query.onlyAvailable) match.availability = true;
+      if (query.category) match.category = query.category;
+      if (query.flavor) match.flavor = query.flavor;
+      if (query.gender) match.gender = query.gender;
+      if (query.season) match.season = query.season;
+      if (query.brandId) match.brandId = new Types.ObjectId(query.brandId);
       switch (query.orderBy) {
         case OrderBy.cheap:
           sort.price = 1;
@@ -179,98 +116,9 @@ export class ProductService {
             items: [
               { $skip: skip },
               { $limit: query.limit },
-              {
-                $lookup: {
-                  from: 'festivals',
-                  localField: '_id',
-                  foreignField: 'productId',
-                  as: 'festival'
-                }
-              },
-              {
-                $unwind: {
-                  path: '$festival',
-                  preserveNullAndEmptyArrays: true
-                }
-              },
-              {
-                $lookup: {
-                  from: 'brands',
-                  localField: 'brandId',
-                  foreignField: '_id',
-                  as: 'brandId'
-                }
-              },
-              {
-                $unwind: {
-                  path: '$brandId',
-                  preserveNullAndEmptyArrays: true
-                }
-              },
-              {
-                $lookup: {
-                  from: 'notes',
-                  localField: 'initialNoteObjects.noteId',
-                  foreignField: '_id',
-                  as: 'initialNotes'
-                }
-              },
-              {
-                $lookup: {
-                  from: 'notes',
-                  localField: 'midNoteObjects.noteId',
-                  foreignField: '_id',
-                  as: 'midNotes'
-                }
-              },
-              {
-                $lookup: {
-                  from: 'notes',
-                  localField: 'baseNoteObjects.noteId',
-                  foreignField: '_id',
-                  as: 'baseNotes'
-                }
-              },
-              {
-                $addFields: {
-                  initialNoteObjects: {
-                    $map: {
-                      input: '$initialNoteObjects',
-                      as: 'inputNote',
-                      in: {
-                        $mergeObjects: [
-                          { noteId: { $arrayElemAt: ['$initialNotes', { $indexOfArray: ['$initialNotes._id', '$$inputNote.noteId'] }] } },
-                          { cent: '$$inputNote.cent' }
-                        ]
-                      }
-                    }
-                  },
-                  midNoteObjects: {
-                    $map: {
-                      input: '$midNoteObjects',
-                      as: 'inputNote',
-                      in: {
-                        $mergeObjects: [
-                          { noteId: { $arrayElemAt: ['$midNotes', { $indexOfArray: ['$midNotes._id', '$$inputNote.noteId'] }] } },
-                          { cent: '$$inputNote.cent' }
-                        ]
-                      }
-                    }
-                  },
-                  baseNoteObjects: {
-                    $map: {
-                      input: '$baseNoteObjects',
-                      as: 'inputNote',
-                      in: {
-                        $mergeObjects: [
-                          { noteId: { $arrayElemAt: ['$baseNotes', { $indexOfArray: ['$baseNotes._id', '$$inputNote.noteId'] }] } },
-                          { cent: '$$inputNote.cent' }
-                        ]
-                      }
-                    }
-                  }
-                }
-              },
+              ...this.productProvider.getFestivalLookupStages(),
+              ...this.productProvider.getBrandLookupStages(),
+              ...this.productProvider.getNotesLookupAndAddFieldsStages(),
               {
                 $project: {
                   nameFA: 1,
@@ -323,34 +171,8 @@ export class ProductService {
     try {
       let products = await this.productModel.aggregate([
         { $match: { _id: { $in: ids.map(id => new Types.ObjectId(id)) } } },
-        {
-          $lookup: {
-            from: 'festivals',
-            localField: '_id',
-            foreignField: 'productId',
-            as: 'festival'
-          }
-        },
-        {
-          $unwind: {
-            path: '$festival',
-            preserveNullAndEmptyArrays: true
-          }
-        },
-        {
-          $lookup: {
-            from: 'brands',
-            localField: 'brandId',
-            foreignField: '_id',
-            as: 'brandId'
-          }
-        },
-        {
-          $unwind: {
-            path: '$brandId',
-            preserveNullAndEmptyArrays: true
-          }
-        },
+        ...this.productProvider.getFestivalLookupStages(),
+        ...this.productProvider.getBrandLookupStages(),
         {
           $group: {
             _id: '$_id',
@@ -383,98 +205,9 @@ export class ProductService {
     try {
       const productWithFestival = await this.productModel.aggregate([
         { $match: { _id: new Types.ObjectId(findOneDto.id) } },
-        {
-          $lookup: {
-            from: 'festivals',
-            localField: '_id',
-            foreignField: 'productId',
-            as: 'festival'
-          }
-        },
-        {
-          $unwind: {
-            path: '$festival',
-            preserveNullAndEmptyArrays: true
-          }
-        },
-        {
-          $lookup: {
-            from: 'brands',
-            localField: 'brandId',
-            foreignField: '_id',
-            as: 'brandId'
-          }
-        },
-        {
-          $unwind: {
-            path: '$brandId',
-            preserveNullAndEmptyArrays: true
-          }
-        },
-        {
-          $lookup: {
-            from: 'notes',
-            localField: 'initialNoteObjects.noteId',
-            foreignField: '_id',
-            as: 'initialNotes'
-          }
-        },
-        {
-          $lookup: {
-            from: 'notes',
-            localField: 'midNoteObjects.noteId',
-            foreignField: '_id',
-            as: 'midNotes'
-          }
-        },
-        {
-          $lookup: {
-            from: 'notes',
-            localField: 'baseNoteObjects.noteId',
-            foreignField: '_id',
-            as: 'baseNotes'
-          }
-        },
-        {
-          $addFields: {
-            initialNoteObjects: {
-              $map: {
-                input: '$initialNoteObjects',
-                as: 'inputNote',
-                in: {
-                  $mergeObjects: [
-                    { noteId: { $arrayElemAt: ['$initialNotes', { $indexOfArray: ['$initialNotes._id', '$$inputNote.noteId'] }] } },
-                    { cent: '$$inputNote.cent' }
-                  ]
-                }
-              }
-            },
-            midNoteObjects: {
-              $map: {
-                input: '$midNoteObjects',
-                as: 'inputNote',
-                in: {
-                  $mergeObjects: [
-                    { noteId: { $arrayElemAt: ['$midNotes', { $indexOfArray: ['$midNotes._id', '$$inputNote.noteId'] }] } },
-                    { cent: '$$inputNote.cent' }
-                  ]
-                }
-              }
-            },
-            baseNoteObjects: {
-              $map: {
-                input: '$baseNoteObjects',
-                as: 'inputNote',
-                in: {
-                  $mergeObjects: [
-                    { noteId: { $arrayElemAt: ['$baseNotes', { $indexOfArray: ['$baseNotes._id', '$$inputNote.noteId'] }] } },
-                    { cent: '$$inputNote.cent' }
-                  ]
-                }
-              }
-            }
-          }
-        },
+        ...this.productProvider.getFestivalLookupStages(),
+        ...this.productProvider.getBrandLookupStages(),
+        ...this.productProvider.getNotesLookupAndAddFieldsStages(),
         {
           $group: {
             _id: '$_id',
@@ -517,9 +250,9 @@ export class ProductService {
 
   async update(id: Types.ObjectId, updateProductDto: UpdateProductDto) {
     if (updateProductDto?.brandId)
-      await this.checkTheBrand(updateProductDto.brandId)
+      await this.productProvider.checkTheBrand(updateProductDto.brandId)
 
-    await this.checkTheNotes(updateProductDto.baseNoteObjects || [], updateProductDto.midNoteObjects || [], updateProductDto.initialNoteObjects || [])
+    await this.productProvider.checkTheNotes(updateProductDto.baseNoteObjects || [], updateProductDto.midNoteObjects || [], updateProductDto.initialNoteObjects || [])
 
 
     //* delete the temporary images

@@ -53,7 +53,7 @@ export class AuthService {
     const hashedToken = await this.hashProvider.hashString(tokens.refreshToken)
 
     //*add the refresh token to the DB
-    await this.usersProvider.updateUser(
+    await this.usersProvider.updateUserSystematically(
       { _id: userId },
       { $set: { refreshToken: hashedToken } }
     )
@@ -72,7 +72,7 @@ export class AuthService {
     this.cookieProvider.removeCookie(response, REFRESH_Cookie_Name)
 
     //*delete the refresh token from the DB
-    await this.usersProvider.updateUser(
+    await this.usersProvider.updateUserSystematically(
       { _id: userId },
       { $set: { refreshToken: '' } }
     )

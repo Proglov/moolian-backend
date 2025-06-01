@@ -110,9 +110,9 @@ export class UsersProvider {
     }
 
     /**
-     * Updates a single user
+     * Updates a single user. should be used out of the users' interaction
      */
-    async updateUser(query: FilterQuery<User>, data: UpdateQuery<User>) {
+    async updateUserSystematically(query: FilterQuery<User>, data: UpdateQuery<User>) {
         try {
             return await this.userModel.findOneAndUpdate(query, data).select(this.selectOptions)
         } catch (error) {
@@ -120,6 +120,9 @@ export class UsersProvider {
         }
     }
 
+    /**
+     * Updates a single user. password can not be changed in this method
+     */
     async update(id: Types.ObjectId, updateUserDto: UpdateUserDto) {
         try {
             const newObj: Partial<User> = { ...updateUserDto }

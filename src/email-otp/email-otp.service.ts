@@ -54,7 +54,7 @@ export class EmailOTPService {
             if (Date.now() - emailOTP.createdAt.getTime() > this.expirationTime)
                 throw new Error('time');
 
-            await this.usersProvider.updateUser({ _id: verifyEmailOTPDto.userId }, { isEmailVerified: true })
+            await this.usersProvider.updateUserSystematically({ _id: verifyEmailOTPDto.userId }, { isEmailVerified: true })
 
             await this.emailOTP.deleteOne({ _id: emailOTP._id });
 
