@@ -23,7 +23,7 @@ export class UsersService {
     /**
     * find a single User by Id, doesn't return the password
     */
-    async findOne(findOneDto: FindOneDto): Promise<RestrictedUser> {
+    async findOne(findOneDto: FindOneDto) {
         const user = await this.usersProvider.findOneByID(findOneDto.id)
         if (!user) throw notFoundException('کاربر پیدا نشد')
         return user

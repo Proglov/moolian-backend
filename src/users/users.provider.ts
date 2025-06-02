@@ -73,7 +73,7 @@ export class UsersProvider {
     /**
      * find a single User by Id, doesn't return the password but it should return refreshToken
      */
-    async findOneByID(id: Types.ObjectId): Promise<RestrictedUser> {
+    async findOneByID(id: Types.ObjectId) {
         try {
             const existingUser = await this.userModel.findById(id).select('-password');
             return existingUser;
