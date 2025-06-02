@@ -4,7 +4,7 @@ import { FilterQuery, Model, Types, UpdateQuery } from 'mongoose';
 import { User } from './user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { HashProvider } from 'src/auth/providers/password.provider';
-import { RestrictedUser, TCreateUser, TFindUserByIdentifier } from './dto/types';
+import { TCreateUser, TFindUserByIdentifier } from './dto/types';
 import { badRequestException, notFoundException, requestTimeoutException, unauthorizedException } from 'src/common/errors';
 import { FindAllDto } from 'src/common/findAll.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
