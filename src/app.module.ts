@@ -8,7 +8,6 @@ import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
 import appConfig from './configs/app.config';
 import databaseConfig from './configs/database.config';
-import emailConfig from './configs/email.config';
 import corsConfig from './configs/cors.config';
 import environmentValidation from './configs/environment.validation';
 import { APP_GUARD } from '@nestjs/core';
@@ -40,7 +39,6 @@ const ENV = process.env.NODE_ENV;
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ENV === 'development' ? '.env.development' : ENV === 'test' ? '.env.test' : '.env',
       load: [appConfig, databaseConfig, corsConfig, apiConfig],
       validationSchema: environmentValidation,
       cache: ENV === 'production'
