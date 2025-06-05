@@ -16,8 +16,6 @@ import { AdminGuard } from './admin/admin.guard';
 import { JWTAuthGuard } from './auth/guards/jwt-auth.guard';
 import { ImageModule } from './image/image.module';
 import { TemporaryImagesModule } from './temporary-images/temporary-images.module';
-import { ProvinceModule } from './province/province.module';
-import { CityModule } from './city/city.module';
 import { ProductModule } from './product/product.module';
 import { NoteModule } from './note/note.module';
 import { BrandModule } from './brand/brand.module';
@@ -57,8 +55,6 @@ const ENV = process.env.NODE_ENV;
     EmailModule,
     ImageModule,
     TemporaryImagesModule,
-    ProvinceModule,
-    CityModule,
     ProductModule,
     NoteModule,
     BrandModule,
