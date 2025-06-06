@@ -10,6 +10,10 @@ import { PopulatedProduct } from './dto/populated-product.type';
 import { FindOneDto } from 'src/common/findOne.dto';
 import { GetProductsDto } from './dto/get-products.dto';
 import { GetProductsByIdsDto } from './dto/get-productsByIds.dto';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { CurrentUserData } from 'src/auth/interfacesAndType/current-user-data.interface';
+import { RateProductDto } from './dto/rate-product.dto';
+import { Types } from 'mongoose';
 
 @Controller('product')
 export class ProductController {
@@ -77,5 +81,21 @@ export class ProductController {
     @Body() updateProductDto: UpdateProductDto
   ) {
     return this.productService.update(findOneDto.id, updateProductDto);
+  }
+
+  @Auth(AuthType.Bearer)
+  @Patch(':id/rate')
+  @ApiOperation({ summary: 'rates a product' })
+  @HttpCode(HttpStatus.OK)
+  @ApiResponse({ status: HttpStatus.OK, description: 'Product rated' })
+  @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Product is not rated' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "product not found" })
+  rate(
+    @Param() findOneDto: FindOneDto,
+    @CurrentUser() userInfo: CurrentUserData,
+    @Body() rateProductDto: RateProductDto
+  ) {
+    return this.productService.rate(findOneDto.id, userInfo.userId, rateProductDto);
   }
 }

@@ -3,10 +3,16 @@ import { Document, SchemaTypes, Types } from 'mongoose';
 import { Category, Flavor, Gender, Season } from './enums/product.enums';
 import { Note } from 'src/note/note.schema';
 import { Brand } from 'src/brand/brand.schema';
+import { User } from 'src/users/user.schema';
 
 export interface NoteWithCent {
     noteId: Types.ObjectId; // The ID of the note
     cent: number; // The cent from 1 to 100
+}
+
+export interface IProductRate {
+    userId: Types.ObjectId;
+    count: number;
 }
 
 @Schema({ versionKey: false })
@@ -22,6 +28,9 @@ export class Product extends Document {
 
     @Prop({ type: Boolean, default: true })
     availability: boolean;
+
+    @Prop({ type: [{ _id: false, userId: { type: SchemaTypes.ObjectId, ref: User.name }, count: { type: Number, min: 1, max: 5 } }] })
+    rates: IProductRate[];
 
     @Prop({ type: SchemaTypes.ObjectId, ref: Brand.name, required: true })
     brandId: Types.ObjectId;

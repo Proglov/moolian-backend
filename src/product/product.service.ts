@@ -13,6 +13,7 @@ import { FindOneDto } from 'src/common/findOne.dto';
 import { TemporaryImagesService } from 'src/temporary-images/temporary-images.service';
 import { ProductProvider } from './product.provider';
 import { GetProductsDto } from './dto/get-products.dto';
+import { RateProductDto } from './dto/rate-product.dto';
 
 @Injectable()
 export class ProductService {
@@ -123,6 +124,7 @@ export class ProductService {
                 $project: {
                   nameFA: 1,
                   nameEN: 1,
+                  rates: 1,
                   brandId: 1,
                   desc: 1,
                   imageKeys: 1,
@@ -178,8 +180,10 @@ export class ProductService {
             _id: '$_id',
             nameFA: { $first: '$nameFA' },
             nameEN: { $first: '$nameEN' },
+            rates: { $first: '$rates' },
             flavor: { $first: '$flavor' },
             category: { $first: '$category' },
+            gender: { $first: '$gender' },
             season: { $first: '$season' },
             brandId: { $first: '$brandId' },
             imageKeys: { $first: '$imageKeys' },
@@ -213,6 +217,7 @@ export class ProductService {
             _id: '$_id',
             nameFA: { $first: '$nameFA' },
             nameEN: { $first: '$nameEN' },
+            rates: { $first: '$rates' },
             brandId: { $first: '$brandId' },
             desc: { $first: '$desc' },
             imageKeys: { $first: '$imageKeys' },
@@ -271,6 +276,29 @@ export class ProductService {
       if (error?.code === 11000 && ['nameFA', 'nameEN'].includes(Object.keys(error?.keyPattern)[0]))
         throw badRequestException('محصولی با همین نام موجود است');
 
+      throw requestTimeoutException('مشکلی در آپدیت کردن محصول رخ داده است')
+    }
+  }
+
+  async rate(productId: Types.ObjectId, userId: Types.ObjectId, rateProductDto: RateProductDto) {
+    try {
+      const existingProduct = await this.productModel.findById(productId)
+      if (!existingProduct)
+        throw notFoundException();
+      if (!existingProduct.rates || !existingProduct.rates.length)
+        existingProduct.rates = [{ count: rateProductDto.count, userId }]
+      else {
+        const existingRateIndex = existingProduct.rates.findIndex(rate => rate.userId.equals(userId))
+        if (existingRateIndex === -1)
+          existingProduct.rates = [...existingProduct.rates, { count: rateProductDto.count, userId }]
+        else existingProduct.rates[existingRateIndex] = { userId, count: rateProductDto.count }
+      }
+      await existingProduct.save()
+      return existingProduct
+    } catch (error) {
+      console.log(error);
+      if (error instanceof NotFoundException)
+        throw notFoundException('آیدی محصول یافت نشد');
       throw requestTimeoutException('مشکلی در آپدیت کردن محصول رخ داده است')
     }
   }
