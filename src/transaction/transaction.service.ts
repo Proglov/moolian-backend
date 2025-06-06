@@ -44,7 +44,7 @@ export class TransactionService {
     private readonly paymentProvider: PaymentProvider
   ) { }
 
-  async create(userInfo: CurrentUserData, createTransactionDto: CreateTransactionDto): Promise<string> {
+  async create(userInfo: CurrentUserData, createTransactionDto: CreateTransactionDto): Promise<{ paymentUrl: string }> {
 
     if (!createTransactionDto.boughtProducts.length)
       throw badRequestException('محصولات ضروری میباشند')
@@ -106,13 +106,13 @@ export class TransactionService {
       throw requestTimeoutException('مشکلی در ایجاد تراکنش رخ داده است')
     }
 
-    let paymentUrl: string;
-    try {
-      paymentUrl = await this.paymentProvider.requestPayment(newTransaction, user.phone);
+    // let paymentUrl: string;
+    // try {
+    //   paymentUrl = await this.paymentProvider.requestPayment(newTransaction, user.phone);
 
-    } catch (error) {
-      throw internalServerErrorException('مشکلی در ارتباط با درگاه پرداخت رخ داده است؛ لطفا با پشتیبانی تماس بگیرید')
-    }
+    // } catch (error) {
+    //   throw internalServerErrorException('مشکلی در ارتباط با درگاه پرداخت رخ داده است؛ لطفا با پشتیبانی تماس بگیرید')
+    // }
 
     //? Send Notification
     this.firebaseService.sendNotificationToAdmins(
@@ -120,7 +120,7 @@ export class TransactionService {
       `کاربری به اندازه ${totalPrice} تومان خرید کرده است`
     )
 
-    return paymentUrl;
+    return { paymentUrl: 'paymentUrl' };
   }
 
   async findAll(query: GetTransactionsDto): Promise<FindAllDto<Transaction>> {
