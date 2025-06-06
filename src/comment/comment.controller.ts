@@ -54,6 +54,19 @@ export class CommentController {
     return await this.commentService.findAllByProductId(query.limit, query.page, findOneDto);
   }
 
+  @Auth(AuthType.Admin)
+  @Get('user/:id')
+  @ApiOperation({ summary: 'returns all comments of the user based on the pagination' })
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Comments found', type: FindAllDto<Comment> })
+  @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Comments are not found' })
+  async findAllOfAUser(
+    @Param() findOneDto: FindOneDto,
+    @Query() query: PaginationDto
+  ) {
+    return await this.commentService.findAllOfAUser(findOneDto, query.limit, query.page);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'returns a comment with its id' })
   @HttpCode(HttpStatus.ACCEPTED)
