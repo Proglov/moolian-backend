@@ -81,7 +81,7 @@ export class FestivalService {
                 }).limit(10).lean().exec();
 
             const products = festivalProducts.map(f => f.productId as unknown as Product);
-            const withImageProducts = await this.productProvider.replaceTheImageKeysOnlyOfProducts(products);
+            const withImageProducts = this.productProvider.replaceTheImageKeysOnlyOfProducts(products);
 
             const productMap = new Map(withImageProducts.map(product => [product._id.toString(), product]));
             return festivalProducts.map(festival => ({
