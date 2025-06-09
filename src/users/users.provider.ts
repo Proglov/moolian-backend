@@ -1,17 +1,23 @@
-import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, Types, UpdateQuery } from 'mongoose';
 import { User } from './user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { HashProvider } from 'src/auth/providers/password.provider';
-import { TCreateUser, TFindUserByIdentifier } from './dto/types';
+import { TCreateUser, TFindUserByIdentifier, RestrictedUser } from './dto/types';
 import { badRequestException, notFoundException, requestTimeoutException, unauthorizedException } from 'src/common/errors';
 import { FindAllDto } from 'src/common/findAll.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
-
-/** Class to preform business operations related to the users, used by other modules mostly */
+/**
+ * Provider class for handling user-related database operations and business logic.
+ * This class is responsible for all direct database interactions and data manipulation.
+ * 
+ * @class UsersProvider
+ * @description Handles all database operations related to users including CRUD operations,
+ * password management, and user verification status updates.
+ */
 @Injectable()
 export class UsersProvider {
 
@@ -29,7 +35,12 @@ export class UsersProvider {
     ) { }
 
     /**
-     * Create a single User
+     * Creates a new user in the database
+     * 
+     * @param createUserDto - The DTO containing user creation data
+     * @returns Promise<TCreateUser> - The created user object without password
+     * @throws BadRequestException if email/phone/username already exists
+     * @throws RequestTimeoutException if database operation fails
      */
     async create(createUserDto: CreateUserDto): Promise<TCreateUser> {
         try {
@@ -58,7 +69,12 @@ export class UsersProvider {
     }
 
     /**
-     * find a single User by Identifiers, returns only the password
+     * Finds a user by their identifier (email/phone/username) and returns only password
+     * 
+     * @param input - Object containing identifier fields to search by
+     * @returns Promise<Pick<User, 'password' | "_id">> - User's password and ID
+     * @throws BadRequestException if ID format is invalid
+     * @throws RequestTimeoutException if database operation fails
      */
     async findOneByIdentifierAndGetPassword(input: TFindUserByIdentifier): Promise<Pick<User, 'password' | "_id">> {
         try {
@@ -71,9 +87,14 @@ export class UsersProvider {
     }
 
     /**
-     * find a single User by Id, doesn't return the password but it should return refreshToken
+     * Finds a user by their ID, excluding password but including refresh token
+     * 
+     * @param id - The user's MongoDB ObjectId
+     * @returns Promise<Omit<User, 'password'>> - The found user without password
+     * @throws BadRequestException if ID format is invalid
+     * @throws RequestTimeoutException if database operation fails
      */
-    async findOneByID(id: Types.ObjectId) {
+    async findOneByID(id: Types.ObjectId): Promise<Omit<User, 'password'>> {
         try {
             const existingUser = await this.userModel.findById(id).select('-password');
             return existingUser;
@@ -84,8 +105,15 @@ export class UsersProvider {
         }
     }
 
-
-    async findAll(limit: number, page: number): Promise<FindAllDto<User>> {
+    /**
+     * Retrieves a paginated list of users
+     * 
+     * @param limit - Number of items per page
+     * @param page - Page number
+     * @returns Promise<FindAllDto<RestrictedUser>> - Paginated list of users without sensitive data
+     * @throws RequestTimeoutException if database operation fails
+     */
+    async findAll(limit: number, page: number): Promise<FindAllDto<RestrictedUser>> {
         try {
             const skip = (page - 1) * limit;
 
@@ -94,7 +122,7 @@ export class UsersProvider {
                 .skip(skip).limit(limit)
 
             let [users, count] = await Promise.all([
-                query.lean().exec() as unknown as User[],
+                query.lean().exec() as unknown as RestrictedUser[],
                 this.userModel.countDocuments()
             ]);
 
@@ -110,9 +138,14 @@ export class UsersProvider {
     }
 
     /**
-     * Updates a single user. should be used out of the users' interaction
+     * Updates a user's information systemically (used by other modules)
+     * 
+     * @param query - MongoDB query to find the user
+     * @param data - Data to update
+     * @returns Promise<RestrictedUser> - Updated user without sensitive data
+     * @throws RequestTimeoutException if database operation fails
      */
-    async updateUserSystematically(query: FilterQuery<User>, data: UpdateQuery<User>) {
+    async updateUserSystematically(query: FilterQuery<User>, data: UpdateQuery<User>): Promise<RestrictedUser> {
         try {
             return await this.userModel.findOneAndUpdate(query, data).select(this.selectOptions)
         } catch (error) {
@@ -121,9 +154,16 @@ export class UsersProvider {
     }
 
     /**
-     * Updates a single user. password can not be changed in this method
+     * Updates a user's information (used by the users module)
+     * 
+     * @param id - User's MongoDB ObjectId
+     * @param updateUserDto - Data to update
+     * @returns Promise<RestrictedUser> - Updated user without sensitive data
+     * @throws BadRequestException if email/phone/username already exists or address limit exceeded
+     * @throws NotFoundException if user not found
+     * @throws RequestTimeoutException if database operation fails
      */
-    async update(id: Types.ObjectId, updateUserDto: UpdateUserDto) {
+    async update(id: Types.ObjectId, updateUserDto: UpdateUserDto): Promise<RestrictedUser> {
         try {
             const newObj: Partial<User> = { ...updateUserDto }
 
@@ -158,6 +198,14 @@ export class UsersProvider {
         }
     }
 
+    /**
+     * Changes a user's password
+     * 
+     * @param userId - User's MongoDB ObjectId
+     * @param changePasswordDto - Current and new password
+     * @throws UnauthorizedException if current password is incorrect
+     * @throws RequestTimeoutException if database operation fails
+     */
     async changePassword(userId: Types.ObjectId, changePasswordDto: ChangePasswordDto) {
         const user = await this.userModel.findById(userId).select('password');
         const isPasswordTrue = await this.hashProvider.compareHashed(changePasswordDto.currentPassword, user.password);

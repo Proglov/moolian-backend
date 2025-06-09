@@ -9,12 +9,13 @@ import { RestrictedUser } from './dto/types';
 import { FindOneDto } from 'src/common/findOne.dto';
 import { PaginationDto } from 'src/common/pagination.dto';
 import { FindAllDto } from 'src/common/findAll.dto';
-import { User } from './user.schema';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
-
-/** End points related to the users */
+/**
+ * Controller handling all user-related endpoints
+ * @class UsersController
+ */
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
@@ -25,70 +26,144 @@ export class UsersController {
         private readonly userService: UsersService
     ) { }
 
+    /**
+     * Get all users with pagination
+     * @param {PaginationDto} query - Pagination parameters
+     * @returns {Promise<FindAllDto<RestrictedUser>>} Paginated list of users without sensitive data
+     */
     @Auth(AuthType.Admin)
     @Get()
-    @ApiOperation({ summary: 'returns all users based on the pagination' })
+    @ApiOperation({ summary: 'Get all users with pagination' })
     @HttpCode(HttpStatus.ACCEPTED)
-    @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Users found', type: FindAllDto<User> })
-    @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Users are not found' })
-    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
+    @ApiResponse({
+        status: HttpStatus.ACCEPTED,
+        description: 'Users found successfully',
+        type: FindAllDto<RestrictedUser>
+    })
+    @ApiResponse({
+        status: HttpStatus.REQUEST_TIMEOUT,
+        description: 'Request timed out while fetching users'
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: 'User is not authorized to access this resource'
+    })
     async findAll(
         @Query() query: PaginationDto
-    ) {
+    ): Promise<FindAllDto<RestrictedUser>> {
         return await this.userService.findAll(query.limit, query.page);
     }
 
+    /**
+     * Update user information
+     * @param {CurrentUserData} userInfo - Current user information
+     * @param {UpdateUserDto} updateUserDto - Updated user data
+     * @returns {Promise<RestrictedUser>} Updated user information without sensitive data
+     */
     @Auth(AuthType.Bearer)
     @Patch()
-    @ApiOperation({ summary: 'updates a user' })
+    @ApiOperation({ summary: 'Update user information' })
     @HttpCode(HttpStatus.OK)
-    @ApiResponse({ status: HttpStatus.OK, description: 'User updated' })
-    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'User credentials has conflict' })
-    @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'User is not updated' })
-    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
-    update(
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'User updated successfully',
+        type: RestrictedUser
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Invalid user credentials or data conflict'
+    })
+    @ApiResponse({
+        status: HttpStatus.REQUEST_TIMEOUT,
+        description: 'Request timed out while updating user'
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: 'User is not authorized to perform this action'
+    })
+    async update(
         @CurrentUser() userInfo: CurrentUserData,
         @Body() updateUserDto: UpdateUserDto
-    ) {
+    ): Promise<RestrictedUser> {
         return this.userService.update(userInfo, updateUserDto);
     }
 
+    /**
+     * Change user password
+     * @param {CurrentUserData} userInfo - Current user information
+     * @param {ChangePasswordDto} changePasswordDto - New password information
+     * @returns {Promise<void>}
+     */
     @Auth(AuthType.Bearer)
     @Patch('/password')
-    @ApiOperation({ summary: 'changes the password of the user' })
+    @ApiOperation({ summary: 'Change user password' })
     @HttpCode(HttpStatus.OK)
-    @ApiResponse({ status: HttpStatus.OK, description: 'User updated' })
-    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'User credentials has conflict' })
-    @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'User is not updated' })
-    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
-    changePAssword(
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Password changed successfully'
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Invalid password or credentials'
+    })
+    @ApiResponse({
+        status: HttpStatus.REQUEST_TIMEOUT,
+        description: 'Request timed out while changing password'
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: 'User is not authorized to perform this action'
+    })
+    async changePassword(
         @CurrentUser() userInfo: CurrentUserData,
         @Body() changePasswordDto: ChangePasswordDto
-    ) {
+    ): Promise<void> {
         return this.userService.changePassword(userInfo, changePasswordDto);
     }
 
+    /**
+     * Check if user is admin
+     * @returns {Promise<boolean>} True if user is admin
+     */
     @Auth(AuthType.Admin)
     @Get('admin')
-    @ApiOperation({ summary: 'returns true if the user is admin' })
+    @ApiOperation({ summary: 'Check if user is admin' })
     @HttpCode(HttpStatus.ACCEPTED)
-    @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'you are admin' })
-    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't admin" })
-    async isAdmin() {
-        return true
+    @ApiResponse({
+        status: HttpStatus.ACCEPTED,
+        description: 'User is admin',
+        type: Boolean
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: 'User is not an admin'
+    })
+    async isAdmin(): Promise<boolean> {
+        return true;
     }
 
     /**
-     * find a single User using their extracted Id, doesn't return the password
-     * Authenticated Users Only
+     * Get current user's information
+     * @param {CurrentUserData} userInfo - Current user information
+     * @returns {Promise<RestrictedUser>} Current user's information without password and refresh token
      */
     @Auth(AuthType.Bearer)
     @Get('get-me')
-    @ApiOperation({ summary: 'user gets its own data' })
+    @ApiOperation({ summary: 'Get current user information' })
     @HttpCode(HttpStatus.ACCEPTED)
-    @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'User found', type: RestrictedUser })
-    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User Not found' })
-    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
+    @ApiResponse({
+        status: HttpStatus.ACCEPTED,
+        description: 'User information retrieved successfully',
+        type: RestrictedUser
+    })
+    @ApiResponse({
+        status: HttpStatus.NOT_FOUND,
+        description: 'User not found'
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: 'User is not authorized to access this resource'
+    })
     async getMe(
         @CurrentUser() userInfo: CurrentUserData
     ): Promise<RestrictedUser> {
@@ -96,20 +171,34 @@ export class UsersController {
     }
 
     /**
-     * find a single User by Id, doesn't return the password
-     * Admin Only
+     * Get user by ID
+     * @param {FindOneDto} findOneDto - User ID
+     * @returns {Promise<RestrictedUser>} User information without password and refresh token
      */
     @Auth(AuthType.Admin)
     @Get(':id')
-    @ApiOperation({ summary: 'returns a specific user based on its id' })
+    @ApiOperation({ summary: 'Get user by ID' })
     @HttpCode(HttpStatus.ACCEPTED)
-    @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'User found', type: RestrictedUser })
-    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User Not found' })
-    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'User Id is not correct' })
-    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "You aren't authorized" })
+    @ApiResponse({
+        status: HttpStatus.ACCEPTED,
+        description: 'User found successfully',
+        type: RestrictedUser
+    })
+    @ApiResponse({
+        status: HttpStatus.NOT_FOUND,
+        description: 'User not found'
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Invalid user ID format'
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: 'User is not authorized to access this resource'
+    })
     async findOne(
-        @Param() findOneDtoFindOneDto: FindOneDto
+        @Param() findOneDto: FindOneDto
     ): Promise<RestrictedUser> {
-        return this.userService.findOne(findOneDtoFindOneDto);
+        return this.userService.findOne(findOneDto);
     }
 }
