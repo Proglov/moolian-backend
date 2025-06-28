@@ -66,7 +66,7 @@ export class Product extends Document {
     olfactory: string;
 
     @Prop({ type: String, enum: Category, index: true })
-    category: string;
+    category?: string;
 
     @Prop({ type: [{ _id: false, noteId: { type: SchemaTypes.ObjectId, ref: Note.name }, cent: { type: Number, min: 1, max: 100 } }] })
     initialNoteObjects: NoteWithCent[];

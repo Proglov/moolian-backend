@@ -194,7 +194,7 @@ export class CreateProductDto {
 
     @ApiProperty(categoryDoc)
     @IsEnum(Category, { message: messages.isEnum('دسته بندی محصول', Category).message })
-    category: Category;
+    category?: Category;
 
     @ApiProperty(flavorDoc)
     @IsArray(messages.isArray('طبع محصول'))
