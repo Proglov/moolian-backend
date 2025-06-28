@@ -106,13 +106,13 @@ export class TransactionService {
       throw requestTimeoutException('مشکلی در ایجاد تراکنش رخ داده است')
     }
 
-    // let paymentUrl: string;
-    // try {
-    //   paymentUrl = await this.paymentProvider.requestPayment(newTransaction, user.phone);
+    let paymentUrl: string;
+    try {
+      paymentUrl = await this.paymentProvider.requestPayment(newTransaction, user.phone);
 
-    // } catch (error) {
-    //   throw internalServerErrorException('مشکلی در ارتباط با درگاه پرداخت رخ داده است؛ لطفا با پشتیبانی تماس بگیرید')
-    // }
+    } catch (error) {
+      throw internalServerErrorException('مشکلی در ارتباط با درگاه پرداخت رخ داده است؛ لطفا با پشتیبانی تماس بگیرید')
+    }
 
     //? Send Notification
     this.firebaseService.sendNotificationToAdmins(

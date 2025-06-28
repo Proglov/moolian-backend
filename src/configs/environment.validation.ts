@@ -30,5 +30,6 @@ export default Joi.object({
     FIREBASE_AUTH_CERT_URL: Joi.string().required(),
     FIREBASE_CLIENT_CERT_URL: Joi.string().required(),
     FIREBASE_UNIVERSAL_DOMAIN: Joi.string().required(),
-    PAYPING_API_KEY: Joi.string().required()
+    ZIBAL_TOKEN: Joi.string().required(),
+    ZIBAL_MERCHANT_KEY: Joi.string().required()
 })

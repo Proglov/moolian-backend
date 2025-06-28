@@ -4,11 +4,11 @@ import { TransactionModule } from 'src/transaction/transaction.module';
 import { PaymentProvider } from './payment.provider';
 import { ConfigModule } from '@nestjs/config';
 import { PaymentController } from './payment.controller';
-import bitpayConfig from 'src/configs/payping.config';
+import paymentConfig from 'src/configs/payment.config';
 
 @Module({
   imports: [
-    ConfigModule.forFeature(bitpayConfig),
+    ConfigModule.forFeature(paymentConfig),
     forwardRef(() => TransactionModule)
   ],
   providers: [PaymentService, PaymentProvider],

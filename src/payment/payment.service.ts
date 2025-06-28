@@ -12,7 +12,7 @@ export class PaymentService {
     async getRedirect(
         query: GetRedirectDto
     ) {
-        return await this.paymentProvider.getRedirect(query.refid, query.clientrefid, query.cardnumber, query.cardhashpan)
+        return await this.paymentProvider.getRedirect(query.trackId, query.orderId, query.success, query.status)
     }
 }
 

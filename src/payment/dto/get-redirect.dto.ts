@@ -1,50 +1,49 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsString, IsNumberString } from "class-validator";
 import messages from "src/common/dto.messages";
 
-
-const refIdDoc = {
-    title: 'refId',
-    description: 'refId of the payment, should be a non-empty string',
+const trackIdDoc = {
+    title: 'trackId',
+    description: 'Zibal transaction tracking ID (number as string)',
     type: String
-}
+};
 
-const clientRefIdDoc = {
-    title: 'clientRefId',
-    description: 'id of the transaction, should be a non-empty string',
+const successDoc = {
+    title: 'success',
+    description: 'Indicates if the payment was successful (1 or 0, as string)',
     type: String
-}
+};
 
-const cardNumberDoc = {
-    title: 'cardNumber',
-    description: 'if of the transaction, should be a non-empty string',
+const statusDoc = {
+    title: 'status',
+    description: 'Status code of the payment (number as string)',
     type: String
-}
+};
 
-const cardHashPanDoc = {
-    title: 'cardHashPan',
-    description: 'if of the transaction, should be a non-empty string',
+const orderIdDoc = {
+    title: 'orderId',
+    description: 'Your order ID associated with the payment (string)',
     type: String
-}
+};
 
 export class GetRedirectDto {
-    @ApiProperty(refIdDoc)
-    @IsString(messages.isString('refId'))
-    @IsNotEmpty(messages.notEmpty('refId'))
-    refid: string;
+    @ApiProperty(trackIdDoc)
+    @IsNumberString({}, messages.isString('trackId'))
+    @IsNotEmpty(messages.notEmpty('trackId'))
+    trackId: string;
 
-    @ApiProperty(clientRefIdDoc)
-    @IsString(messages.isString('clientRefId'))
-    @IsNotEmpty(messages.notEmpty('clientRefId'))
-    clientrefid: string;
+    @ApiProperty(successDoc)
+    @IsNumberString({}, messages.isString('success'))
+    @IsNotEmpty(messages.notEmpty('success'))
+    success: string;
 
-    @ApiProperty(cardNumberDoc)
-    @IsString(messages.isString('cardNumber'))
-    @IsNotEmpty(messages.notEmpty('cardNumber'))
-    cardnumber: string;
+    @ApiProperty(statusDoc)
+    @IsNumberString({}, messages.isString('status'))
+    @IsNotEmpty(messages.notEmpty('status'))
+    status: string;
 
-    @ApiProperty(cardHashPanDoc)
-    @IsString(messages.isString('cardHashPan'))
-    @IsNotEmpty(messages.notEmpty('cardHashPan'))
-    cardhashpan: string;
+    @ApiProperty(orderIdDoc)
+    @IsString(messages.isString('orderId'))
+    @IsNotEmpty(messages.notEmpty('orderId'))
+    orderId: string;
 }

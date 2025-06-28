@@ -1,5 +1,6 @@
 import { registerAs } from "@nestjs/config"
 
 export default registerAs('bitpay', () => ({
-    apiKey: process.env.PAYPING_API_KEY
+    zibalToken: process.env.ZIBAL_TOKEN,
+    merchantKey: process.env.ZIBAL_MERCHANT_KEY
 }))
