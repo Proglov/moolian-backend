@@ -107,12 +107,7 @@ export class TransactionService {
     }
 
     let paymentUrl: string;
-    try {
-      paymentUrl = await this.paymentProvider.requestPayment(newTransaction, user.phone);
-
-    } catch (error) {
-      throw internalServerErrorException('مشکلی در ارتباط با درگاه پرداخت رخ داده است؛ لطفا با پشتیبانی تماس بگیرید')
-    }
+    paymentUrl = await this.paymentProvider.requestPayment(newTransaction, user.phone);
 
     //? Send Notification
     this.firebaseService.sendNotificationToAdmins(
@@ -120,7 +115,7 @@ export class TransactionService {
       `کاربری به اندازه ${totalPrice} تومان خرید کرده است`
     )
 
-    return { paymentUrl: 'paymentUrl' };
+    return { paymentUrl };
   }
 
   async findAll(query: GetTransactionsDto): Promise<FindAllDto<Transaction>> {

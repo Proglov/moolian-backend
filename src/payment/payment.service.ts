@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PaymentProvider } from './payment.provider';
 import { GetRedirectDto } from './dto/get-redirect.dto';
+import { Response } from 'express';
 
 @Injectable()
 export class PaymentService {
@@ -10,9 +11,11 @@ export class PaymentService {
     ) { }
 
     async getRedirect(
-        query: GetRedirectDto
+        query: GetRedirectDto,
+        res: Response
     ) {
-        return await this.paymentProvider.getRedirect(query.trackId, query.orderId, query.success, query.status)
+        const resultUrl = await this.paymentProvider.getRedirect(query.trackId, query.orderId, query.success, query.status)
+        return res.redirect(resultUrl);
     }
 }
 

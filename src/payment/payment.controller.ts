@@ -1,7 +1,8 @@
-import { Controller, Get, HttpCode, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Query, Res } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PaymentService } from './payment.service';
 import { GetRedirectDto } from './dto/get-redirect.dto';
+import { Response } from 'express';
 
 @Controller('payment')
 export class PaymentController {
@@ -13,8 +14,9 @@ export class PaymentController {
     @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Payments found' })
     @ApiResponse({ status: HttpStatus.REQUEST_TIMEOUT, description: 'Payments are not found' })
     async findAll(
-        @Query() query: GetRedirectDto
+        @Query() query: GetRedirectDto,
+        @Res() res: Response
     ) {
-        return await this.paymentService.getRedirect(query);
+        return await this.paymentService.getRedirect(query, res);
     }
 }

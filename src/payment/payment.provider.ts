@@ -5,22 +5,30 @@ import { Status } from 'src/transaction/enums/transaction.enums';
 import paymentConfig from 'src/configs/payment.config';
 import { ConfigType } from '@nestjs/config';
 import apiConfig from 'src/configs/api.config';
-import { forbiddenException, internalServerErrorException } from 'src/common/errors';
+import { forbiddenException } from 'src/common/errors';
 import { Types } from 'mongoose';
-const Zibal = require('zibal');
+import corsConfig from 'src/configs/cors.config';
+import Zibal = require('zibal');
+
 
 @Injectable()
 export class PaymentProvider {
-    private readonly zibal: any;
+    private readonly zibal: Zibal;
+    private readonly successfulCheckoutUrl: string;
+    private readonly failedCheckoutUrl: string;
 
     constructor(
         /**  Inject the transaction provider */
         @Inject(forwardRef(() => TransactionProvider))
         private readonly transactionProvider: TransactionProvider,
 
-        /** Inject zibal config to access api key */
+        /** Inject payment config to access api key */
         @Inject(paymentConfig.KEY)
         private readonly paymentConfiguration: ConfigType<typeof paymentConfig>,
+
+        /** Inject cors config to access front end schema */
+        @Inject(corsConfig.KEY)
+        private readonly corsConfiguration: ConfigType<typeof corsConfig>,
 
         /** Inject api config to access back end url */
         @Inject(apiConfig.KEY)
@@ -31,6 +39,8 @@ export class PaymentProvider {
             callbackUrl: `${this.apiConfiguration.url}/payment/get_redirect`,
             token: this.paymentConfiguration.zibalToken
         });
+        this.successfulCheckoutUrl = this.corsConfiguration.allowedOrigins[0] + 'checkout/result?res=1'
+        this.failedCheckoutUrl = this.corsConfiguration.allowedOrigins[0] + 'checkout/result?res=0'
     }
 
     async requestPayment(transaction: Transaction, payerIdentity: string): Promise<string> {
@@ -45,7 +55,7 @@ export class PaymentProvider {
         try {
             const response = await this.zibal.request(payload);
             if (!response.success) {
-                throw forbiddenException(response.persianMessage || 'پرداخت ناموفق');
+                throw new Error(response.persianMessage || 'پرداخت ناموفق');
             }
 
             return response.paymentUrl;
@@ -55,7 +65,7 @@ export class PaymentProvider {
 
     }
 
-    async getRedirect(trackId: string, orderId: string, success: string, _status: string) {
+    async getRedirect(trackId: string, orderId: string, success: string, _status: string): Promise<string> {
         const isSuccess = success === '1';
 
         // You may want to check the status code as well
@@ -66,24 +76,21 @@ export class PaymentProvider {
         const transaction = await this.transactionProvider.findOne({ id: new Types.ObjectId(orderId) });
 
         try {
-
             const response = await this.zibal.verify({ trackId: Number(trackId) });
 
-            if (!response.success || response.amount !== transaction.totalPrice) {
-                throw forbiddenException('پرداخت ناموفق بوده است');
-            }
+            if (!response.success || response.amount !== transaction.totalPrice)
+                throw new Error('پرداخت ناموفق بوده است');
 
             await this.transactionProvider.approvePayment({ id: new Types.ObjectId(orderId) }, { status: Status.Requested }, trackId.toString());
-
-            return 'تراکنش با موفقیت تکمیل شد';
+            return this.successfulCheckoutUrl;
         } catch (error) {
-            this.handleZibalError(error);
+            return this.failedCheckoutUrl;
         }
     }
 
     private handleZibalError(error: any): never {
         const message = error?.persianMessage || error?.message || 'خطای ناشناخته در ارتباط با درگاه پرداخت';
-        throw internalServerErrorException(message);
+        throw forbiddenException(message);
     }
 }
 

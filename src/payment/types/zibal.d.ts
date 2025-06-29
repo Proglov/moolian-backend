@@ -1,8 +1,8 @@
-// delete the __ from the line below if you wanna use this file
-declare module '__zibal' {
+declare module 'zibal' {
     interface ZibalConfig {
         merchant?: string;
         callbackUrl?: string;
+        token: string
     }
 
     interface RequestPayload {
