@@ -46,7 +46,7 @@ export class PaymentProvider {
     async requestPayment(transaction: Transaction, payerIdentity: string): Promise<string> {
 
         const payload = {
-            amount: transaction.totalPrice,
+            amount: transaction.totalPrice * 10,
             mobile: payerIdentity,
             orderId: transaction._id.toString(),
             description: `Payment for order transaction: ${transaction._id}`,
@@ -78,7 +78,7 @@ export class PaymentProvider {
         try {
             const response = await this.zibal.verify({ trackId: Number(trackId) });
 
-            if (!response.success || response.amount !== transaction.totalPrice)
+            if (!response.success || response.amount !== transaction.totalPrice * 10)
                 throw new Error('پرداخت ناموفق بوده است');
 
             await this.transactionProvider.approvePayment({ id: new Types.ObjectId(orderId) }, { status: Status.Requested }, trackId.toString());
