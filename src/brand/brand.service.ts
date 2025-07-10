@@ -90,7 +90,7 @@ export class BrandService {
 
   async deleteOne(id: Types.ObjectId) {
     const count = await this.productProvider.countProductsOfABrand(id);
-    if (count > 0) throw conflictException(`تعداد ${count} عدد برند با این برند وجود دارد`);
+    if (count > 0) throw conflictException(`تعداد ${count} عدد محصول با این برند وجود دارد`);
 
     try {
       const brand = await this.brandModel.findByIdAndDelete(id)
