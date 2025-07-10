@@ -63,7 +63,7 @@ export class Product extends Document {
     country?: string;
 
     @Prop({ type: String, index: true })
-    olfactory: string;
+    olfactory?: string;
 
     @Prop({ type: String, enum: Category, index: true })
     category?: string;

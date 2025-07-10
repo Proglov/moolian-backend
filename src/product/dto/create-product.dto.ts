@@ -184,9 +184,9 @@ export class CreateProductDto {
     @IsString(messages.isString('کشور سازنده محصول'))
     country?: string;
 
-    @ApiProperty(olfactoryDoc)
+    @ApiPropertyOptional(olfactoryDoc)
     @IsString(messages.isString('گروه بویایی محصول'))
-    olfactory: string;
+    olfactory?: string;
 
     @ApiProperty(genderDoc)
     @IsEnum(Gender, { message: messages.isEnum('جنسیت خریدار محصول', Gender).message })
