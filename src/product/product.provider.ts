@@ -303,4 +303,18 @@ export class ProductProvider {
       throw requestTimeoutException('مشکلی در شمردن محصولات برند رخ داده است')
     }
   }
+
+  async countProductsOfANote(noteId: Types.ObjectId): Promise<number> {
+    try {
+      return await this.productModel.countDocuments({
+        $or: [
+          { 'initialNoteObjects.noteId': noteId },
+          { 'midNoteObjects.noteId': noteId },
+          { 'baseNoteObjects.noteId': noteId }
+        ]
+      });
+    } catch (error) {
+      throw requestTimeoutException('مشکلی در شمردن محصولات نوت رخ داده است')
+    }
+  }
 }

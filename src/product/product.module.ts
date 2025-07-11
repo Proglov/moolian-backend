@@ -15,7 +15,7 @@ import { ProductProvider } from './product.provider';
     ImageModule,
     TemporaryImagesModule,
     forwardRef(() => BrandModule),
-    NoteModule
+    forwardRef(() => NoteModule)
   ],
   controllers: [ProductController],
   providers: [ProductService, ProductProvider],

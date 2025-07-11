@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Note } from './note.schema';
-import { Model } from 'mongoose';
-import { badRequestException, requestTimeoutException } from 'src/common/errors';
+import { Model, Types } from 'mongoose';
+import { badRequestException, conflictException, notFoundException, requestTimeoutException } from 'src/common/errors';
 import { ImageService } from 'src/image/image.service';
 import { FindAllDto } from 'src/common/findAll.dto';
 import { FindOneDto } from 'src/common/findOne.dto';
 import { TemporaryImagesService } from 'src/temporary-images/temporary-images.service';
+import { ProductProvider } from 'src/product/product.provider';
+import { UpdateNoteDto } from './dto/update-note.dto';
 
 @Injectable()
 export class NoteService {
@@ -23,6 +25,10 @@ export class NoteService {
 
     /**  Inject the Temporary images service to delete temp images after product has been created */
     private readonly temporaryImagesService: TemporaryImagesService,
+
+    /**  Inject the product provider to count the products of a brand*/
+    @Inject(forwardRef(() => ProductProvider))
+    private readonly productProvider: ProductProvider
   ) { }
 
   async create(createNoteDto: CreateNoteDto, replaceTheImageKey?: boolean): Promise<Note> {
@@ -86,4 +92,37 @@ export class NoteService {
     }
   }
 
+  async deleteOne(id: Types.ObjectId) {
+    const count = await this.productProvider.countProductsOfANote(id);
+    if (count > 0) throw conflictException(`تعداد ${count} عدد محصول با این نوت وجود دارد`);
+
+    try {
+      const note = await this.noteModel.findByIdAndDelete(id)
+      await this.imageService.deleteImage(note.imageKey)
+    } catch (error) {
+      throw requestTimeoutException('مشکلی در پاک کردن نوت پیش آمده است')
+    }
+  }
+
+  async updateOne(id: Types.ObjectId, updateNoteDto: UpdateNoteDto) {
+
+    //* delete the temporary images
+    if (updateNoteDto.imageKey)
+      await this.temporaryImagesService.deleteTemporaryImagesByNames([updateNoteDto.imageKey])
+
+    try {
+      const existingNote = await this.noteModel.findByIdAndUpdate(id, updateNoteDto, { new: true })
+      if (!existingNote)
+        throw notFoundException();
+      return existingNote
+    } catch (error) {
+      if (error instanceof NotFoundException)
+        throw notFoundException('آیدی نوت یافت نشد');
+
+      if (error?.code === 11000 && ['name'].includes(Object.keys(error?.keyPattern)[0]))
+        throw badRequestException('نوتی با همین نام موجود است');
+
+      throw requestTimeoutException('مشکلی در آپدیت کردن نوت رخ داده است')
+    }
+  }
 }
